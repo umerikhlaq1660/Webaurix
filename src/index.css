@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+ /* Add your global styles here  */
+body {
+  margin: 0;
+  background-color: #000;
+  font-family: "Nata Sans", sans-serif;
+}
+.animated {
+  will-change: transform, opacity;
+}
+
+.grid-pattern {
+  background-color: #0a0a0a; /* Dark base color */
+  background-image: 
+    linear-gradient(to right, rgba(190, 191, 192, 0.151) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(190, 191, 192, 0.151) 1px, transparent 1px);
+  background-size: 90px 90px; /* Block size */
+}
+.perspective {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+/*  Smart Sleek Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.6);
+}
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+/* Enable flip + 3D perspective */
+.perspective {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+
+
+/* Plasma.css */
+.plasma-container {
+  position: absolute;  /* instead of relative */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;          /* ensure it’s behind content */
+  overflow: hidden;
+  pointer-events: none; /* allow clicks on input/buttons */
+}
+
+@keyframes gradient-shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shine {
+  animation: gradient-shine 3s ease infinite;
+}

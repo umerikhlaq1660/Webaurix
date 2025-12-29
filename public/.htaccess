@@ -1,0 +1,21 @@
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+# Webaurix API Proxy
+RewriteEngine On
+
+# Match requests starting with /api/chat
+RewriteCond %{REQUEST_URI} ^/api/chat [NC]
+RewriteCond %{REQUEST_METHOD} ^(GET|POST|OPTIONS|PUT|DELETE)$ [NC]
+RewriteRule ^api/chat(.*)$ https://webaurix-chatbot-5.onrender.com/chat$1 [P,L]
+
+# Ensure the response headers are correct
+Header set Access-Control-Allow-Origin "https://webaurix.com"
+Header set Access-Control-Allow-Methods "POST, GET, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+
+

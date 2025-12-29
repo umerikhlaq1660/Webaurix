@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home Page -->
+  <url>
+    <loc>https://www.webaurix.com/</loc>
+    <lastmod>2025-12-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- SERVICES -->
+  <url><loc>https://www.webaurix.com/services/ux-ui-design</loc></url>
+  <url><loc>https://www.webaurix.com/services/branding</loc></url>
+  <url><loc>https://www.webaurix.com/services/product-research</loc></url>
+  <url><loc>https://www.webaurix.com/services/web-development</loc></url>
+  <url><loc>https://www.webaurix.com/services/app-development</loc></url>
+  <url><loc>https://www.webaurix.com/services/custom-software-development</loc></url>
+  <url><loc>https://www.webaurix.com/services/digital-marketing</loc></url>
+  <url><loc>https://www.webaurix.com/services/ai/gen-ai</loc></url>
+  <url><loc>https://www.webaurix.com/services/ai/web</loc></url>
+  <url><loc>https://www.webaurix.com/services/ai-chatbot</loc></url>
+  <url><loc>https://www.webaurix.com/services/staff/frontend</loc></url>
+  <url><loc>https://www.webaurix.com/services/staff/backend</loc></url>
+  <url><loc>https://www.webaurix.com/services/staff/devops</loc></url>
+  <url><loc>https://www.webaurix.com/services/staff/qa</loc></url>
+
+  <!-- CONSULTANCY -->
+  <url><loc>https://www.webaurix.com/services/it-strategy-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/digital-transformation-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/ai-data-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/cybersecurity-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/cloud-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/it-information-consulting</loc></url>
+  <url><loc>https://www.webaurix.com/services/startup-business-it-consulting</loc></url>
+
+  <!-- RESOURCES -->
+  <url><loc>https://www.webaurix.com/blogs</loc></url>
+  <url><loc>https://www.webaurix.com/resources/webaurix-faqs</loc></url>
+
+  <!-- COMPANY -->
+  <url><loc>https://www.webaurix.com/about</loc></url>
+  <url><loc>https://www.webaurix.com/careers</loc></url>
+  <url><loc>https://www.webaurix.com/contact</loc></url>
+  <url><loc>https://www.webaurix.com/book-consultation</loc></url>
+
+</urlset>
