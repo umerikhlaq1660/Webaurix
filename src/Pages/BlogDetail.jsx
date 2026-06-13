@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { useParams, Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet-async";
@@ -67,16 +70,20 @@ const BlogDetail = () => {
     fetchPost();
   }, [slug]);
 
-  /* table-of-contents entries built from block headings */
-  const toc = useMemo(
-    () => (blog?.content || [])
+  /* table-of-contents — markdown headings or legacy block headings */
+  const toc = useMemo(() => {
+    if (blog?.markdown) {
+      return [...blog.markdown.matchAll(/^##\s+(.+)$/gm)]
+        .map(m => ({ id: slugify(m[1].trim()), title: m[1].trim() }));
+    }
+    return (blog?.content || [])
       .filter(b => b.heading)
-      .map(b => ({ id: slugify(b.heading), title: b.heading })),
-    [blog]
-  );
+      .map(b => ({ id: slugify(b.heading), title: b.heading }));
+  }, [blog]);
 
   /* reading time estimate */
   const readTime = useMemo(() => {
+    if (blog?.markdown) return Math.max(1, Math.round(blog.markdown.split(/\s+/).length / 200));
     const words = (blog?.content || []).reduce((n, b) => {
       let w = 0;
       if (b.paragraph)  w += b.paragraph.split(/\s+/).length;
@@ -238,8 +245,41 @@ const BlogDetail = () => {
               </motion.p>
             )}
 
-            {/* content blocks */}
-            {(blog.content || []).map((block, i) => {
+            {/* ── MARKDOWN content (new posts) ── */}
+            {blog.markdown ? (
+              <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+                transition={{ delay:0.15, duration:0.5 }}
+                className="blog-md-body">
+                <style>{`
+                  .blog-md-body h1,.blog-md-body h2,.blog-md-body h3{color:${P};font-weight:700;line-height:1.2;margin-top:2rem;margin-bottom:.75rem;letter-spacing:-.01em}
+                  .blog-md-body h1{font-size:clamp(1.5rem,3vw,2rem)}
+                  .blog-md-body h2{font-size:clamp(1.25rem,2.5vw,1.7rem)}
+                  .blog-md-body h3{font-size:1.1rem}
+                  .blog-md-body p{color:${M};font-size:15px;line-height:1.85;margin-bottom:1.1rem}
+                  .blog-md-body a{color:${A};font-weight:600;text-decoration:underline;text-underline-offset:3px}
+                  .blog-md-body ul{margin:1rem 0 1.25rem 0;padding-left:0;list-style:none}
+                  .blog-md-body ul li{display:flex;align-items:flex-start;gap:10px;color:${M};font-size:15px;line-height:1.8;margin-bottom:.55rem}
+                  .blog-md-body ul li::before{content:'';width:6px;height:6px;border-radius:50%;background:${A};flex-shrink:0;margin-top:9px}
+                  .blog-md-body ol{margin:1rem 0 1.25rem 1.25rem;color:${M};font-size:15px;line-height:1.85}
+                  .blog-md-body ol li{margin-bottom:.55rem}
+                  .blog-md-body strong{color:${P};font-weight:700}
+                  .blog-md-body em{font-style:italic;color:${M}}
+                  .blog-md-body code{background:${Br};color:${A};padding:2px 7px;border-radius:6px;font-size:13px;font-family:monospace}
+                  .blog-md-body pre{background:rgba(0,0,0,0.3);border:1px solid ${Br};border-radius:12px;padding:1.25rem;overflow-x:auto;margin:1.25rem 0}
+                  .blog-md-body pre code{background:none;padding:0;font-size:13px;color:${M}}
+                  .blog-md-body blockquote{border-left:3px solid ${A};padding-left:1rem;margin:1.25rem 0;color:${M};font-style:italic}
+                  .blog-md-body hr{border:none;border-top:1px solid ${Br};margin:2rem 0}
+                  .blog-md-body table{width:100%;border-collapse:collapse;font-size:14px;margin:1.25rem 0}
+                  .blog-md-body th{color:${P};font-weight:700;padding:.6rem .75rem;border-bottom:2px solid ${Br};text-align:left}
+                  .blog-md-body td{color:${M};padding:.55rem .75rem;border-bottom:1px solid ${Br}}
+                `}</style>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                  {blog.markdown}
+                </ReactMarkdown>
+              </motion.div>
+            ) : (
+            /* ── legacy block content (old posts) ── */
+            (blog.content || []).map((block, i) => {
               const id = block.heading ? slugify(block.heading) : undefined;
               return (
                 <motion.div key={i} id={id}
@@ -253,7 +293,7 @@ const BlogDetail = () => {
                   )}
                   {block.paragraph && (
                     <p className="text-[15px] sm:text-[16px] leading-[1.85] [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-2"
-                      style={{ color: M, ["--tw-prose-links"]: A }}
+                      style={{ color: M }}
                       dangerouslySetInnerHTML={{ __html: block.paragraph.replace(/<a /g, `<a style="color:${A}" target="_blank" rel="noopener noreferrer" `) }} />
                   )}
                   {block.paragraphs && block.paragraphs.map((para, j) => (
@@ -274,7 +314,8 @@ const BlogDetail = () => {
                   )}
                 </motion.div>
               );
-            })}
+            })
+            )}
 
             {/* tags */}
             {blog.tags?.length > 0 && (

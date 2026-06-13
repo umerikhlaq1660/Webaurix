@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 import { Helmet } from "react-helmet-async";
 import { db, auth } from "../firebase";
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, where } from "firebase/firestore";
@@ -711,8 +714,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
     image:     isEdit ? existing.image     : "",
     tags:      isEdit ? (existing.tags||[]).join(", ") : "",
     published: isEdit ? (existing.published ?? false) : false,
-    content:   isEdit ? (existing.content?.length ? existing.content : [mkBlock("paragraph")])
-                      : [mkBlock("paragraph")],
+    markdown:  isEdit ? (existing.markdown || "") : "",
   });
 
   const [saving,    setSaving]    = useState(false);
@@ -756,7 +758,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
       image:form.image.trim(),
       tags:form.tags.split(",").map(t=>t.trim()).filter(Boolean),
       published:form.published,
-      content:form.content.filter(b=>b.heading||b.paragraph||b.points?.some(p=>p)),
+      markdown:form.markdown.trim(),
       updatedAt:serverTimestamp(),
     };
     try {
@@ -968,132 +970,22 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
                 onBlur={e=>{ e.target.style.borderColor=C.border; }} />
             </div>
 
-            {/* ── CONTENT BLOCKS ── */}
+            {/* ── MARKDOWN EDITOR ── */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <FL>Content</FL>
-                <div className="flex items-center gap-1.5">
-                  {[
-                    { t:"paragraph", icon:<AlignLeft size={12}/>, label:"+ Paragraph" },
-                    { t:"bullets",   icon:<List size={12}/>,      label:"+ List"      },
-                  ].map(({t,icon,label})=>(
-                    <button key={t} onClick={()=>addBlock(t)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold"
-                      style={{ background:`${C.A}10`, color:C.A,
-                        border:`1px solid ${C.A}22`, transition:"background 0.12s" }}
-                      onMouseEnter={e=>{ e.currentTarget.style.background=`${C.A}22`; }}
-                      onMouseLeave={e=>{ e.currentTarget.style.background=`${C.A}10`; }}>
-                      {icon}{label}
-                    </button>
-                  ))}
-                </div>
+              <FL>Content <span style={{fontWeight:400,textTransform:"none",letterSpacing:0,color:`${C.M}70`}}>— Markdown supported (H1–H3, bold, italic, links, lists, code)</span></FL>
+              <div data-color-mode="dark" style={{ borderRadius:"16px", overflow:"hidden", border:`1px solid ${C.border}` }}>
+                <MDEditor
+                  value={form.markdown}
+                  onChange={(v) => setForm(p => ({...p, markdown: v || ""}))}
+                  height={560}
+                  preview="edit"
+                  hideToolbar={false}
+                  visibleDragbar={false}
+                />
               </div>
-
-              <div className="space-y-4">
-                {form.content.map((block, bi) => (
-                  <motion.div key={bi}
-                    initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
-                    transition={{ duration:0.3, ease:[0.22,1,0.36,1] }}
-                    className="group rounded-2xl p-5"
-                    style={{ background:"rgba(255,255,255,0.025)", border:`1px solid ${C.border}`,
-                      transition:"border-color 0.15s" }}
-                    onMouseEnter={e=>{ e.currentTarget.style.borderColor=`${C.A}25`; }}
-                    onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.border; }}>
-
-                    {/* block toolbar */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-0.5 rounded-md"
-                        style={{ background:`${C.A}10`, color:C.A }}>
-                        {block.points ? "📋 Bullet List" : "📝 Paragraph"} #{bi+1}
-                      </span>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {bi > 0 && (
-                          <button onClick={()=>moveBlock(bi,-1)} title="Move up"
-                            className="w-7 h-7 rounded-lg flex items-center justify-center"
-                            style={{ background:C.hover, color:C.M }}>
-                            <MoveUp size={12}/>
-                          </button>
-                        )}
-                        {bi < form.content.length-1 && (
-                          <button onClick={()=>moveBlock(bi,1)} title="Move down"
-                            className="w-7 h-7 rounded-lg flex items-center justify-center"
-                            style={{ background:C.hover, color:C.M }}>
-                            <MoveDown size={12}/>
-                          </button>
-                        )}
-                        <button onClick={()=>removeBlock(bi)} title="Delete block"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center"
-                          style={{ background:`${C.red}10`, color:C.red }}>
-                          <Trash2 size={12}/>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* heading input */}
-                    <input value={block.heading||""} onChange={e=>upd(bi,"heading",e.target.value)}
-                      placeholder="Section heading (optional)…"
-                      className="w-full px-4 py-2.5 rounded-xl text-[14.5px] font-bold outline-none mb-3"
-                      style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${C.border}`,
-                        color:C.P, transition:"border-color 0.15s" }}
-                      onFocus={e=>{ e.target.style.borderColor=C.A; }}
-                      onBlur={e=>{ e.target.style.borderColor=C.border; }} />
-
-                    {block.points ? (
-                      <div className="space-y-2.5">
-                        {block.points.map((pt,pi)=>(
-                          <div key={pi} className="flex items-center gap-2.5">
-                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:C.A}} />
-                            <input value={pt} onChange={e=>updPt(bi,pi,e.target.value)}
-                              placeholder={`Bullet point ${pi+1}…`}
-                              className="flex-1 px-4 py-2.5 rounded-xl text-[13.5px] outline-none"
-                              style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${C.border}`,
-                                color:C.P, transition:"border-color 0.15s" }}
-                              onFocus={e=>{ e.target.style.borderColor=C.A; }}
-                              onBlur={e=>{ e.target.style.borderColor=C.border; }} />
-                            {block.points.length>1 && (
-                              <button onClick={()=>rmPt(bi,pi)}
-                                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                                style={{ background:`${C.red}10`, color:C.red }}>
-                                <X size={11}/>
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        <button onClick={()=>addPt(bi)}
-                          className="flex items-center gap-1.5 text-[12px] font-semibold mt-1 px-2 py-1"
-                          style={{ color:C.A }}>
-                          <Plus size={11}/> Add bullet
-                        </button>
-                      </div>
-                    ) : (
-                      <textarea value={block.paragraph||""} onChange={e=>upd(bi,"paragraph",e.target.value)}
-                        rows={5} placeholder="Write your paragraph content here…"
-                        className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none"
-                        style={{ background:"rgba(255,255,255,0.04)", border:`1px solid ${C.border}`,
-                          color:C.P, lineHeight:1.85, transition:"border-color 0.15s" }}
-                        onFocus={e=>{ e.target.style.borderColor=C.A; }}
-                        onBlur={e=>{ e.target.style.borderColor=C.border; }} />
-                    )}
-                  </motion.div>
-                ))}
-
-                {/* add block CTA */}
-                <div className="flex items-center gap-3 pt-2">
-                  {[
-                    { t:"paragraph", icon:<AlignLeft size={14}/>, label:"Add Paragraph Block" },
-                    { t:"bullets",   icon:<List size={14}/>,      label:"Add Bullet List"     },
-                  ].map(({t,icon,label})=>(
-                    <button key={t} onClick={()=>addBlock(t)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[13px] font-semibold"
-                      style={{ background:"rgba(255,255,255,0.03)", border:`2px dashed ${C.border}`,
-                        color:C.M, transition:"all 0.15s" }}
-                      onMouseEnter={e=>{ e.currentTarget.style.borderColor=`${C.A}40`; e.currentTarget.style.color=C.A; e.currentTarget.style.background=`${C.A}05`; }}
-                      onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.border; e.currentTarget.style.color=C.M; e.currentTarget.style.background="rgba(255,255,255,0.03)"; }}>
-                      {icon}{label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="text-[11px] mt-2" style={{color:`${C.M}60`}}>
+                Tip: ## for heading, **bold**, *italic*, [link text](url), - for bullet list, `code`
+              </p>
             </div>
 
             <div className="h-20" />
