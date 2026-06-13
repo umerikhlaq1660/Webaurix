@@ -41,6 +41,10 @@ function FeaturedCard({ blog, accent }) {
         <motion.img
           src={blog.image}
           alt={blog.title}
+          width={914}
+          height={400}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           animate={{ scale: hovered ? 1.06 : 1 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
@@ -120,6 +124,10 @@ function SmallCard({ blog, accent, delay }) {
         <motion.img
           src={blog.image}
           alt={blog.title}
+          width={420}
+          height={180}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           animate={{ scale: hovered ? 1.07 : 1 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

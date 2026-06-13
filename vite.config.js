@@ -2,10 +2,29 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+/* Make the app stylesheet non-render-blocking. The inline splash (in index.html)
+   paints immediately; the full CSS loads asynchronously and is ready before
+   React mounts, so there is no flash of unstyled content. Big FCP win on slow
+   connections. Build-only — dev injects CSS via JS. */
+const asyncCss = () => ({
+  name: 'async-css',
+  enforce: 'post',
+  apply: 'build',
+  transformIndexHtml(html) {
+    return html.replace(
+      /<link rel="stylesheet"([^>]*?)href="([^"]+\.css)"([^>]*?)\/?>/g,
+      (_m, pre, href, post) =>
+        `<link rel="stylesheet" media="print" onload="this.media='all'"${pre}href="${href}"${post}>` +
+        `<noscript><link rel="stylesheet"${pre}href="${href}"${post}></noscript>`
+    );
+  },
+});
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    asyncCss(),
   ],
   build: {
     sourcemap: false,
@@ -22,11 +41,13 @@ export default defineConfig({
           if (id.includes('firebase')) return 'vendor-firebase';
           if (id.includes('framer-motion')) return 'vendor-motion';
           if (id.includes('lucide-react')) return 'vendor-lucide';
-          if (
-            id.includes('react-markdown') || id.includes('remark') ||
-            id.includes('rehype') || id.includes('unified') ||
-            id.includes('micromark') || id.includes('mdast') || id.includes('hast')
-          ) return 'vendor-markdown';
+          /* NOTE: do not manually chunk the markdown ecosystem (react-markdown,
+             remark, rehype, unified, micromark, mdast, hast). Those packages are
+             only reached through lazy routes (BlogDetail, ChatBot, AdminPanel),
+             so letting Vite split them automatically keeps the heavy markdown
+             code out of the initial bundle. A manual chunk here forces a single
+             shared util the entry needs to drag the entire 340 KB chunk into the
+             critical path. */
         },
       },
     },

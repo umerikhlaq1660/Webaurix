@@ -144,14 +144,11 @@ export default function HeaderBanner() {
       className="relative w-full min-h-screen flex flex-col overflow-hidden"
       style={{ background: bg }}
     >
-      {/* ── SHINY SPOTS ── */}
+      {/* ── SHINY SPOTS (kept minimal — each is an infinite animation that
+           costs main-thread time) ── */}
       <Spot top="8%"  left="12%" size={18} color={spotColor1} delay={0}   opacity={isDark ? 0.55 : 0.35} />
-      <Spot top="22%" left="35%" size={10} color={spotColor2} delay={1.2} opacity={isDark ? 0.45 : 0.25} />
       <Spot top="6%"  right="18%"size={14} color={spotColor3} delay={2.1} opacity={isDark ? 0.5  : 0.3} />
-      <Spot top="40%" right="8%" size={8}  color={spotColor1} delay={0.7} opacity={isDark ? 0.4  : 0.2} />
-      <Spot bottom="30%" left="8%" size={12} color={spotColor2} delay={1.8} opacity={isDark ? 0.45 : 0.22} />
-      <Spot bottom="18%" right="22%"size={16} color={spotColor3} delay={3.0} opacity={isDark ? 0.38 : 0.18} />
-      <Spot top="55%" left="55%" size={9}  color={spotColor1} delay={2.5} opacity={isDark ? 0.3  : 0.15} />
+      <Spot bottom="22%" right="20%"size={16} color={spotColor2} delay={1.5} opacity={isDark ? 0.4 : 0.2} />
 
       {/* subtle top radial tint */}
       <div

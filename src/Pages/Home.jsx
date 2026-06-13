@@ -1,15 +1,20 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import Seo from "../components/Seo";
 import HeaderBanner from "../components/HeaderBanner";
-import ServicesSection from "../components/ServicesSection";
-import Footer from "../components/Footer";
-import CorePhilosophy from "./CorePhilosophy";
-import FAQSection from "../components/FAQsSection";
-import BusinessTalk from "./BusinessTalk";
-import StatsSection from "../components/StatsSection";
-import BlogsSection from "../components/BlogSection";
-import OurApproach from "../components/OurApproch";
 import faqData from "../data/faqData";
+
+/* Above-the-fold (HeaderBanner) loads eagerly so the hero — the LCP element —
+   paints as fast as possible. Everything below the fold is lazy-loaded so the
+   initial JS bundle (and Firebase, which only BlogsSection needs) stays out of
+   the critical path. */
+const CorePhilosophy  = lazy(() => import("./CorePhilosophy"));
+const ServicesSection = lazy(() => import("../components/ServicesSection"));
+const OurApproach     = lazy(() => import("../components/OurApproch"));
+const StatsSection    = lazy(() => import("../components/StatsSection"));
+const FAQSection      = lazy(() => import("../components/FAQsSection"));
+const BlogsSection    = lazy(() => import("../components/BlogSection"));
+const BusinessTalk    = lazy(() => import("./BusinessTalk"));
+const Footer          = lazy(() => import("../components/Footer"));
 
 const SITE = "https://www.webaurix.com";
 
@@ -66,14 +71,16 @@ const Home = () => {
       />
 
       <HeaderBanner />
-      <CorePhilosophy />
-      <ServicesSection />
-      <OurApproach />
-      <StatsSection />
-      <FAQSection />
-      <BlogsSection />
-      <BusinessTalk />
-      <Footer />
+      <Suspense fallback={null}>
+        <CorePhilosophy />
+        <ServicesSection />
+        <OurApproach />
+        <StatsSection />
+        <FAQSection />
+        <BlogsSection />
+        <BusinessTalk />
+        <Footer />
+      </Suspense>
     </>
   );
 };
