@@ -240,11 +240,12 @@ export default function HeaderBanner() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 lg:gap-12">
           <motion.p
             {...rise(0.72)}
-            className="max-w-[420px] text-[14px] sm:text-[16px] leading-[1.72]"
+            className="max-w-[440px] text-[14px] sm:text-[16px] leading-[1.72]"
             style={{ color: muted }}
           >
-            A full-service studio building web apps, mobile products,
-            and custom software for businesses that want to grow.
+            Webaurix is a web development and AI agency building fast websites,
+            mobile apps, AI chatbots, and digital marketing that help brands grow
+            across Pakistan, the US, the UK, and beyond.
           </motion.p>
 
           <motion.div {...rise(0.84)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">

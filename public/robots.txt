@@ -4,8 +4,9 @@ Allow: /
 
 # Block private / non-indexable areas
 Disallow: /admin
-Disallow: /order
+Disallow: /start-project
 Disallow: /not-found
+Disallow: /chat
 
 # Sitemap
-Sitemap: https://www.webaurix.com/sitemap.xml
+Sitemap: https://www.webaurix.com/Sitemap.xml

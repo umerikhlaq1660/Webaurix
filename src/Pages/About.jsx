@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import Seo from "../components/Seo";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -139,7 +139,7 @@ const AboutUs = () => {
       title: "Our Mission",
       icon: <Target size={18} />,
       content:
-        "At Webaurix, our mission is to empower businesses with cutting-edge digital solutions that drive growth, spark innovation, and deliver measurable results. We craft websites, apps, and digital experiences that are not only beautifully designed but strategically built to perform - turning ideas into scalable realities for startups and enterprises alike.",
+        "Our mission is to help businesses grow online with web development, mobile apps, and AI solutions that actually move the numbers that matter, like leads, sales, and retention. We don't ship pretty pages that sit there; we build fast, search-friendly products that are measured by results, for startups and established companies alike.",
     },
     {
       key: "vision",
@@ -147,7 +147,7 @@ const AboutUs = () => {
       title: "Our Vision",
       icon: <Eye size={18} />,
       content:
-        "To become a globally recognized digital innovation hub that transforms the way businesses connect, operate, and grow online. We aim to lead the future of web development by blending creativity with technology - delivering solutions that are intuitive, scalable, and future-ready. Every brand deserves powerful tools to elevate their presence.",
+        "We want Webaurix to be the digital partner that founders in Pakistan, South Korea, the US, and the UK reach for first when they're serious about building something that lasts. As AI reshapes how products are built and used, our vision is to keep that technology practical, ethical, and genuinely useful for the people who rely on it every day.",
     },
     {
       key: "values",
@@ -155,7 +155,7 @@ const AboutUs = () => {
       title: "Our Values",
       icon: <Star size={18} />,
       content:
-        "Innovation, integrity, and passion guide everything we do. We create digital experiences that exceed expectations with creativity and purpose. Honesty and transparency shape every client interaction; quality ensures every project reflects our best work. Collaboration is our culture - we grow through teamwork, learning from each other and from every challenge.",
+        "Honesty before the sale, quality in the code, and respect for your time and budget. We tell you what we'd do if it were our own money. We document our work so nothing is a black box, we communicate in plain language instead of jargon, and we'd rather under-promise and over-deliver than the other way around.",
     },
     {
       key: "goals",
@@ -163,7 +163,7 @@ const AboutUs = () => {
       title: "Our Goals",
       icon: <TrendingUp size={18} />,
       content:
-        "To build digital solutions that truly matter. We help startups and businesses grow online through smart design, modern technologies, and powerful user experiences. We strive to stay ahead in innovation, build long-term client partnerships, and create a name that stands for quality, creativity, and reliability in the digital world.",
+        "To build digital products that earn their keep and clients who stay with us for years, not weeks. We aim to keep raising the bar on performance, accessibility, and SEO so the work we ship today still ranks and performs tomorrow, while growing a reputation across our markets for being reliable, skilled, and straight with people.",
     },
   ];
 
@@ -176,15 +176,25 @@ const AboutUs = () => {
 
   return (
     <div className="w-full min-h-screen" style={{ background: t.bg }}>
-      <Helmet>
-        <title>About Webaurix | Our Story, Team & Digital Mission</title>
-        <meta
-          name="description"
-          content="Learn who we are, what drives us, and why businesses trust Webaurix - a digital agency designing and building web, app, and AI products."
-        />
-        <meta name="keywords" content="about Webaurix, digital agency, software company, web development team, our story, Webaurix mission" />
-        <link rel="canonical" href="https://www.webaurix.com/about" />
-      </Helmet>
+      <Seo
+        title="About Webaurix | Web Development & AI Agency in Lahore, Pakistan"
+        description="Meet Webaurix, a web development and AI agency from Lahore, Pakistan, building websites, mobile apps, and AI solutions for clients across Pakistan, South Korea, the US, and the UK."
+        keywords="about Webaurix, web development agency Pakistan, AI agency Lahore, software company Pakistan, digital agency, web development team"
+        path="/about"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "About Webaurix",
+          url: "https://www.webaurix.com/about",
+          about: {
+            "@type": "Organization",
+            name: "Webaurix",
+            foundingDate: "2025",
+            foundingLocation: "Lahore, Pakistan",
+            areaServed: ["Pakistan", "South Korea", "United States", "United Kingdom"],
+          },
+        }}
+      />
 
       {/* ══════════════════════════════
           HERO
@@ -220,11 +230,12 @@ const AboutUs = () => {
 
           <motion.p
             {...fadeUp(0.14)}
-            className="text-[15px] sm:text-[17px] leading-[1.8] max-w-[500px] mb-10"
+            className="text-[15px] sm:text-[17px] leading-[1.8] max-w-[540px] mb-10"
             style={{ color: t.M }}
           >
-            Webaurix is a full-service digital studio crafting web apps, mobile
-            products, and custom software for brands that want to stand out and scale.
+            Webaurix is a web development and AI agency based in Lahore, Pakistan,
+            building websites, mobile apps, AI chatbots, and digital marketing
+            for founders and teams across Pakistan, South Korea, the US, and the UK.
           </motion.p>
 
           <motion.div
@@ -320,16 +331,19 @@ const AboutUs = () => {
               <span style={{ color: t.A }}>driven by results.</span>
             </motion.h2>
             <motion.p {...fadeUp(0.12)} className="text-[14px] sm:text-[15px] leading-[1.85] mb-5" style={{ color: t.M }}>
-              Webaurix was founded with a simple belief: great digital products
-              come from the intersection of thoughtful design, clean engineering,
-              and genuine care for the client's goals. We're a team of designers,
-              developers, and strategists who've worked across industries -
-              from funded startups to established enterprises.
+              Webaurix started with a simple belief: great digital products come
+              from the meeting point of thoughtful design, clean engineering, and
+              genuine care for the client's goals. We're a team of designers,
+              developers, and strategists who have shipped websites, mobile apps,
+              and AI tools for funded startups and established companies across
+              four continents.
             </motion.p>
             <motion.p {...fadeUp(0.17)} className="text-[14px] sm:text-[15px] leading-[1.85]" style={{ color: t.M }}>
-              Every project we take on is treated as our own. We ask the hard
-              questions, push back when needed, and show up as long-term partners
-              - not one-time vendors. That's the Webaurix way.
+              We treat every project like it's our own. We ask the hard questions,
+              push back when something won't serve your users, and stay on as
+              long-term partners instead of one-time vendors. Whether you're in
+              Lahore, Seoul, London, or New York, you get the same direct
+              communication and the same standard of work. That's the Webaurix way.
             </motion.p>
           </div>
 

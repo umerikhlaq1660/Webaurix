@@ -4,6 +4,10 @@ import { Helmet } from "react-helmet-async";
 const SITE = "https://www.webaurix.com";
 const DEFAULT_IMG = `${SITE}/og-image.png`;
 
+/* Regions we explicitly target. Same English content serves all of them,
+   so every hreflang points at the same canonical URL + an x-default. */
+const HREFLANGS = ["en", "en-US", "en-GB", "en-PK", "en-KR"];
+
 /**
  * Reusable SEO head component.
  *
@@ -35,6 +39,7 @@ const Seo = ({
   return (
     <Helmet>
       {/* primary */}
+      <html lang="en" />
       <title>{title}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
@@ -46,7 +51,15 @@ const Seo = ({
             : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
         }
       />
+      <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
       <link rel="canonical" href={canonical} />
+
+      {/* hreflang — multi-region targeting (PK, KR, US, UK + global English) */}
+      {!noindex &&
+        HREFLANGS.map((lang) => (
+          <link key={lang} rel="alternate" hrefLang={lang} href={canonical} />
+        ))}
+      {!noindex && <link rel="alternate" hrefLang="x-default" href={canonical} />}
 
       {/* icon */}
       <link rel="icon" type="image/png" href="/logo-icon.png" />
@@ -58,7 +71,12 @@ const Seo = ({
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonical} />
       <meta property="og:image" content={image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:locale" content="en_US" />
+      <meta property="og:locale:alternate" content="en_GB" />
+      <meta property="og:locale:alternate" content="en_PK" />
+      <meta property="og:locale:alternate" content="ko_KR" />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

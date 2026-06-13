@@ -1,39 +1,39 @@
 // src/data/faqData.jsx
 const faqData = [
   {
-    question: "What services does your company offer?",
+    question: "What does Webaurix actually build?",
     answer:
-      "We offer a wide range of digital services including website and mobile app development, AI tool integrations, custom software solutions, UI/UX design, branding, and digital marketing.",
+      "We design and ship three things really well: fast websites, mobile apps for iOS and Android, and AI features like chatbots and automation. Around that core we also handle UI/UX design, branding, and digital marketing, so a project can go from a blank page to a live product that's actually being found on Google.",
   },
   {
-    question: "Do you offer custom web or mobile app development?",
+    question: "Do you build custom websites and apps, or use templates?",
     answer:
-      "Yes, we specialize in creating custom-built websites and mobile apps tailored to your business goals and user experience. We don’t rely on pre-made templates.",
+      "Everything is custom. We don't drag a template around and call it a day. Each website and mobile app is designed around your users and built on modern code (React, Next.js, Node, Flutter) so it loads fast, ranks well, and is easy to extend later. Templates feel cheaper up front and cost you more the moment you need something they weren't built for.",
   },
   {
-    question: "Can you build AI-based tools or integrations?",
+    question: "What kind of AI solutions can you add to my product?",
     answer:
-      "Absolutely. We develop and integrate AI-driven solutions such as chatbots, recommendation systems, content generation tools, and image processors to enhance your platform.",
+      "Practical ones that save time or money. The most common requests are AI chatbots that handle support and lead capture 24/7, generative-AI tools for content and images, smart search and recommendations, and workflow automation that removes repetitive manual work. We build on proven APIs like OpenAI and Claude rather than science experiments.",
   },
   {
-    question: "How long does it take to complete a project?",
+    question: "How long will my project take?",
     answer:
-      "Project timelines vary based on complexity, but most websites are completed within 2 to 6 weeks. Apps or larger systems may take 2 to 3 months or more.",
+      "A focused marketing or business website usually goes live in 2 to 6 weeks. A mobile app or a custom software platform typically runs 2 to 4 months, depending on scope. After our first call we send a written timeline with milestones, so you always know what's being worked on and when it ships.",
   },
   {
-    question: "What industries do you work with?",
+    question: "Do you work with clients outside Pakistan?",
     answer:
-      "We work with startups, e-commerce stores, SaaS companies, education platforms, healthcare, agencies, and various tech-focused businesses.",
+      "Yes, most of our work is international. We're based in Lahore, Pakistan, and actively work with founders and teams in the United States, the United Kingdom, South Korea, and across the region. We run on your timezone for calls and keep everything documented so distance never slows the project down.",
   },
   {
-    question: "Do you offer ongoing support and maintenance?",
+    question: "What happens after the project goes live?",
     answer:
-      "Yes. We provide long-term maintenance, updates, and tech support even after your project goes live, ensuring everything runs smoothly.",
+      "We don't disappear at launch. You get a support window for fixes, plus optional monthly maintenance covering updates, security patches, performance tuning, and small feature additions. Many clients keep us on as their long-term technical partner instead of rebuilding an in-house team.",
   },
   {
-    question: "What technologies do you use?",
+    question: "How much does a project cost?",
     answer:
-      "We work with modern technologies such as React, Next.js, Node.js, Python, Laravel, Tailwind, MongoDB, Firebase, and AI APIs including OpenAI.",
+      "It depends on what you're building, but we're transparent about it. After a free discovery call we give you a fixed, itemized quote with no hidden fees, so you can compare it line by line. We work with startup budgets and enterprise scopes alike, and we'll tell you honestly if a smaller first phase makes more sense.",
   },
 ];
 
