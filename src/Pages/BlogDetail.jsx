@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Loader2, Calendar, User, Tag, Clock, List } from "lucide-react";
 import { db } from "../firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { useTheme } from "../context/ThemeContext";
 import Footer from "../components/Footer";
 
