@@ -31,10 +31,15 @@ const BlogPage = () => {
       try {
         const snap = await getDocs(
           query(collection(db, "blogs"),
-            where("published", "==", true),
-            orderBy("createdAt", "desc"))
+            where("published", "==", true))
         );
-        const fireBlogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const fireBlogs = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => {
+            const ta = a.createdAt?.toDate?.() || new Date(a.date || 0);
+            const tb = b.createdAt?.toDate?.() || new Date(b.date || 0);
+            return tb - ta;
+          });
         setBlogs(fireBlogs);
       } catch {
         setBlogs([]);

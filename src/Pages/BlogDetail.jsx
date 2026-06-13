@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Loader2, Calendar, User, Tag, Clock, List } from "lucide-react";
 import { db } from "../firebase";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useTheme } from "../context/ThemeContext";
 import Footer from "../components/Footer";
 
@@ -44,10 +44,18 @@ const BlogDetail = () => {
           const relSnap = await getDocs(
             query(collection(db, "blogs"),
               where("label",     "==", docData.label),
-              where("published", "==", true),
-              orderBy("createdAt", "desc"), limit(4))
+              where("published", "==", true))
           );
-          setRelated(relSnap.docs.map(d => ({ id:d.id, ...d.data() })).filter(b => b.slug !== slug));
+          const relBlogs = relSnap.docs
+            .map(d => ({ id:d.id, ...d.data() }))
+            .filter(b => b.slug !== slug)
+            .sort((a, b) => {
+              const ta = a.createdAt?.toDate?.() || new Date(a.date || 0);
+              const tb = b.createdAt?.toDate?.() || new Date(b.date || 0);
+              return tb - ta;
+            })
+            .slice(0, 3);
+          setRelated(relBlogs);
         } else {
           setBlog(null); setRelated([]);
         }
