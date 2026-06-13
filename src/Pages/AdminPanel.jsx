@@ -319,8 +319,8 @@ const DetailModal = ({ item, fields, title, onClose }) => (
       exit={{ scale: 0.95, opacity: 0 }}
       transition={{ type: "spring", stiffness: 340, damping: 32 }}
       onClick={e => e.stopPropagation()}
-      className="w-full max-w-[540px] max-h-[82vh] overflow-y-auto rounded-3xl"
-      style={{ background: C.card, border: `1px solid ${C.border}` }}>
+      className="w-full max-w-[540px] max-h-[82vh] overflow-y-auto rounded-3xl [&::-webkit-scrollbar]:hidden"
+      style={{ background: C.card, border: `1px solid ${C.border}`, scrollbarWidth:"none" }}>
       <div className="flex items-center justify-between px-6 py-5"
         style={{ borderBottom: `1px solid ${C.border}` }}>
         <h3 className="text-[15px] font-bold" style={{ color: C.P }}>{title}</h3>
@@ -408,7 +408,7 @@ const DataTable = ({ columns, rows, emptyMsg, renderDetail }) => {
         <span className="text-[12px] font-semibold" style={{ color: C.M }}>{filtered.length} entries</span>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl" style={{ border: `1px solid ${C.border}` }}>
+      <div className="overflow-x-auto rounded-2xl [&::-webkit-scrollbar]:hidden" style={{ border: `1px solid ${C.border}`, scrollbarWidth:"none" }}>
         <div style={{ minWidth: "520px" }}>
           <div className="grid text-[10px] font-bold tracking-[0.14em] uppercase px-5 py-3"
             style={{ gridTemplateColumns:`${columns.map(c=>c.width||"1fr").join(" ")} 40px`,
@@ -489,8 +489,8 @@ const RightPanel = ({ inquiries, consultations, applications, waitlist }) => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto"
-      style={{ borderLeft: `1px solid ${C.border}`, background: C.sidebar }}>
+    <div className="flex flex-col h-full overflow-y-auto [&::-webkit-scrollbar]:hidden"
+      style={{ borderLeft: `1px solid ${C.border}`, background: C.sidebar, scrollbarWidth:"none" }}>
       {/* header */}
       <div className="px-5 py-5" style={{ borderBottom: `1px solid ${C.border}` }}>
         <div className="flex items-center justify-between mb-1">
@@ -615,7 +615,7 @@ const BlogsTab = ({ posts, onNew, onEdit, onDelete, onTogglePublish }) => {
       </div>
 
       {/* posts list */}
-      <div className="overflow-x-auto rounded-2xl" style={{ border:`1px solid ${C.border}` }}>
+      <div className="overflow-x-auto rounded-2xl [&::-webkit-scrollbar]:hidden" style={{ border:`1px solid ${C.border}`, scrollbarWidth:"none" }}>
         <div style={{ minWidth:"640px" }}>
           <div className="grid text-[10px] font-bold tracking-[0.14em] uppercase px-5 py-3"
             style={{ gridTemplateColumns:"60px 1fr 140px 100px 80px 100px",
@@ -866,7 +866,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
       <div className="flex-1 flex overflow-hidden">
 
         {/* LEFT - main writing area */}
-        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth:"none" }}>
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth:"none" }}>
           <div className="max-w-[780px] mx-auto px-6 sm:px-10 py-10 space-y-8">
 
             {/* cover image hero */}
@@ -950,7 +950,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
                 onChange={e=>setTitle(e.target.value)}
                 placeholder="Post title…"
                 rows={2}
-                className="w-full bg-transparent border-none outline-none resize-none font-black leading-[1.1] tracking-[-0.02em]"
+                className="w-full bg-transparent border-none outline-none resize-none font-black leading-[1.1] tracking-[-0.02em] [&::-webkit-scrollbar]:hidden"
                 style={{ fontSize:"clamp(28px, 4vw, 48px)", color:C.P,
                   borderBottom:`1px solid ${C.border}`, paddingBottom:"16px",
                   caretColor:C.A }}
@@ -1101,7 +1101,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
         </div>
 
         {/* RIGHT - settings sidebar */}
-        <div className="w-[300px] flex-shrink-0 overflow-y-auto hidden lg:block"
+        <div className="w-[300px] flex-shrink-0 overflow-y-auto hidden lg:block [&::-webkit-scrollbar]:hidden"
           style={{ borderLeft:`1px solid ${C.border}`, background:C.sidebar, scrollbarWidth:"none" }}>
           <div className="p-6 space-y-6">
 
@@ -1468,7 +1468,7 @@ const CaseStudyEditor = ({ existing, onSave, onClose }) => {
       </AnimatePresence>
 
       {/* BODY */}
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth:"none" }}>
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth:"none" }}>
         <div className="max-w-[820px] mx-auto px-4 sm:px-8 py-8 space-y-7">
 
           {/* Client + Industry row */}
@@ -1664,7 +1664,7 @@ const JobsTab = ({ jobs, onNew, onEdit, onDelete, onToggleActive }) => {
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl" style={{ border:`1px solid ${C.border}` }}>
+      <div className="overflow-x-auto rounded-2xl [&::-webkit-scrollbar]:hidden" style={{ border:`1px solid ${C.border}`, scrollbarWidth:"none" }}>
         <div style={{ minWidth:"660px" }}>
           <div className="grid text-[10px] font-bold tracking-[0.14em] uppercase px-5 py-3"
             style={{ gridTemplateColumns:"1fr 130px 100px 150px 80px 100px",
@@ -1878,7 +1878,7 @@ const JobEditor = ({ existing, onSave, onClose }) => {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth:"none" }}>
+      <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth:"none" }}>
         <div className="max-w-[820px] mx-auto px-4 sm:px-8 py-8 space-y-7">
 
           <div>
@@ -2091,7 +2091,7 @@ export default function AdminPanel() {
       <div className="px-3 py-2 flex-shrink-0">
         <p className="text-[9.5px] font-bold tracking-[0.18em] uppercase px-2 mb-2" style={{ color: `${C.M}80` }}>DASHBOARDS</p>
       </div>
-      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth:"none" }}>
         {NAV.map(item => {
           const active = activeTab === item.id;
           return (
@@ -2637,7 +2637,7 @@ export default function AdminPanel() {
         {/* Content + Right Panel */}
         <div className="flex-1 flex overflow-hidden">
           {/* scrollable content */}
-          <div className="flex-1 overflow-y-auto px-5 sm:px-7 py-7">
+          <div className="flex-1 overflow-y-auto px-5 sm:px-7 py-7 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth:"none" }}>
             <AnimatePresence mode="wait">
               <motion.div key={activeTab}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}

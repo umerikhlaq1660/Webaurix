@@ -244,22 +244,22 @@ const BlogDetail = () => {
                       style={{ color: P }}>{block.heading}</h2>
                   )}
                   {block.paragraph && (
-                    <p className="text-[15px] sm:text-[16px] leading-[1.85]" style={{ color: M }}>
-                      {block.paragraph}
-                    </p>
+                    <p className="text-[15px] sm:text-[16px] leading-[1.85] [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-2"
+                      style={{ color: M, ["--tw-prose-links"]: A }}
+                      dangerouslySetInnerHTML={{ __html: block.paragraph.replace(/<a /g, `<a style="color:${A}" target="_blank" rel="noopener noreferrer" `) }} />
                   )}
                   {block.paragraphs && block.paragraphs.map((para, j) => (
-                    <p key={j} className="text-[15px] sm:text-[16px] leading-[1.85] mb-4" style={{ color: M }}>
-                      {para}
-                    </p>
+                    <p key={j} className="text-[15px] sm:text-[16px] leading-[1.85] mb-4 [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-2"
+                      style={{ color: M }}
+                      dangerouslySetInnerHTML={{ __html: para.replace(/<a /g, `<a style="color:${A}" target="_blank" rel="noopener noreferrer" `) }} />
                   ))}
                   {block.points && (
                     <ul className="space-y-2.5 mt-3">
                       {block.points.map((pt, j) => (
-                        <li key={j} className="flex items-start gap-3 text-[15px] sm:text-[16px] leading-[1.8]"
+                        <li key={j} className="flex items-start gap-3 text-[15px] sm:text-[16px] leading-[1.8] [&_a]:font-semibold [&_a]:underline [&_a]:underline-offset-2"
                           style={{ color: M }}>
                           <span className="w-1.5 h-1.5 rounded-full mt-[10px] flex-shrink-0" style={{ background: A }} />
-                          {pt}
+                          <span dangerouslySetInnerHTML={{ __html: pt.replace(/<a /g, `<a style="color:${A}" target="_blank" rel="noopener noreferrer" `) }} />
                         </li>
                       ))}
                     </ul>
