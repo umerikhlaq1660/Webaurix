@@ -232,9 +232,9 @@ const BookConsultation = () => {
         <title>Book a Free Consultation | Webaurix Digital Agency</title>
         <meta
           name="description"
-          content="Schedule a free consultation with the Webaurix team to discuss your web, app, or AI project, your goals, and how we can help you build and grow."
+          content="Book a free consultation with Webaurix to plan your web development, mobile app, or AI project. Serving founders and teams in Pakistan, South Korea, the US, and the UK."
         />
-        <meta name="keywords" content="book consultation, free strategy call, web development consultation, AI project consultation, hire digital agency, Webaurix" />
+        <meta name="keywords" content="book consultation, free strategy call, web development consultation, AI project consultation, hire web development agency, Webaurix" />
         <link rel="canonical" href="https://www.webaurix.com/book-consultation" />
       </Helmet>
 

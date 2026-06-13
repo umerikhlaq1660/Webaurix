@@ -58,7 +58,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/start-project" element={<BusinessTalk />} />
             <Route path="/about" element={<AboutUs />} />
-            <Route path="/core" element={<CorePhilosophy />} />
+            <Route path="/core" element={<CorePhilosophy standalone />} />
             <Route path="/not-found" element={<NotFound />} />
             <Route path="/chat" element={<WebaurixChat />} />
             <Route path="/admin" element={<AdminPanel />} />

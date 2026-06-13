@@ -197,9 +197,9 @@ const ContactUs = () => {
         <title>Contact Webaurix | Get a Quote for Web, App & AI Projects</title>
         <meta
           name="description"
-          content="Get in touch with Webaurix. Tell us about your web, app, or AI project and we'll respond within 24 hours. Based in Lahore, serving clients worldwide."
+          content="Get in touch with Webaurix for web development, mobile app, and AI projects. Based in Lahore, Pakistan, working with clients across Pakistan, South Korea, the US, and the UK. We reply within 24 hours."
         />
-        <meta name="keywords" content="contact Webaurix, get a quote, hire web developers, digital agency Lahore, project enquiry, web development contact" />
+        <meta name="keywords" content="contact Webaurix, get a quote, hire web developers, digital agency Lahore, web development Pakistan, AI agency, project enquiry" />
         <link rel="canonical" href="https://www.webaurix.com/contact" />
         <script type="application/ld+json">
           {JSON.stringify({
