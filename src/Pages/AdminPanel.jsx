@@ -1099,7 +1099,7 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
               <div className="rounded-2xl p-4 space-y-2" style={{ background:C.card, border:`1px solid ${C.border}` }}>
                 <FL>Post Info</FL>
                 {[
-                  { label:"Blocks",   value: form.content.length },
+                  { label:"Words",    value: form.markdown ? form.markdown.split(/\s+/).filter(Boolean).length : 0 },
                   { label:"Category", value: form.label || "-" },
                   { label:"Status",   value: form.published?"Live":"Draft" },
                 ].map(({label,value})=>(
