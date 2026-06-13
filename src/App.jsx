@@ -56,7 +56,7 @@ const App = () => {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location?.pathname || "root"}>
             <Route path="/" element={<Home />} />
-            <Route path="/start-project" element={<BusinessTalk />} />
+            <Route path="/start-project" element={<BusinessTalk standalone />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/core" element={<CorePhilosophy standalone />} />
             <Route path="/not-found" element={<NotFound />} />

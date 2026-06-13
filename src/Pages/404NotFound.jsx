@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Seo from "../components/Seo";
 
 const NotFound = () => {
   return (
@@ -10,6 +11,12 @@ const NotFound = () => {
         background: "radial-gradient(circle at center, #1e293b, #0f172a)",
       }}
     >
+      <Seo
+        title="Page Not Found (404) | Webaurix"
+        description="The page you're looking for doesn't exist. Head back to Webaurix to explore our web development, mobile app, and AI services."
+        path="/not-found"
+        noindex
+      />
       <motion.h1
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}

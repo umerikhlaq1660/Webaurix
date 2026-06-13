@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import Seo from "../components/Seo";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { motion, AnimatePresence, useInView } from "framer-motion";
@@ -94,7 +95,7 @@ function Textarea({ name, value, onChange, placeholder, rows = 4 }) {
   );
 }
 
-export default function BusinessTalk() {
+export default function BusinessTalk({ standalone = false }) {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
@@ -190,6 +191,16 @@ export default function BusinessTalk() {
       style={{ background: bg, ...cssVars }}
       className="relative overflow-hidden py-20 sm:py-28"
     >
+      {standalone && (
+        <Seo
+          title="Start a Project | Get a Custom Web, App & AI Quote – Webaurix"
+          description="Tell Webaurix about your web development, mobile app, or AI project and get a tailored quote within 24 hours. Serving clients in Pakistan, South Korea, the US, and the UK."
+          keywords="start a project, web development quote, app development quote, hire web developers, AI project quote, Webaurix"
+          path="/start-project"
+          noindex
+        />
+      )}
+
       {/* top accent line */}
       <div className="absolute top-0 inset-x-0 h-px pointer-events-none"
         style={{ background: `linear-gradient(to right, transparent, ${accent}30, transparent)` }} />

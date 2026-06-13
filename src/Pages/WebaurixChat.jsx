@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Seo from "../components/Seo";
 
 export default function WebaurixChat() {
   const [messages, setMessages] = useState([]);
@@ -32,6 +33,7 @@ export default function WebaurixChat() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900">
+      <Seo title="Webaurix AI Assistant" description="Webaurix AI chat assistant." path="/chat" noindex />
       <div className="w-[380px] bg-slate-950 rounded-2xl shadow-xl flex flex-col">
         <div className="p-4 text-center text-sky-400 font-semibold border-b border-slate-800">
           Webaurix AI Assistant

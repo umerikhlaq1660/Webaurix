@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import faqData from "../data/faqData";
+import Seo from "./Seo";
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
@@ -34,6 +35,13 @@ const FAQSection = () => {
 
   return (
     <section className="relative min-h-screen bg-[#050505] text-white py-20 px-6 sm:px-10 lg:px-20 overflow-hidden">
+      <Seo
+        title="FAQs | Web Development, App & AI Questions Answered – Webaurix"
+        description="Answers to common questions about Webaurix's web development, mobile app, and AI services, our process, pricing, timelines, and support."
+        keywords="Webaurix FAQs, web development questions, app development pricing, AI services, digital agency process"
+        url="https://www.webaurix.com/resources/webaurix-faqs"
+      />
+
       {/* Gradient Backgrounds */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-[#7ebad1]/34 blur-[100px] rounded-full" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#036988] blur-[120px] rounded-full" />
