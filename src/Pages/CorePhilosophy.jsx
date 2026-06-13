@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import { Lightbulb, Users, RefreshCw, Eye, Star, ArrowRight } from "lucide-react";
-import Seo from "../components/Seo";
-
 const CARDS = [
   {
     num: "01",
@@ -56,7 +54,7 @@ const ProgBar = ({ accent, triggerKey }) => (
   />
 );
 
-export default function CorePhilosophy({ standalone = false }) {
+export default function CorePhilosophy() {
   const { isDark } = useTheme();
   const [active, setActive] = useState(0);
   const [progKey, setProgKey] = useState(0);
@@ -94,15 +92,6 @@ export default function CorePhilosophy({ standalone = false }) {
 
   return (
     <section ref={ref} style={{ background: bg }} className="relative overflow-hidden py-20 sm:py-28">
-
-      {standalone && (
-        <Seo
-          title="Our Core Values & Philosophy | How Webaurix Works"
-          description="The principles behind Webaurix: innovation, client-centric delivery, adaptability, transparency, and excellence in web development, mobile apps, and AI projects."
-          keywords="Webaurix values, how we work, web development agency philosophy, client-centric digital agency, transparent software development"
-          path="/core"
-        />
-      )}
 
       {/* top line */}
       <div className="absolute top-0 inset-x-0 h-px"

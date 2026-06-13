@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Loader2, Calendar, User, Tag } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, User, Tag, Clock, List } from "lucide-react";
 import { db } from "../firebase";
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { useTheme } from "../context/ThemeContext";
 import Footer from "../components/Footer";
 
+/* slugify a heading into a stable anchor id */
+const slugify = (str = "") =>
+  str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 const BlogDetail = () => {
   const { slug } = useParams();
   const { isDark } = useTheme();
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
   const parallaxY = useTransform(scrollY, [0, 500], [0, -90]);
+  const progress  = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
 
-  const [blog,    setBlog]    = useState(null);
-  const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [blog,     setBlog]     = useState(null);
+  const [related,  setRelated]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [activeId, setActiveId] = useState("");
 
   const bg = isDark
     ? "linear-gradient(155deg,#0b0b0e 0%,#0d1017 100%)"
@@ -28,34 +34,68 @@ const BlogDetail = () => {
   const Cd = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchPost = async () => {
       setLoading(true);
       try {
-        // Try Firestore first
         const snap = await getDocs(query(collection(db, "blogs"), where("slug", "==", slug), limit(1)));
         if (!snap.empty) {
-          const doc = { id: snap.docs[0].id, ...snap.docs[0].data() };
-          setBlog(doc);
-          // fetch related
+          const docData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          setBlog(docData);
           const relSnap = await getDocs(
             query(collection(db, "blogs"),
-              where("label",     "==", doc.label),
+              where("label",     "==", docData.label),
               where("published", "==", true),
               orderBy("createdAt", "desc"), limit(4))
           );
           setRelated(relSnap.docs.map(d => ({ id:d.id, ...d.data() })).filter(b => b.slug !== slug));
         } else {
-          setBlog(null);
-          setRelated([]);
+          setBlog(null); setRelated([]);
         }
       } catch {
-        setBlog(null);
-        setRelated([]);
+        setBlog(null); setRelated([]);
       }
       setLoading(false);
     };
-    fetch();
+    fetchPost();
   }, [slug]);
+
+  /* table-of-contents entries built from block headings */
+  const toc = useMemo(
+    () => (blog?.content || [])
+      .filter(b => b.heading)
+      .map(b => ({ id: slugify(b.heading), title: b.heading })),
+    [blog]
+  );
+
+  /* reading time estimate */
+  const readTime = useMemo(() => {
+    const words = (blog?.content || []).reduce((n, b) => {
+      let w = 0;
+      if (b.paragraph)  w += b.paragraph.split(/\s+/).length;
+      if (b.paragraphs) w += b.paragraphs.join(" ").split(/\s+/).length;
+      if (b.points)     w += b.points.join(" ").split(/\s+/).length;
+      return n + w;
+    }, blog?.snippet ? blog.snippet.split(/\s+/).length : 0);
+    return Math.max(1, Math.round(words / 200));
+  }, [blog]);
+
+  /* scroll-spy: highlight the section currently in view */
+  useEffect(() => {
+    if (!blog || toc.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveId(e.target.id); });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    toc.forEach(({ id }) => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [blog, toc]);
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) { setActiveId(id); el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: isDark ? "#0b0b0e" : "#fff" }}>
@@ -79,6 +119,8 @@ const BlogDetail = () => {
         <meta name="description" content={blog.snippet || blog.title} />
         {blog.tags && <meta name="keywords" content={Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags} />}
         <link rel="canonical" href={`https://www.webaurix.com/blog/${slug}`} />
+        <link rel="alternate" hrefLang="en" href={`https://www.webaurix.com/blog/${slug}`} />
+        <link rel="alternate" hrefLang="x-default" href={`https://www.webaurix.com/blog/${slug}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${blog.title} | Webaurix Blog`} />
         <meta property="og:description" content={blog.snippet || blog.title} />
@@ -103,27 +145,28 @@ const BlogDetail = () => {
               logo: { "@type": "ImageObject", url: "https://www.webaurix.com/logo-light.png" },
             },
             datePublished: blog.date || undefined,
-            mainEntityOfPage: {
-              "@type": "WebPage",
-              "@id": `https://www.webaurix.com/blog/${slug}`,
-            },
+            mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.webaurix.com/blog/${slug}` },
             keywords: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags,
           })}
         </script>
       </Helmet>
 
+      {/* ── READING PROGRESS BAR ── */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[3px] z-50 origin-left"
+        style={{ scaleX: progress, background: A }}
+      />
+
       {/* ── HERO ── */}
-      <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
+      <section className="relative h-[68vh] min-h-[460px] w-full overflow-hidden">
         {blog.image && (
           <motion.img src={blog.image} alt={blog.title}
             className="absolute inset-0 w-full h-full object-cover"
             style={{ y: parallaxY, scale: 1.08 }} />
         )}
-        {/* overlay */}
         <div className="absolute inset-0 z-10"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%)" }} />
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.12) 100%)" }} />
 
-        {/* back btn */}
         <div className="absolute top-24 left-5 sm:left-10 z-20">
           <Link to="/blogs">
             <motion.div initial={{ opacity:0, x:-12 }} animate={{ opacity:1, x:0 }}
@@ -138,7 +181,6 @@ const BlogDetail = () => {
           </Link>
         </div>
 
-        {/* hero text */}
         <div className="absolute bottom-0 left-0 right-0 z-20 px-5 sm:px-10 lg:px-16 pb-10 sm:pb-14">
           <div className="max-w-[860px]">
             <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
@@ -158,6 +200,9 @@ const BlogDetail = () => {
                   <User size={11} />{blog.author}
                 </span>
               )}
+              <span className="flex items-center gap-1.5 text-[12px]" style={{ color:"rgba(240,238,236,0.65)" }}>
+                <Clock size={11} />{readTime} min read
+              </span>
             </motion.div>
             <motion.h1 initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:0.22, duration:0.6, ease:[0.22,1,0.36,1] }}
@@ -169,85 +214,125 @@ const BlogDetail = () => {
         </div>
       </section>
 
-      {/* ── ARTICLE BODY ── */}
-      <section className="px-5 sm:px-10 lg:px-16 py-16 sm:py-24">
-        <div className="max-w-[780px] mx-auto">
+      {/* ── ARTICLE + TOC ── */}
+      <section className="px-5 sm:px-10 lg:px-16 py-14 sm:py-20">
+        <div className="max-w-[1180px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_240px] gap-12 lg:gap-16">
 
-          {/* snippet lead */}
-          {blog.snippet && (
-            <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-              transition={{ delay:0.1, duration:0.5 }}
-              className="text-[17px] sm:text-[19px] leading-[1.8] mb-12 pb-10 font-medium"
-              style={{ color: M, borderBottom:`1px solid ${Br}` }}>
-              {blog.snippet}
-            </motion.p>
-          )}
+          {/* ─── MAIN ARTICLE ─── */}
+          <article className="min-w-0 max-w-[760px]">
+            {/* lead / snippet */}
+            {blog.snippet && (
+              <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+                transition={{ delay:0.1, duration:0.5 }}
+                className="text-[17px] sm:text-[19px] leading-[1.8] mb-12 pb-10 font-medium"
+                style={{ color: M, borderBottom:`1px solid ${Br}` }}>
+                {blog.snippet}
+              </motion.p>
+            )}
 
-          {/* content blocks */}
-          {(blog.content || []).map((block, i) => (
-            <motion.div key={i} initial={{ opacity:0, y:18 }} whileInView={{ opacity:1, y:0 }}
-              viewport={{ once:true, margin:"-40px" }}
-              transition={{ delay: i * 0.04, duration:0.5, ease:[0.22,1,0.36,1] }}
-              className="mb-10">
-              {block.heading && (
-                <h2 className="text-[22px] sm:text-[28px] lg:text-[32px] font-bold mb-4 leading-[1.2] tracking-[-0.01em]"
-                  style={{ color: P }}>{block.heading}</h2>
-              )}
-              {block.paragraph && (
-                <p className="text-[15px] sm:text-[16px] leading-[1.85]" style={{ color: M }}>
-                  {block.paragraph}
-                </p>
-              )}
-              {block.paragraphs && block.paragraphs.map((para, j) => (
-                <p key={j} className="text-[15px] sm:text-[16px] leading-[1.85] mb-4" style={{ color: M }}>
-                  {para}
-                </p>
-              ))}
-              {block.points && (
-                <ul className="space-y-2 mt-2">
-                  {block.points.map((pt, j) => (
-                    <li key={j} className="flex items-start gap-3 text-[15px] sm:text-[16px] leading-[1.8]"
-                      style={{ color: M }}>
-                      <span className="w-1.5 h-1.5 rounded-full mt-[10px] flex-shrink-0" style={{ background: A }} />
-                      {pt}
-                    </li>
+            {/* content blocks */}
+            {(blog.content || []).map((block, i) => {
+              const id = block.heading ? slugify(block.heading) : undefined;
+              return (
+                <motion.div key={i} id={id}
+                  initial={{ opacity:0, y:18 }} whileInView={{ opacity:1, y:0 }}
+                  viewport={{ once:true, margin:"-40px" }}
+                  transition={{ duration:0.5, ease:[0.22,1,0.36,1] }}
+                  className="mb-10" style={{ scrollMarginTop: "100px" }}>
+                  {block.heading && (
+                    <h2 className="text-[22px] sm:text-[28px] lg:text-[31px] font-bold mb-4 leading-[1.2] tracking-[-0.01em]"
+                      style={{ color: P }}>{block.heading}</h2>
+                  )}
+                  {block.paragraph && (
+                    <p className="text-[15px] sm:text-[16px] leading-[1.85]" style={{ color: M }}>
+                      {block.paragraph}
+                    </p>
+                  )}
+                  {block.paragraphs && block.paragraphs.map((para, j) => (
+                    <p key={j} className="text-[15px] sm:text-[16px] leading-[1.85] mb-4" style={{ color: M }}>
+                      {para}
+                    </p>
                   ))}
-                </ul>
-              )}
-            </motion.div>
-          ))}
+                  {block.points && (
+                    <ul className="space-y-2.5 mt-3">
+                      {block.points.map((pt, j) => (
+                        <li key={j} className="flex items-start gap-3 text-[15px] sm:text-[16px] leading-[1.8]"
+                          style={{ color: M }}>
+                          <span className="w-1.5 h-1.5 rounded-full mt-[10px] flex-shrink-0" style={{ background: A }} />
+                          {pt}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </motion.div>
+              );
+            })}
 
-          {/* tags */}
-          {blog.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-8 mt-8" style={{ borderTop:`1px solid ${Br}` }}>
-              <Tag size={13} style={{ color:M }} />
-              {blog.tags.map(t => (
-                <span key={t} className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold"
-                  style={{ background:`${A}12`, color:A, border:`1px solid ${A}25` }}>{t}</span>
-              ))}
+            {/* tags */}
+            {blog.tags?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 pt-8 mt-8" style={{ borderTop:`1px solid ${Br}` }}>
+                <Tag size={13} style={{ color:M }} />
+                {blog.tags.map(t => (
+                  <span key={t} className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold"
+                    style={{ background:`${A}12`, color:A, border:`1px solid ${A}25` }}>{t}</span>
+                ))}
+              </div>
+            )}
+
+            {/* CTA */}
+            <div className="mt-12 rounded-2xl p-7 sm:p-8" style={{ background: Cd, border:`1px solid ${Br}` }}>
+              <p className="text-[17px] sm:text-[19px] font-bold mb-2" style={{ color:P }}>
+                Ready to build something like this?
+              </p>
+              <p className="text-[14px] leading-[1.7] mb-5" style={{ color:M }}>
+                Webaurix designs and builds websites, mobile apps, and AI solutions for businesses
+                across Pakistan, South Korea, the US, and the UK. Get a free consultation and a quote within 24 hours.
+              </p>
+              <Link to="/start-project">
+                <motion.span whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-[13.5px] font-bold cursor-pointer"
+                  style={{ background:A, color: isDark?"#0b0b0e":"#fff" }}>
+                  Start a Project →
+                </motion.span>
+              </Link>
             </div>
-          )}
+          </article>
 
-          {/* back btn */}
-          <div className="mt-14">
-            <Link to="/blogs">
-              <motion.div whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-[13.5px] font-bold"
-                style={{ background:`${A}15`, color:A, border:`1px solid ${A}30`,
-                  transition:"background 0.15s, border-color 0.15s" }}
-                onMouseEnter={e=>{ e.currentTarget.style.background=`${A}25`; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=`${A}15`; }}>
-                <ArrowLeft size={14} /> Back to Blog
-              </motion.div>
-            </Link>
-          </div>
+          {/* ─── ON THIS PAGE (TOC) ─── */}
+          {toc.length > 0 && (
+            <aside className="hidden lg:block">
+              <div className="sticky top-28">
+                <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase mb-4"
+                  style={{ color: M }}>
+                  <List size={13} /> On this page
+                </p>
+                <nav className="flex flex-col gap-1 border-l" style={{ borderColor: Br }}>
+                  {toc.map(({ id, title }) => {
+                    const active = activeId === id;
+                    return (
+                      <button key={id} onClick={() => scrollToSection(id)}
+                        className="text-left text-[13px] leading-[1.5] py-1.5 pl-4 -ml-px border-l-2 transition-colors"
+                        style={{
+                          borderColor: active ? A : "transparent",
+                          color: active ? A : M,
+                          fontWeight: active ? 600 : 400,
+                        }}
+                        onMouseEnter={e => { if (!active) e.currentTarget.style.color = P; }}
+                        onMouseLeave={e => { if (!active) e.currentTarget.style.color = M; }}>
+                        {title}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </aside>
+          )}
         </div>
       </section>
 
       {/* ── RELATED POSTS ── */}
       {related.length > 0 && (
-        <section className="px-5 sm:px-10 lg:px-16 py-16 sm:py-20"
-          style={{ borderTop:`1px solid ${Br}` }}>
+        <section className="px-5 sm:px-10 lg:px-16 py-16 sm:py-20" style={{ borderTop:`1px solid ${Br}` }}>
           <div className="max-w-[1400px] mx-auto">
             <h2 className="text-[22px] sm:text-[28px] font-bold mb-10 tracking-tight" style={{ color:P }}>
               Related Posts

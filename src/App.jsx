@@ -13,7 +13,6 @@ import Seo from "./components/Seo";
 /* ── lazy-loaded pages ── */
 const AboutUs               = lazy(() => import("./Pages/About"));
 const BusinessTalk          = lazy(() => import("./Pages/BusinessTalk"));
-const CorePhilosophy        = lazy(() => import("./Pages/CorePhilosophy"));
 const NotFound              = lazy(() => import("./Pages/404NotFound"));
 const ServicePage           = lazy(() => import("./Pages/ServicePage"));
 const FAQSection            = lazy(() => import("./components/faqs"));
@@ -58,7 +57,6 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/start-project" element={<BusinessTalk standalone />} />
             <Route path="/about" element={<AboutUs />} />
-            <Route path="/core" element={<CorePhilosophy standalone />} />
             <Route path="/not-found" element={<NotFound />} />
             <Route path="/chat" element={<WebaurixChat />} />
             <Route path="/admin" element={<AdminPanel />} />
