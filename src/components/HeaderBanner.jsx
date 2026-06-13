@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -115,12 +115,13 @@ const Spot = ({ top, left, right, bottom, size, color, delay, opacity }) => (
 ═══════════════════════════════════════ */
 export default function HeaderBanner() {
   const { isDark } = useTheme();
-  const ref = useRef(null);
   const { text: typed, started } = useTypewriter();
 
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yShift  = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const fadeOut = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  /* use window scrollY — avoids the container-position warning and gives
+     correct values (0 at page top, increases as user scrolls down) */
+  const { scrollY } = useScroll();
+  const yShift  = useTransform(scrollY, [0, 700], ["0%", "12%"]);
+  const fadeOut = useTransform(scrollY, [0, 500], [1, 0]);
 
   const bg      = isDark
     ? "linear-gradient(155deg, #0b0b0e 0%, #0d1017 55%, #0b0c10 100%)"
@@ -138,12 +139,8 @@ export default function HeaderBanner() {
   const scrollToServices = () =>
     document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
 
-  /* overflow-hidden descender fix: pb offsets the clip, -mb cancels spacing */
-  const lineWrap = { overflow: "hidden", paddingBottom: "0.45em", marginBottom: "-0.45em" };
-
   return (
     <section
-      ref={ref}
       className="relative w-full min-h-screen flex flex-col overflow-hidden"
       style={{ background: bg }}
     >
@@ -174,64 +171,58 @@ export default function HeaderBanner() {
       >
         {/* HEADLINE */}
         <div className="mb-6 sm:mb-8">
-          {/* line 1 */}
-          <div style={lineWrap}>
-            <motion.h1
-              initial={{ y: "108%" }}
-              animate={{ y: "0%" }}
-              transition={{ delay: 0.2, duration: 0.88, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
-              style={{ color: primary }}
-            >
-              We design &amp;
-            </motion.h1>
-          </div>
+          {/* line 1 — no clip, opacity fade so LCP registers on first paint */}
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0, duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
+            style={{ color: primary }}
+          >
+            We design &amp;
+          </motion.h1>
 
           {/* line 2 */}
-          <div style={lineWrap}>
-            <motion.h1
-              initial={{ y: "108%" }}
-              animate={{ y: "0%" }}
-              transition={{ delay: 0.36, duration: 0.88, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
-              style={{ color: primary }}
-            >
-              build digital
-            </motion.h1>
-          </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08, duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
+            style={{ color: primary }}
+          >
+            build digital
+          </motion.h1>
 
           {/* line 3 - typewriter */}
-          <div style={{ overflow: "hidden", paddingBottom: "0.5em", marginBottom: "-0.5em" }}>
-            <motion.h1
-              initial={{ y: "108%" }}
-              animate={{ y: "0%" }}
-              transition={{ delay: 0.52, duration: 0.88, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
-              style={{ color: primary }}
-            >
-              products that{" "}
-              <span style={{ color: accent }}>
-                {started ? typed : "work."}
-                {started && (
-                  <span
-                    className="inline-block rounded-sm ml-0.5 align-middle"
-                    style={{
-                      width: "clamp(2px, 0.5vw, 5px)",
-                      height: "0.72em",
-                      backgroundColor: accent,
-                      verticalAlign: "middle",
-                      animation: "cursorBlink 0.9s step-end infinite",
-                    }}
-                  />
-                )}
-              </span>
-            </motion.h1>
-          </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16, duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[32px] sm:text-[54px] lg:text-[74px] xl:text-[90px] font-bold leading-[1.1] tracking-[-0.02em]"
+            style={{ color: primary }}
+          >
+            products that{" "}
+            <span style={{ color: accent }}>
+              {started ? typed : "work."}
+              {started && (
+                <span
+                  className="inline-block rounded-sm ml-0.5 align-middle"
+                  style={{
+                    width: "clamp(2px, 0.5vw, 5px)",
+                    height: "0.72em",
+                    backgroundColor: accent,
+                    verticalAlign: "middle",
+                    animation: "cursorBlink 0.9s step-end infinite",
+                  }}
+                />
+              )}
+            </span>
+          </motion.h1>
         </div>
 
         {/* divider */}
         <RevealLine
-          delay={0.68}
+          delay={0.3}
           style={{ background: border }}
           className="mb-6 sm:mb-7 w-full max-w-[200px] sm:max-w-sm"
         />
@@ -239,7 +230,7 @@ export default function HeaderBanner() {
         {/* description + CTAs */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 lg:gap-12">
           <motion.p
-            {...rise(0.72)}
+            {...rise(0.34)}
             className="max-w-[440px] text-[14px] sm:text-[16px] leading-[1.72]"
             style={{ color: muted }}
           >
@@ -248,7 +239,7 @@ export default function HeaderBanner() {
             across Pakistan, the US, the UK, and beyond.
           </motion.p>
 
-          <motion.div {...rise(0.84)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          <motion.div {...rise(0.4)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <Link to="/start-project" className="w-full sm:w-auto">
               <motion.span
                 whileHover={{ scale: 1.02 }}
@@ -278,7 +269,7 @@ export default function HeaderBanner() {
 
         {/* STATS */}
         <motion.div
-          {...rise(0.98)}
+          {...rise(0.5)}
           className="mt-8 sm:mt-12 pt-6 sm:pt-8"
           style={{ borderTop: `1px solid ${border}` }}
         >
@@ -306,7 +297,7 @@ export default function HeaderBanner() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ delay: 0.7 }}
         className="relative z-10 mt-auto"
       >
         <Marquee accent={accent} muted={muted} />

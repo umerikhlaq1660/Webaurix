@@ -21,7 +21,7 @@ const hideSplash = () => {
   s.classList.add("splash-hide");
   setTimeout(() => s.remove(), 650);
 };
-// wait for the app's first paint, keep a small minimum so it doesn't flash
+// wait for the app's first paint then hide immediately
 requestAnimationFrame(() =>
-  requestAnimationFrame(() => setTimeout(hideSplash, 350))
+  requestAnimationFrame(() => setTimeout(hideSplash, 80))
 );

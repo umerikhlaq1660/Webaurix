@@ -257,6 +257,7 @@ const Navbar = () => {
                 <motion.button
                   whileTap={{ scale: 0.88 }}
                   onClick={() => setMobileOpen(!mobileOpen)}
+                  aria-label={mobileOpen ? "Close menu" : "Open menu"}
                   className={`p-2.5 rounded-xl transition-colors ${
                     isDark
                       ? "text-white/65 hover:bg-white/8 hover:text-white"

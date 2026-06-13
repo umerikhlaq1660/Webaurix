@@ -1,10 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { db } from "../firebase";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 /* ── tag pill ── */
 function Tag({ label, accent }) {
@@ -24,12 +24,12 @@ function Tag({ label, accent }) {
 }
 
 /* ── FEATURED card (left, large) ── */
-function FeaturedCard({ blog, accent, inView }) {
+function FeaturedCard({ blog, accent }) {
   const [hovered, setHovered] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       style={{ willChange: "transform, opacity" }}
       className="relative rounded-2xl overflow-hidden cursor-pointer h-[320px] sm:h-[400px] lg:h-full min-h-[320px]"
@@ -103,12 +103,12 @@ function FeaturedCard({ blog, accent, inView }) {
 }
 
 /* ── SMALL card (right column) ── */
-function SmallCard({ blog, accent, inView, delay }) {
+function SmallCard({ blog, accent, delay }) {
   const [hovered, setHovered] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, x: 28 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ delay, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
       style={{ willChange: "transform, opacity" }}
       className="relative rounded-2xl overflow-hidden cursor-pointer h-[160px] sm:h-[180px] lg:h-full"
@@ -148,12 +148,13 @@ function SmallCard({ blog, accent, inView, delay }) {
           </h3>
           <motion.div
             className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
-            animate={{
-              background: hovered ? accent : "rgba(255,255,255,0.12)",
-              scale: hovered ? 1.1 : 1,
-            }}
+            animate={{ scale: hovered ? 1.1 : 1 }}
             transition={{ duration: 0.25 }}
-            style={{ willChange: "transform" }}
+            style={{
+              willChange: "transform",
+              background: hovered ? accent : "rgba(255,255,255,0.12)",
+              transition: "background 0.25s ease, transform 0.25s ease",
+            }}
           >
             <ArrowUpRight size={12} color={hovered ? "#0b0b0e" : "#fff"} />
           </motion.div>
@@ -176,26 +177,32 @@ function SmallCard({ blog, accent, inView, delay }) {
 ════════════════════════════════════ */
 export default function BlogsSection() {
   const { isDark } = useTheme();
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
   const [blogs, setBlogs] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const snap = await getDocs(
-          query(collection(db, "blogs"), where("published", "==", true), orderBy("createdAt", "desc"), limit(4))
+          query(collection(db, "blogs"), where("published", "==", true))
         );
-        const data = snap.docs.map(d => {
-          const b = { id: d.id, ...d.data() };
-          return { id: b.id, title: b.title, image: b.image, excerpt: b.snippet, link: `/blog/${b.slug}`, tag: b.label };
-        });
+        const data = snap.docs
+          .map(d => { const b = { id: d.id, ...d.data() }; return b; })
+          .sort((a, b) => {
+            const ta = a.createdAt?.toDate?.() || new Date(a.date || 0);
+            const tb = b.createdAt?.toDate?.() || new Date(b.date || 0);
+            return tb - ta;
+          })
+          .slice(0, 4)
+          .map(b => ({ id: b.id, title: b.title, image: b.image, excerpt: b.snippet, link: `/blog/${b.slug}`, tag: b.label }));
         setBlogs(data);
-      } catch { setBlogs([]); }
+      } catch { /* fail silently — no blogs shown */ }
+      setLoaded(true);
     })();
   }, []);
 
-  if (blogs.length === 0) return null;
+  /* don't return null until we know for certain there are no published blogs */
+  if (!loaded || blogs.length === 0) return null;
 
   const bg      = isDark
     ? "linear-gradient(155deg, #0b0b0e 0%, #0d1017 55%, #0b0c10 100%)"
@@ -207,7 +214,6 @@ export default function BlogsSection() {
 
   return (
     <section
-      ref={ref}
       style={{ background: bg }}
       className="relative overflow-hidden py-20 sm:py-28"
     >
@@ -224,7 +230,7 @@ export default function BlogsSection() {
           <div>
             <motion.p
               initial={{ opacity: 0, y: 28 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
               className="text-[11px] font-bold tracking-[0.22em] uppercase mb-4"
               style={{ color: accent }}
@@ -233,7 +239,7 @@ export default function BlogsSection() {
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 28 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.07, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
               className="text-[30px] sm:text-[40px] lg:text-[50px] font-bold leading-[1.1] tracking-[-0.02em]"
               style={{ color: primary }}
@@ -245,7 +251,7 @@ export default function BlogsSection() {
 
           <motion.div
             initial={{ opacity: 0, y: 28 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-3 shrink-0"
           >
@@ -271,7 +277,7 @@ export default function BlogsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_1fr] gap-3 lg:h-[600px]">
 
           {/* featured - left */}
-          <FeaturedCard blog={blogs[0]} accent={accent} inView={inView} />
+          <FeaturedCard blog={blogs[0]} accent={accent} />
 
           {/* right column - 3 small */}
           <div className="grid grid-rows-1 sm:grid-rows-3 grid-cols-1 gap-3 sm:h-[600px] lg:h-full">
@@ -280,7 +286,6 @@ export default function BlogsSection() {
                 key={blog.id}
                 blog={blog}
                 accent={accent}
-                inView={inView}
                 delay={0.12 + i * 0.08}
               />
             ))}

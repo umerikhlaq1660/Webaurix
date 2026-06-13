@@ -264,10 +264,11 @@ export default function CorePhilosophy() {
 
                 {/* dots */}
                 <div className="flex gap-2 mt-6">
-                  {CARDS.map((_, i) => (
+                  {CARDS.map((card, i) => (
                     <button
                       key={i}
                       onClick={() => select(i)}
+                      aria-label={`View principle: ${card.title}`}
                       className="rounded-full cursor-pointer transition-all duration-300"
                       style={{
                         width: i === active ? 22 : 6,

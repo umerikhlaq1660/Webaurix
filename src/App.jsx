@@ -7,8 +7,9 @@ import Navbar from "./components/Navbar";
 import Home from "./Pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
-import ChatBot from "./components/ChatBot";
 import Seo from "./components/Seo";
+
+const ChatBot = lazy(() => import("./components/ChatBot"));
 
 /* ── lazy-loaded pages ── */
 const AboutUs               = lazy(() => import("./Pages/About"));
@@ -51,6 +52,7 @@ const App = () => {
       {!isHiddenRoute && <Navbar />}
 
       <Seo path={location?.pathname || "/"} />
+      <main>
       <Suspense fallback={null}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location?.pathname || "root"}>
@@ -84,9 +86,10 @@ const App = () => {
           </Routes>
         </AnimatePresence>
       </Suspense>
+      </main>
 
       <ScrollToTopButton />
-      {!isHiddenRoute && <ChatBot />}
+      {!isHiddenRoute && <Suspense fallback={null}><ChatBot /></Suspense>}
     </ThemeProvider>
   );
 };
