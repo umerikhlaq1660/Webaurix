@@ -1,150 +1,409 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
+import { Search, Paintbrush, Code2, FlaskConical, Rocket } from "lucide-react";
 
-const OurApproach = () => {
-  const [activeIndex, setActiveIndex] = useState(null);
-  const stepRefs = useRef([]);
+const STEPS = [
+  {
+    num: "01",
+    icon: Search,
+    title: "Discovery",
+    short: "Understand your vision.",
+    desc: "We begin by understanding your goals, audience, and vision - forming a strong foundation for the entire project.",
+  },
+  {
+    num: "02",
+    icon: Paintbrush,
+    title: "Design",
+    short: "Craft the experience.",
+    desc: "Our design team crafts user-centric layouts and visual systems that express your brand's voice perfectly.",
+  },
+  {
+    num: "03",
+    icon: Code2,
+    title: "Development",
+    short: "Build with precision.",
+    desc: "We bring everything to life using scalable, high-performing technologies and clean coding practices.",
+  },
+  {
+    num: "04",
+    icon: FlaskConical,
+    title: "Testing",
+    short: "Ensure flawless quality.",
+    desc: "Rigorous testing ensures flawless performance and a seamless user experience across all devices.",
+  },
+  {
+    num: "05",
+    icon: Rocket,
+    title: "Launch",
+    short: "Go live with confidence.",
+    desc: "We deploy your project with precision, ensuring a smooth launch and ongoing performance monitoring.",
+  },
+];
 
-  const steps = [
-    {
-      num: "01",
-      title: "Discovery",
-      desc: "We begin by understanding your goals, audience, and vision — forming a strong foundation for the entire project.",
-      color: "from-[#036988] to-[#124559]",
-    },
-    {
-      num: "02",
-      title: "Design",
-      desc: "Our design team crafts user-centric layouts and visual systems that express your brand’s voice perfectly.",
-      color: "from-[#124559] to-[#0a2b3d]",
-    },
-    {
-      num: "03",
-      title: "Development",
-      desc: "We bring everything to life using scalable, high-performing technologies and clean coding practices.",
-      color: "from-[#0a2b3d] to-[#001d2b]",
-    },
-    {
-      num: "04",
-      title: "Testing",
-      desc: "Rigorous testing ensures flawless performance and a seamless user experience across devices.",
-      color: "from-[#001d2b] to-[#000f1a]",
-    },
-    {
-      num: "05",
-      title: "Launch",
-      desc: "We deploy your project with precision, ensuring a smooth launch and ongoing performance monitoring.",
-      color: "from-[#000f1a] to-[#000000]",
-    },
-  ];
+/* ─── entrance animation helper ─── */
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  animate: { opacity: 1, y: 0 },
+  transition: { delay, duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+  style: { willChange: "transform, opacity" },
+});
 
-  // Scroll-based activation for small devices
+export default function OurApproach() {
+  const { isDark } = useTheme();
+  const [active, setActive] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
   useEffect(() => {
-    if (window.innerWidth < 1024) {
-      setActiveIndex(0); // default first open
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const index = stepRefs.current.findIndex((ref) => ref === entry.target);
-              if (index !== -1) setActiveIndex(index);
-            }
-          });
-        },
-        {
-          threshold: 0.6, // Panel 60% visible to activate
-        }
-      );
-
-      stepRefs.current.forEach((ref) => ref && observer.observe(ref));
-
-      return () => {
-        stepRefs.current.forEach((ref) => ref && observer.unobserve(ref));
-      };
-    }
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  const handleClick = (i) => {
-    // small devices toggle
-    if (window.innerWidth < 1024) {
-      setActiveIndex(activeIndex === i ? null : i);
-    }
-  };
+  /* tokens */
+  const bg      = isDark
+    ? "linear-gradient(155deg, #0b0b0e 0%, #0d1017 55%, #0b0c10 100%)"
+    : "linear-gradient(155deg, #ffffff 0%, #f4f7ff 60%, #ffffff 100%)";
+  const primary = isDark ? "#f0eeec" : "#0c0c10";
+  const muted   = isDark ? "rgba(240,238,236,0.38)" : "rgba(12,12,16,0.4)";
+  const accent  = isDark ? "#68b5cc" : "#0e7490";
+  const border  = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
+  const panelBg = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.025)";
+  const activeBg= isDark ? "rgba(104,181,204,0.06)" : "rgba(14,116,144,0.05)";
+
+  const ActiveIcon = STEPS[active].icon;
 
   return (
-    <section className="relative w-full bg-black py-24 px-4 sm:px-10 lg:px-24 overflow-hidden">
-      {/*  Heading */}
-      <div className="mb-16 max-w-8xl">
-        <motion.h2
-          className="text-5xl font-bold leading-[1.5] bg-gradient-to-r from-[#f0fcff] via-[#0393a7] to-[#f0fcff] bg-clip-text text-transparent  mb-2 text-left"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          The Webaurix Way
-        </motion.h2>
-        <motion.p
-          className="text-gray-400 text-lg text-left leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          From concept to completion, every step is guided by strategy, creativity, and precision.
-        </motion.p>
-      </div>
+    <section
+      ref={ref}
+      style={{ background: bg }}
+      className="relative overflow-hidden py-20 sm:py-28"
+    >
+      {/* top accent line */}
+      <div
+        className="absolute top-0 inset-x-0 h-px pointer-events-none"
+        style={{ background: `linear-gradient(to right, transparent, ${accent}30, transparent)` }}
+      />
 
-      {/*  Expanding Panels  */}
-      <div className="flex flex-col lg:flex-row w-full h-auto lg:h-[550px] rounded-2xl overflow-hidden">
-        {steps.map((step, i) => {
-          const isActive = activeIndex === i;
+      <div className="max-w-[1400px] mx-auto px-5 sm:px-10 lg:px-16">
 
-          return (
-            <motion.div
-              key={i}
-              ref={(el) => (stepRefs.current[i] = el)}
-              className={`group relative flex-1 cursor-pointer transition-all duration-700 ease-in-out overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-800 last:border-none ${
-                isActive ? "flex-[3]" : "flex-[1]"
-              }`}
-              initial={{ flex: 1 }}
-              whileHover={window.innerWidth >= 1024 ? { flex: 3 } : {}}
-              onClick={() => handleClick(i)}
+        {/* ── HEADER ── */}
+        <div className="mb-14 sm:mb-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+          <div>
+            <motion.p
+              {...fadeUp(0)}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              className="text-[11px] font-bold tracking-[0.22em] uppercase mb-4"
+              style={{ color: accent }}
             >
-              {/* Background Gradient */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-90 transition-all duration-700 group-hover:opacity-100`}
-              />
+              How We Work
+            </motion.p>
+            <motion.h2
+              {...fadeUp(0.07)}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              className="text-[30px] sm:text-[40px] lg:text-[50px] font-bold leading-[1.1] tracking-[-0.02em]"
+              style={{ color: primary }}
+            >
+              The Webaurix{" "}
+              <span style={{ color: accent }}>way.</span>
+            </motion.h2>
+          </div>
+          <motion.p
+            {...fadeUp(0.14)}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+            className="max-w-[300px] text-[14px] leading-relaxed shrink-0"
+            style={{ color: muted }}
+          >
+            From concept to completion, every step is guided by strategy, creativity, and precision.
+          </motion.p>
+        </div>
 
-              {/* Step Number */}
-              <div className="absolute inset-0 flex items-center justify-center">
+        {/* ── DESKTOP EXPANDING PANELS ── */}
+        <motion.div
+          {...fadeUp(0.2)}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          className="hidden lg:flex h-[480px] rounded-2xl overflow-hidden gap-[2px]"
+          style={{ background: border }}
+        >
+          {STEPS.map((step, i) => {
+            const isActive = active === i;
+            const StepIcon = step.icon;
+            return (
+              <motion.div
+                key={step.num}
+                className="relative overflow-hidden cursor-pointer flex flex-col"
+                animate={{ flex: isActive ? 4 : 1 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  background: isActive ? activeBg : panelBg,
+                  minWidth: 0,
+                  willChange: "flex",
+                }}
+                onHoverStart={() => setActive(i)}
+              >
+                {/* large watermark number */}
                 <motion.span
-                  className="text-[100px] sm:text-[140px] lg:text-[180px] font-bold text-gray-700 group-hover:text-gray-500 tracking-tighter select-none transition-all duration-700"
+                  className="absolute bottom-0 right-0 font-black leading-none select-none pointer-events-none"
+                  animate={{ opacity: isActive ? 0.07 : 0.04 }}
+                  transition={{ duration: 0.4 }}
+                  style={{
+                    fontSize: "clamp(80px, 10vw, 140px)",
+                    color: accent,
+                    lineHeight: 1,
+                  }}
                 >
                   {step.num}
                 </motion.span>
-              </div>
 
-              {/* Content */}
-              <div
-                className={`relative z-10 flex flex-col justify-center items-center lg:items-start text-center lg:text-left h-full p-10 lg:p-12 transition-all duration-700 ease-in-out ${
-                  isActive
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10 lg:group-hover:opacity-100 lg:group-hover:translate-y-0"
-                }`}
+                {/* COLLAPSED CONTENT */}
+                <AnimatePresence>
+                  {!isActive && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col items-center justify-between h-full py-8 px-4 relative z-10"
+                    >
+                      <span
+                        className="text-[10px] font-black tracking-[0.18em]"
+                        style={{ color: `${accent}60` }}
+                      >
+                        {step.num}
+                      </span>
+                      <span
+                        className="text-[12px] font-semibold tracking-wide"
+                        style={{
+                          color: muted,
+                          writingMode: "vertical-rl",
+                          textOrientation: "mixed",
+                          transform: "rotate(180deg)",
+                        }}
+                      >
+                        {step.title}
+                      </span>
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center"
+                        style={{ background: `${accent}10`, color: `${accent}60` }}
+                      >
+                        <StepIcon size={13} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* EXPANDED CONTENT */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute inset-0 z-10 flex flex-col justify-between p-9"
+                      style={{ willChange: "transform, opacity" }}
+                    >
+                      {/* top */}
+                      <div>
+                        <div className="flex items-center gap-3 mb-7">
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center"
+                            style={{ background: `${accent}18`, color: accent }}
+                          >
+                            <ActiveIcon size={20} />
+                          </div>
+                          <span
+                            className="text-[10px] font-black tracking-[0.2em] uppercase"
+                            style={{ color: `${accent}70` }}
+                          >
+                            {step.num} - Step
+                          </span>
+                        </div>
+
+                        <h3
+                          className="text-[32px] font-bold tracking-tight mb-4 leading-tight"
+                          style={{ color: primary }}
+                        >
+                          {step.title}
+                        </h3>
+                        <p
+                          className="text-[14.5px] leading-[1.8] max-w-[320px]"
+                          style={{ color: muted }}
+                        >
+                          {step.desc}
+                        </p>
+                      </div>
+
+                      {/* bottom dots */}
+                      <div className="flex gap-1.5">
+                        {STEPS.map((_, di) => (
+                          <motion.div
+                            key={di}
+                            className="rounded-full"
+                            animate={{
+                              width: di === i ? 20 : 5,
+                              background: di === i ? accent : `${accent}30`,
+                            }}
+                            transition={{ duration: 0.35 }}
+                            style={{ height: 5 }}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* right separator */}
+                {i < STEPS.length - 1 && (
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-[1px]"
+                    style={{ background: border }}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* ── MOBILE ACCORDION ── */}
+        <motion.div
+          {...fadeUp(0.2)}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          className="lg:hidden flex flex-col gap-3"
+        >
+          {STEPS.map((step, i) => {
+            const isActive = active === i;
+            const StepIcon = step.icon;
+            return (
+              <motion.div
+                key={step.num}
+                className="rounded-2xl cursor-pointer"
+                style={{
+                  background: isActive ? activeBg : panelBg,
+                  border: `1px solid ${isActive ? accent + "30" : border}`,
+                  overflow: "hidden",
+                }}
+                onClick={() => setActive(i)}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.18 }}
               >
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 transition-all duration-700 group-hover:text-[#7ebad1]">
-                  {step.title}
-                </h3>
-                <p className="text-gray-300 text-base sm:text-lg max-w-md">
-                  {step.desc}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+                {/* header row */}
+                <div className="flex items-center gap-4 px-5 py-4">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: isActive ? `${accent}18` : `${accent}08`,
+                      color: isActive ? accent : muted,
+                      transition: "background 0.3s, color 0.3s",
+                    }}
+                  >
+                    <StepIcon size={16} />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[10px] font-black tracking-widest"
+                        style={{
+                          color: isActive ? accent : `${accent}55`,
+                          transition: "color 0.3s",
+                        }}
+                      >
+                        {step.num}
+                      </span>
+                      <span
+                        className="text-[15px] font-semibold"
+                        style={{
+                          color: isActive ? primary : muted,
+                          transition: "color 0.3s",
+                        }}
+                      >
+                        {step.title}
+                      </span>
+                    </div>
+                    <p className="text-[12px] mt-0.5" style={{ color: muted }}>
+                      {step.short}
+                    </p>
+                  </div>
+
+                  {/* chevron */}
+                  <motion.svg
+                    animate={{ rotate: isActive ? 180 : 0 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ color: isActive ? accent : muted, flexShrink: 0, willChange: "transform" }}
+                    width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" strokeWidth="2.5"
+                    strokeLinecap="round" strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </motion.svg>
+                </div>
+
+                {/* smooth height + fade accordion */}
+                <AnimatePresence initial={false}>
+                  {isActive && (
+                    <motion.div
+                      key="body"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ overflow: "hidden", willChange: "height, opacity" }}
+                    >
+                      <div className="px-5 pb-5">
+                        <div className="h-px mb-4" style={{ background: `${accent}18` }} />
+                        <p
+                          className="text-[13.5px] leading-[1.75] pl-[52px]"
+                          style={{ color: muted }}
+                        >
+                          {step.desc}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* ── STEP COUNTER (below panels) ── */}
+        <motion.div
+          {...fadeUp(0.3)}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          className="mt-7 flex items-center justify-between"
+        >
+          <p className="text-[12px] font-medium" style={{ color: muted }}>
+            Step{" "}
+            <span style={{ color: primary, fontWeight: 700 }}>{active + 1}</span>
+            {" "}of {STEPS.length}
+          </p>
+
+          <div className="flex gap-1.5">
+            {STEPS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                className="rounded-full cursor-pointer transition-all duration-300"
+                style={{
+                  width: i === active ? 22 : 6,
+                  height: 6,
+                  background: i === active ? accent : `${accent}28`,
+                }}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
+
+      {/* bottom accent line */}
+      <div
+        className="absolute bottom-0 inset-x-0 h-px pointer-events-none"
+        style={{ background: `linear-gradient(to right, transparent, ${accent}20, transparent)` }}
+      />
     </section>
   );
-};
-
-export default OurApproach;
+}

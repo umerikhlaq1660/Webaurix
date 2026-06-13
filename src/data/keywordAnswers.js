@@ -7,7 +7,7 @@ const keywordAnswers = [
   {
     keywords: ["longs", "long", "time", ],
     answer:
-    "The timeline for a project depends on its type and complexity. Typically, a basic website takes around 1–2 weeks, an eCommerce site can take 2–4 weeks, and custom or complex projects may take longer. Please share the details of your project—like the features, pages, and functionality you need—so we can provide an accurate estimate of how long it will take."
+    "The timeline for a project depends on its type and complexity. Typically, a basic website takes around 1–2 weeks, an eCommerce site can take 2–4 weeks, and custom or complex projects may take longer. Please share the details of your project-like the features, pages, and functionality you need-so we can provide an accurate estimate of how long it will take."
   },
   {
     keywords: ["technology", "stack", "tech", "framework"],

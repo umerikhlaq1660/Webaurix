@@ -5,32 +5,294 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary SEO -->
-    <title>Webaurix | Aura That Redefines Tech</title>
-    <meta name="description" content="Webaurix is a modern technology company delivering web development, AI solutions, digital transformation, and scalable software products." />
-    <meta name="robots" content="index, follow" />
+    <title>Webaurix | Web Development, AI Solutions & Digital Agency</title>
+    <meta name="description" content="Webaurix is a digital agency delivering web development, AI chatbots, mobile apps, UI/UX design, and digital transformation. Build something remarkable with us." />
+    <meta name="keywords" content="Webaurix, web development, AI solutions, AI chatbots, mobile app development, UI UX design, digital marketing, SaaS development, software company Pakistan, digital agency Lahore" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Webaurix" />
+    <meta name="theme-color" content="#68b5cc" />
+    <link rel="canonical" href="https://www.webaurix.com/" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Webaurix | Aura That Redefines Tech" />
-    <meta property="og:description" content="Webaurix delivers AI powered web solutions, digital transformation, and next generation software services." />
+    <meta property="og:site_name" content="Webaurix" />
+    <meta property="og:title" content="Webaurix | Web Development, AI Solutions & Digital Agency" />
+    <meta property="og:description" content="Webaurix delivers AI-powered web solutions, mobile apps, digital transformation, and next-generation software services." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.webaurix.com/" />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://www.webaurix.com/og-image.png" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Webaurix | Aura That Redefines Tech" />
+    <meta name="twitter:title" content="Webaurix | Web Development, AI Solutions & Digital Agency" />
     <meta name="twitter:description" content="Innovative web, AI, and digital solutions by Webaurix." />
+    <meta name="twitter:image" content="https://www.webaurix.com/og-image.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Nata+Sans:wght@100..900&family=Roboto:wght@100..900&display=swap" rel="stylesheet" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/webnetix/public/Favicon.png" />
+    <!-- Favicon & PWA -->
+    <link rel="icon" type="image/png" href="/logo-icon.png" />
+    <link rel="apple-touch-icon" href="/logo-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- preload splash icon so it paints instantly -->
+    <link rel="preload" as="image" href="/logo-icon.png" />
+
+    <!-- ════════ INSTANT SPLASH SCREEN (pure CSS, paints before JS/React) ════════ -->
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        background:
+          radial-gradient(ellipse 60% 50% at 50% 38%, rgba(104, 181, 204, 0.14), transparent 70%),
+          linear-gradient(155deg, #0b0b0e 0%, #0d1017 55%, #0b0c10 100%);
+        opacity: 1;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+        font-family: "Nata Sans", "Roboto", system-ui, sans-serif;
+      }
+      #splash.splash-hide {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* logo + rotating ring */
+      .splash-logo-wrap {
+        position: relative;
+        width: 132px;
+        height: 132px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .splash-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        border-top-color: #68b5cc;
+        border-right-color: rgba(104, 181, 204, 0.35);
+        animation: splash-spin 1s linear infinite;
+      }
+      .splash-ring.r2 {
+        inset: 12px;
+        border-top-color: transparent;
+        border-bottom-color: rgba(104, 181, 204, 0.6);
+        animation: splash-spin 1.6s linear infinite reverse;
+      }
+      .splash-glow {
+        position: absolute;
+        inset: 14px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(104, 181, 204, 0.22), transparent 70%);
+        animation: splash-pulse 2s ease-in-out infinite;
+      }
+      .splash-logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        animation: splash-breathe 2.4s ease-in-out infinite;
+        z-index: 2;
+      }
+
+      /* wordmark */
+      .splash-word {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        animation: splash-rise 0.7s ease forwards 0.15s;
+      }
+      .splash-name {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.42em;
+        text-indent: 0.42em;
+        color: #f0eeec;
+      }
+      .splash-tag {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.28em;
+        text-indent: 0.28em;
+        text-transform: uppercase;
+        color: rgba(240, 238, 236, 0.4);
+      }
+
+      /* loading bar */
+      .splash-bar {
+        position: relative;
+        width: 150px;
+        height: 2.5px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+        margin-top: 6px;
+        opacity: 0;
+        animation: splash-rise 0.7s ease forwards 0.3s;
+      }
+      .splash-bar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        width: 40%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, transparent, #68b5cc, transparent);
+        animation: splash-slide 1.2s ease-in-out infinite;
+      }
+
+      @keyframes splash-spin { to { transform: rotate(360deg); } }
+      @keyframes splash-pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.12); opacity: 1; }
+      }
+      @keyframes splash-breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+      }
+      @keyframes splash-rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes splash-slide {
+        0% { left: -40%; }
+        100% { left: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .splash-ring, .splash-ring.r2, .splash-glow, .splash-logo, .splash-bar::before { animation: none; }
+      }
+    </style>
+
+    <!-- ════════ Structured Data (JSON-LD) ════════ -->
+    <!-- Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Webaurix",
+      "url": "https://www.webaurix.com/",
+      "logo": "https://www.webaurix.com/logo-light.png",
+      "description": "Webaurix is a digital agency delivering web development, AI solutions, mobile apps, UI/UX design, and digital transformation services.",
+      "email": "contact@webaurix.com",
+      "telephone": "+92-332-4835793",
+      "foundingDate": "2025",
+      "sameAs": [
+        "https://www.facebook.com/profile.php?id=61579826004264",
+        "https://www.instagram.com/webaurix.official/",
+        "https://www.linkedin.com/company/webnaurix-official/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+92-332-4835793",
+        "contactType": "customer service",
+        "email": "contact@webaurix.com",
+        "areaServed": "Worldwide",
+        "availableLanguage": ["English", "Urdu"]
+      }
+    }
+    </script>
+
+    <!-- LocalBusiness (Local SEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "@id": "https://www.webaurix.com/#localbusiness",
+      "name": "Webaurix",
+      "image": "https://www.webaurix.com/logo-light.png",
+      "url": "https://www.webaurix.com/",
+      "telephone": "+92-332-4835793",
+      "email": "contact@webaurix.com",
+      "priceRange": "$$",
+      "description": "Webaurix is a Lahore-based digital agency offering web development, AI chatbots, mobile app development, UI/UX design, and digital marketing to clients worldwide.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Lahore",
+        "addressRegion": "Punjab",
+        "addressCountry": "PK"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 31.5204,
+        "longitude": 74.3587
+      },
+      "areaServed": [
+        { "@type": "Country", "name": "Pakistan" },
+        { "@type": "Place", "name": "Worldwide" }
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "10:00",
+          "closes": "15:00"
+        }
+      ],
+      "sameAs": [
+        "https://www.facebook.com/profile.php?id=61579826004264",
+        "https://www.instagram.com/webaurix.official/",
+        "https://www.linkedin.com/company/webnaurix-official/"
+      ]
+    }
+    </script>
+
+    <!-- WebSite + Sitelinks Search Box -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Webaurix",
+      "url": "https://www.webaurix.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.webaurix.com/blogs?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
+    <!-- Instant splash (rendered in raw HTML — visible before React loads) -->
+    <div id="splash">
+      <div class="splash-logo-wrap">
+        <span class="splash-glow"></span>
+        <span class="splash-ring"></span>
+        <span class="splash-ring r2"></span>
+        <img class="splash-logo" src="/logo-icon.png" alt="Webaurix" />
+      </div>
+      <div class="splash-word">
+        <div class="splash-tag">Aura that redefines tech</div>
+      </div>
+      <div class="splash-bar"></div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Fail-safe: force-remove splash after 8s even if the bundle stalls -->
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var s = document.getElementById("splash");
+          if (s && !s.classList.contains("splash-hide")) s.classList.add("splash-hide");
+        }, 8000);
+      });
+    </script>
   </body>
 </html>

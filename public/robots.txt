@@ -1,0 +1,11 @@
+# Webaurix — robots.txt
+User-agent: *
+Allow: /
+
+# Block private / non-indexable areas
+Disallow: /admin
+Disallow: /order
+Disallow: /not-found
+
+# Sitemap
+Sitemap: https://www.webaurix.com/sitemap.xml

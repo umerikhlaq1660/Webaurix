@@ -12,7 +12,7 @@ const customAnswers = {
     "We provide a range of services including Web Development, eCommerce Solutions, AI-powered Chatbots & Automation, SEO & Digital Marketing, and Website Maintenance & Support to help businesses grow and succeed online.",
 
   "how long does a project usually take":
-    "The timeline for a project depends on its type and complexity. Typically, a basic website takes around 1–2 weeks, an eCommerce site can take 2–4 weeks, and custom or complex projects may take longer. Please share the details of your project—like the features, pages, and functionality you need—so we can provide an accurate estimate of how long it will take.",
+    "The timeline for a project depends on its type and complexity. Typically, a basic website takes around 1–2 weeks, an eCommerce site can take 2–4 weeks, and custom or complex projects may take longer. Please share the details of your project-like the features, pages, and functionality you need-so we can provide an accurate estimate of how long it will take.",
   "how long for a basic website":
     "A basic 4–5 page responsive website usually takes 1–2 weeks to complete, depending on content readiness.",
   "how long for an eCommerce website":

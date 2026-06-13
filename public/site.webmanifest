@@ -1,0 +1,23 @@
+{
+  "name": "Webaurix — Web, AI & Digital Solutions",
+  "short_name": "Webaurix",
+  "description": "Webaurix builds high-performance websites, AI chatbots, mobile apps, and digital solutions that scale businesses globally.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0e",
+  "theme_color": "#68b5cc",
+  "icons": [
+    {
+      "src": "/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

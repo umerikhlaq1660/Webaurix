@@ -1,143 +1,290 @@
-// src/pages/BlogDetail.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import blogs from "../data/blogData";
-import { motion, useViewportScroll, useTransform } from "framer-motion";
-import { Helmet } from "react-helmet";
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
-};
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import { ArrowLeft, Loader2, Calendar, User, Tag } from "lucide-react";
+import { db } from "../firebase";
+import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { useTheme } from "../context/ThemeContext";
+import Footer from "../components/Footer";
 
 const BlogDetail = () => {
   const { slug } = useParams();
-  const blog = blogs.find((b) => b.slug === slug);
+  const { isDark } = useTheme();
+  const { scrollY } = useScroll();
+  const parallaxY = useTransform(scrollY, [0, 500], [0, -90]);
 
-  if (!blog) return <div className="text-white p-10">Blog Not Found</div>;
+  const [blog,    setBlog]    = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const relatedBlogs = blogs.filter(
-    (b) => b.label === blog.label && b.slug !== blog.slug
+  const bg = isDark
+    ? "linear-gradient(155deg,#0b0b0e 0%,#0d1017 100%)"
+    : "linear-gradient(155deg,#ffffff 0%,#f4f7ff 100%)";
+  const P  = isDark ? "#f0eeec"                : "#0c0c10";
+  const M  = isDark ? "rgba(240,238,236,0.5)"  : "rgba(12,12,16,0.5)";
+  const A  = isDark ? "#68b5cc"                : "#0e7490";
+  const Br = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const Cd = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        // Try Firestore first
+        const snap = await getDocs(query(collection(db, "blogs"), where("slug", "==", slug), limit(1)));
+        if (!snap.empty) {
+          const doc = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          setBlog(doc);
+          // fetch related
+          const relSnap = await getDocs(
+            query(collection(db, "blogs"),
+              where("label",     "==", doc.label),
+              where("published", "==", true),
+              orderBy("createdAt", "desc"), limit(4))
+          );
+          setRelated(relSnap.docs.map(d => ({ id:d.id, ...d.data() })).filter(b => b.slug !== slug));
+        } else {
+          setBlog(null);
+          setRelated([]);
+        }
+      } catch {
+        setBlog(null);
+        setRelated([]);
+      }
+      setLoading(false);
+    };
+    fetch();
+  }, [slug]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: isDark ? "#0b0b0e" : "#fff" }}>
+      <motion.div animate={{ rotate:360 }} transition={{ duration:1, repeat:Infinity, ease:"linear" }}>
+        <Loader2 size={28} style={{ color: A }} />
+      </motion.div>
+    </div>
   );
 
-  // Parallax scroll for hero image
-  const { scrollY } = useViewportScroll();
-  const parallaxY = useTransform(scrollY, [0, 500], [0, -100]); // moves -100px over 500px scroll
+  if (!blog) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: isDark?"#0b0b0e":"#fff" }}>
+      <p className="text-[18px] font-bold" style={{ color: P }}>Blog post not found.</p>
+      <Link to="/blogs" className="text-[14px] font-semibold" style={{ color: A }}>← Back to Blog</Link>
+    </div>
+  );
 
   return (
-    <div className="w-full bg-black text-white">
-      {/* ===== SEO ===== */}
+    <div className="w-full min-h-screen" style={{ background: bg }}>
       <Helmet>
         <title>{blog.title} | Webaurix Blog</title>
         <meta name="description" content={blog.snippet || blog.title} />
+        {blog.tags && <meta name="keywords" content={Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags} />}
+        <link rel="canonical" href={`https://www.webaurix.com/blog/${slug}`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={`${blog.title} | Webaurix Blog`} />
+        <meta property="og:description" content={blog.snippet || blog.title} />
+        <meta property="og:url" content={`https://www.webaurix.com/blog/${slug}`} />
+        {blog.image && <meta property="og:image" content={blog.image} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={blog.title} />
+        <meta name="twitter:description" content={blog.snippet || blog.title} />
+        {blog.image && <meta name="twitter:image" content={blog.image} />}
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: blog.title,
+            description: blog.snippet || blog.title,
+            image: blog.image || "https://www.webaurix.com/og-image.png",
+            author: { "@type": "Organization", name: blog.author || "Webaurix" },
+            publisher: {
+              "@type": "Organization",
+              name: "Webaurix",
+              logo: { "@type": "ImageObject", url: "https://www.webaurix.com/logo-light.png" },
+            },
+            datePublished: blog.date || undefined,
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `https://www.webaurix.com/blog/${slug}`,
+            },
+            keywords: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags,
+          })}
+        </script>
       </Helmet>
 
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* Parallax Background Image */}
-        <motion.img
-          src={blog.image}
-          className="absolute inset-0 w-full h-full object-cover z-0 blur-[1px] opacity-70"
-          alt={blog.title}
-          style={{ y: parallaxY }}
-        />
+      {/* ── HERO ── */}
+      <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
+        {blog.image && (
+          <motion.img src={blog.image} alt={blog.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ y: parallaxY, scale: 1.08 }} />
+        )}
+        {/* overlay */}
+        <div className="absolute inset-0 z-10"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%)" }} />
 
-        {/* Hero Content */}
-        <div className="relative z-20 h-full w-full flex items-end justify-center px-4 sm:px-8 md:px-12 lg:px-24 py-[100px]">
-          <motion.div
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-2xl px-6 md:px-10 py-10 w-full max-w-full text-left"
-          >
-            <p className="uppercase text-sm text-[#EFF6E0] tracking-widest mb-3">
-              {blog.label || "Latest Blog"}
-            </p>
-            <h1 className="text-3xl sm:text-5xl font-bold mb-4">
+        {/* back btn */}
+        <div className="absolute top-24 left-5 sm:left-10 z-20">
+          <Link to="/blogs">
+            <motion.div initial={{ opacity:0, x:-12 }} animate={{ opacity:1, x:0 }}
+              transition={{ delay:0.2, duration:0.45 }}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold backdrop-blur-md"
+              style={{ background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", color:"#f0eeec",
+                transition:"background 0.15s" }}
+              onMouseEnter={e=>{ e.currentTarget.style.background="rgba(255,255,255,0.18)"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.background="rgba(255,255,255,0.1)"; }}>
+              <ArrowLeft size={14} /> All Posts
+            </motion.div>
+          </Link>
+        </div>
+
+        {/* hero text */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-5 sm:px-10 lg:px-16 pb-10 sm:pb-14">
+          <div className="max-w-[860px]">
+            <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:0.15, duration:0.5, ease:[0.22,1,0.36,1] }}
+              className="flex items-center gap-2 mb-3 flex-wrap">
+              {blog.label && (
+                <span className="px-3 py-1 rounded-full text-[10.5px] font-bold tracking-wide"
+                  style={{ background: A, color:"#060c10" }}>{blog.label}</span>
+              )}
+              {blog.date && (
+                <span className="flex items-center gap-1.5 text-[12px]" style={{ color:"rgba(240,238,236,0.65)" }}>
+                  <Calendar size={11} />{blog.date}
+                </span>
+              )}
+              {blog.author && (
+                <span className="flex items-center gap-1.5 text-[12px]" style={{ color:"rgba(240,238,236,0.65)" }}>
+                  <User size={11} />{blog.author}
+                </span>
+              )}
+            </motion.div>
+            <motion.h1 initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:0.22, duration:0.6, ease:[0.22,1,0.36,1] }}
+              className="text-[28px] sm:text-[42px] lg:text-[52px] font-bold leading-[1.1] tracking-[-0.02em]"
+              style={{ color:"#f0eeec" }}>
               {blog.title}
-            </h1>
-            <p className="text-gray-300 text-sm mb-2">
-              {blog.author ? `${blog.author} | ` : ""}
-              {blog.date}
-            </p>
-          </motion.div>
+            </motion.h1>
+          </div>
         </div>
       </section>
 
-      {/* ===== MAIN CONTENT ===== */}
-      <section className="py-20 px-4 sm:px-8 md:px-16 max-w-8xl mx-auto text-left">
-        {blog.content.map((block, index) => (
-          <div key={index} className="mb-12">
-            {block.heading && (
-              <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-4 text-white">
-                {block.heading}
-              </h2>
-            )}
-            {block.paragraph && (
-              <p className="text-gray-300 text-lg md:text-xl lg:text-2xl leading-relaxed mb-4">
-                {block.paragraph}
-              </p>
-            )}
-            {block.paragraphs &&
-              block.paragraphs.map((para, i) => (
-                <p
-                  key={i}
-                  className="text-gray-300 text-lg md:text-xl lg:text-2xl leading-relaxed mb-4"
-                >
+      {/* ── ARTICLE BODY ── */}
+      <section className="px-5 sm:px-10 lg:px-16 py-16 sm:py-24">
+        <div className="max-w-[780px] mx-auto">
+
+          {/* snippet lead */}
+          {blog.snippet && (
+            <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:0.1, duration:0.5 }}
+              className="text-[17px] sm:text-[19px] leading-[1.8] mb-12 pb-10 font-medium"
+              style={{ color: M, borderBottom:`1px solid ${Br}` }}>
+              {blog.snippet}
+            </motion.p>
+          )}
+
+          {/* content blocks */}
+          {(blog.content || []).map((block, i) => (
+            <motion.div key={i} initial={{ opacity:0, y:18 }} whileInView={{ opacity:1, y:0 }}
+              viewport={{ once:true, margin:"-40px" }}
+              transition={{ delay: i * 0.04, duration:0.5, ease:[0.22,1,0.36,1] }}
+              className="mb-10">
+              {block.heading && (
+                <h2 className="text-[22px] sm:text-[28px] lg:text-[32px] font-bold mb-4 leading-[1.2] tracking-[-0.01em]"
+                  style={{ color: P }}>{block.heading}</h2>
+              )}
+              {block.paragraph && (
+                <p className="text-[15px] sm:text-[16px] leading-[1.85]" style={{ color: M }}>
+                  {block.paragraph}
+                </p>
+              )}
+              {block.paragraphs && block.paragraphs.map((para, j) => (
+                <p key={j} className="text-[15px] sm:text-[16px] leading-[1.85] mb-4" style={{ color: M }}>
                   {para}
                 </p>
               ))}
-            {block.points && (
-              <ul className="list-disc list-inside text-gray-300 text-lg md:text-xl lg:text-2xl leading-relaxed space-y-2 mb-4">
-                {block.points.map((point, i) => (
-                  <li key={i}>{point}</li>
-                ))}
-              </ul>
-            )}
+              {block.points && (
+                <ul className="space-y-2 mt-2">
+                  {block.points.map((pt, j) => (
+                    <li key={j} className="flex items-start gap-3 text-[15px] sm:text-[16px] leading-[1.8]"
+                      style={{ color: M }}>
+                      <span className="w-1.5 h-1.5 rounded-full mt-[10px] flex-shrink-0" style={{ background: A }} />
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </motion.div>
+          ))}
+
+          {/* tags */}
+          {blog.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-8 mt-8" style={{ borderTop:`1px solid ${Br}` }}>
+              <Tag size={13} style={{ color:M }} />
+              {blog.tags.map(t => (
+                <span key={t} className="px-2.5 py-1 rounded-lg text-[11.5px] font-semibold"
+                  style={{ background:`${A}12`, color:A, border:`1px solid ${A}25` }}>{t}</span>
+              ))}
+            </div>
+          )}
+
+          {/* back btn */}
+          <div className="mt-14">
+            <Link to="/blogs">
+              <motion.div whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-[13.5px] font-bold"
+                style={{ background:`${A}15`, color:A, border:`1px solid ${A}30`,
+                  transition:"background 0.15s, border-color 0.15s" }}
+                onMouseEnter={e=>{ e.currentTarget.style.background=`${A}25`; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=`${A}15`; }}>
+                <ArrowLeft size={14} /> Back to Blog
+              </motion.div>
+            </Link>
           </div>
-        ))}
+        </div>
       </section>
 
-      {/* ===== RELATED BLOGS SECTION ===== */}
-      {relatedBlogs.length > 0 && (
-        <section className="py-20 px-4 sm:px-8 md:px-16 bg-black border-t border-white/10">
-          <div className="max-w-8xl mx-auto text-left">
-            <h2 className="text-3xl md:text-4xl 2xl:text-6xl font-bold mb-10 leading-tight bg-gradient-to-r from-[#f0fcff] via-[#0393a7] to-[#0393a7] bg-clip-text text-transparent">
-              Related Blogs
+      {/* ── RELATED POSTS ── */}
+      {related.length > 0 && (
+        <section className="px-5 sm:px-10 lg:px-16 py-16 sm:py-20"
+          style={{ borderTop:`1px solid ${Br}` }}>
+          <div className="max-w-[1400px] mx-auto">
+            <h2 className="text-[22px] sm:text-[28px] font-bold mb-10 tracking-tight" style={{ color:P }}>
+              Related Posts
             </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {relatedBlogs.map((related, i) => (
-                <motion.div
-                  key={i}
-                  variants={fadeInUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  transition={{ duration: 0.8, delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden hover:scale-[1.03] transition-transform duration-300"
-                >
-                  <Link to={`/blog/${related.slug}`}>
-                    <img
-                      src={related.image}
-                      alt={related.title}
-                      className="w-full h-56 object-cover"
-                    />
-                    <div className="p-6">
-                      <p className="text-sm text-[#7ebad1] font-semibold mb-2">
-                        {related.label}
-                      </p>
-                      <h3 className="text-xl font-bold mb-3 text-white">
-                        {related.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm mb-3 line-clamp-3">
-                        {related.snippet}
-                      </p>
-                      <span className="text-[#68b5cc] text-sm font-semibold">
-                        Read More →
-                      </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {related.slice(0,3).map((rel, i) => (
+                <motion.div key={rel.id || rel.slug} initial={{ opacity:0, y:20 }}
+                  whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
+                  transition={{ delay: i*0.08, duration:0.5, ease:[0.22,1,0.36,1] }}>
+                  <Link to={`/blog/${rel.slug}`} className="group block h-full">
+                    <div className="h-full rounded-2xl overflow-hidden flex flex-col"
+                      style={{ background:Cd, border:`1px solid ${Br}`, transition:"border-color 0.2s ease" }}
+                      onMouseEnter={e=>{ e.currentTarget.style.borderColor=`${A}40`; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.borderColor=Br; }}>
+                      {rel.image && (
+                        <div className="relative overflow-hidden" style={{ aspectRatio:"16/9" }}>
+                          <img src={rel.image} alt={rel.title}
+                            className="w-full h-full object-cover"
+                            style={{ transition:"transform 0.5s ease" }}
+                            onMouseEnter={e=>{ e.currentTarget.style.transform="scale(1.05)"; }}
+                            onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; }} />
+                          {rel.label && (
+                            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10.5px] font-bold"
+                              style={{ background:A, color: isDark?"#0b0b0e":"#fff" }}>{rel.label}</div>
+                          )}
+                        </div>
+                      )}
+                      <div className="p-5 flex flex-col flex-1">
+                        <h3 className="text-[14px] font-bold leading-snug mb-2 line-clamp-2"
+                          style={{ color:P }}>{rel.title}</h3>
+                        {rel.snippet && (
+                          <p className="text-[12.5px] leading-[1.7] line-clamp-2 flex-1" style={{ color:M }}>
+                            {rel.snippet}
+                          </p>
+                        )}
+                        <p className="text-[11px] mt-3 font-semibold" style={{ color:A }}>Read More →</p>
+                      </div>
                     </div>
                   </Link>
                 </motion.div>
@@ -147,15 +294,7 @@ const BlogDetail = () => {
         </section>
       )}
 
-      {/* ===== BACK BUTTON ===== */}
-      <div className="text-center px-4 sm:px-8 md:px-16 max-w-4xl mx-auto py-12">
-        <Link
-          to="/blogs"
-          className="bg-[#7ebad1] text-[#0d1321] font-bold px-6 py-3 rounded-full shadow-lg hover:bg-[#99cfd9] transition"
-        >
-          Back to Blog
-        </Link>
-      </div>
+      <Footer />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FacebookIcon, Instagram, Sparkles, Linkedin, Copyright } from "lucide-react";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { db } from "../firebase"; 
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";

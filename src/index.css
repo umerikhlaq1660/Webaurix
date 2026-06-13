@@ -1,13 +1,48 @@
 @import "tailwindcss";
 
- /* Add your global styles here  */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --nav-bg: rgba(255,255,255,0.85);
+  --nav-border: rgba(0,0,0,0.08);
+  --nav-text: #0f172a;
+  --nav-text-muted: #64748b;
+  --nav-accent: #0e7490;
+  --nav-accent-light: rgba(14,116,144,0.12);
+  --card-bg: #f8fafc;
+  --card-hover: #f1f5f9;
+  --card-border: rgba(0,0,0,0.07);
+  --dropdown-bg: rgba(255,255,255,0.97);
+  --body-bg: #ffffff;
+}
+
+.dark {
+  --nav-bg: rgba(5,10,13,0.85);
+  --nav-border: rgba(255,255,255,0.07);
+  --nav-text: #f1f5f9;
+  --nav-text-muted: #64748b;
+  --nav-accent: #68b5cc;
+  --nav-accent-light: rgba(104,181,204,0.12);
+  --card-bg: rgba(255,255,255,0.03);
+  --card-hover: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.07);
+  --dropdown-bg: rgba(5,10,13,0.98);
+  --body-bg: #000000;
+}
+
 body {
   margin: 0;
-  background-color: #000;
+  background-color: var(--body-bg);
   font-family: "Nata Sans", sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 .animated {
   will-change: transform, opacity;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .grid-pattern {

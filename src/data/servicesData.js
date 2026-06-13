@@ -42,7 +42,7 @@ const servicesData = {
   "ui-ux-design": {
     bannerLabel: "UI / UX",
     bannerTitle: "Designing delightful and usable interfaces",
-    bannerSubtitle: "We craft user-centered interfaces and experiences that convert — from research to high-fidelity prototypes.",
+    bannerSubtitle: "We craft user-centered interfaces and experiences that convert - from research to high-fidelity prototypes.",
     seo: {
       title: "UI UX Design Services | User Focused Digital Experiences – Webaurix",
       description:
@@ -160,7 +160,7 @@ const servicesData = {
   "web-development": {
     bannerLabel: "Web Development",
     bannerTitle: "Fast, secure and maintainable websites",
-    bannerSubtitle: "From marketing sites to complex web apps — we build performant, accessible and scalable solutions.",
+    bannerSubtitle: "From marketing sites to complex web apps - we build performant, accessible and scalable solutions.",
     seo: {
       title: "Custom Web Development Services | Scalable Websites – Webaurix",
       description:
@@ -246,7 +246,7 @@ const servicesData = {
 
     customSection: {
       title: "Performance Optimization",
-      desc: "Boost your site’s loading time and SEO rankings through modern performance practices — from code-splitting to CDN strategies.",
+      desc: "Boost your site’s loading time and SEO rankings through modern performance practices - from code-splitting to CDN strategies.",
       ctaText: "Optimize My Site",
       ctaLink: "/book-call",
     },
@@ -309,7 +309,7 @@ const servicesData = {
     {
       question: "Will my website be mobile-friendly and responsive?",
       answer:
-        "Absolutely. Every website we build is optimized for all devices — desktops, tablets, and smartphones — ensuring a smooth user experience everywhere.",
+        "Absolutely. Every website we build is optimized for all devices - desktops, tablets, and smartphones - ensuring a smooth user experience everywhere.",
     },
     {
       question: "Can I update and manage the website myself after it’s built?",
@@ -324,7 +324,7 @@ const servicesData = {
     {
       question: "How much does a custom website cost?",
       answer:
-        "Pricing varies based on your goals, features, and design requirements — we tailor quotes to match your exact needs and budget.",
+        "Pricing varies based on your goals, features, and design requirements - we tailor quotes to match your exact needs and budget.",
     },
   ],
 },
@@ -414,7 +414,7 @@ const servicesData = {
 
     customSection: {
       title: "Performance Optimization",
-      desc: "Boost your site’s loading time and SEO rankings through modern performance practices — from code-splitting to CDN strategies.",
+      desc: "Boost your site’s loading time and SEO rankings through modern performance practices - from code-splitting to CDN strategies.",
       ctaText: "Optimize My Site",
       ctaLink: "/book-call",
     },
@@ -564,7 +564,7 @@ const servicesData = {
 
     customSection: {
       title: "Performance Optimization",
-      desc: "Boost your site’s loading time and SEO rankings through modern performance practices — from code-splitting to CDN strategies.",
+      desc: "Boost your site’s loading time and SEO rankings through modern performance practices - from code-splitting to CDN strategies.",
       ctaText: "Optimize My Site",
       ctaLink: "/book-call",
     },

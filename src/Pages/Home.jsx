@@ -1,16 +1,14 @@
 import React from "react";
 import Seo from "../components/Seo";
-import HeaderBanner from "./HeaderBanner";
-import ServicesSection from "./ServicesSection";
-import Footer from "./Footer";
+import HeaderBanner from "../components/HeaderBanner";
+import ServicesSection from "../components/ServicesSection";
+import Footer from "../components/Footer";
 import CorePhilosophy from "./CorePhilosophy";
-import FAQSection from "./faqs";
+import FAQSection from "../components/FAQsSection";
 import BusinessTalk from "./BusinessTalk";
-import StatsSection from "./StatsSection";
+import StatsSection from "../components/StatsSection";
 import BlogsSection from "../components/BlogSection";
 import OurApproach from "../components/OurApproch";
-import StrategySection from "./StrategySection";
-
 const Home = () => {
   return (
     <>
@@ -19,13 +17,11 @@ const Home = () => {
         description="Webaurix builds high performance websites, AI chatbots, and digital solutions that scale businesses globally."
         url="https://www.webaurix.com/"
       />
-      
 
       <HeaderBanner />
       <CorePhilosophy />
       <ServicesSection />
       <OurApproach />
-      <StrategySection />
       <StatsSection />
       <FAQSection />
       <BlogsSection />

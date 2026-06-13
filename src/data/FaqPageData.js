@@ -116,7 +116,7 @@ const faqSections = [
       {
         question: "Do you provide prototypes or demos before final delivery?",
         answer: [
-          "Yes — we share interactive prototypes and design previews so you can review and suggest changes early on.",
+          "Yes - we share interactive prototypes and design previews so you can review and suggest changes early on.",
         ],
       },
       {

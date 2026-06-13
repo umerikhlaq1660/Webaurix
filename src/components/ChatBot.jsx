@@ -1,18 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import {
-  Bot,
-  BotOff,
-  Home,
-  MessageCircle,
-  HelpCircle,
-  X,
-  Send,
-  MoreVertical,
-  ArrowLeft,
-  AlertCircle,
-  Plus,
-  Loader,
+  Bot, X, Send, ArrowLeft, AlertCircle,
+  Plus, Loader, Home, MessageCircle, HelpCircle,
+  MoreVertical, ExternalLink, Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import emailjs from "@emailjs/browser";
@@ -21,100 +12,279 @@ import customAnswers from "../data/customAnswers";
 import keywordAnswers from "../data/keywordAnswers";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import stringSimilarity from "string-similarity"; // fuzzy matching
+import stringSimilarity from "string-similarity";
 
-const initialForm = {
-  firstName: "",
-  email: "",
-  phoneNumber: "",
-  quries: "",
+/*  theme tokens (always dark for chatbot window) */
+const C = {
+  bg:         "#0c1015",
+  surface:    "rgba(255,255,255,0.04)",
+  surfaceHov: "rgba(255,255,255,0.07)",
+  border:     "rgba(255,255,255,0.08)",
+  accent:     "#68b5cc",
+  accentDim:  "rgba(104,181,204,0.15)",
+  primary:    "#f0eeec",
+  muted:      "rgba(240,238,236,0.45)",
+  userBubble: "#68b5cc",
+  botBubble:  "rgba(255,255,255,0.07)",
+  inputBg:    "rgba(255,255,255,0.05)",
 };
 
+const initialForm = { firstName: "", email: "", phoneNumber: "", quries: "" };
+
+/* ─── typing dots ─── */
+const TypingDots = () => (
+  <div className="flex items-center gap-1 px-1 py-0.5">
+    {[0, 0.15, 0.3].map((d, i) => (
+      <motion.div
+        key={i}
+        className="w-1.5 h-1.5 rounded-full"
+        style={{ background: C.muted }}
+        animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+        transition={{ duration: 0.9, delay: d, repeat: Infinity }}
+      />
+    ))}
+  </div>
+);
+
+/*  chat input field  */
+const ChatInput = ({ value, onChange, onSend, loading }) => (
+  <div className="flex items-center gap-2 px-4 py-3"
+    style={{ borderTop: `1px solid ${C.border}`, background: C.bg }}>
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+      onKeyDown={(e) => e.key === "Enter" && onSend()}
+      placeholder="Type a message…"
+      className="flex-1 bg-transparent text-[13.5px] outline-none"
+      style={{ color: C.primary }}
+    />
+    <motion.button
+      onClick={onSend}
+      disabled={loading || !value.trim()}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      className="w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer flex-shrink-0 transition-opacity duration-200"
+      style={{
+        background: C.accent,
+        color: "#0c1015",
+        opacity: loading || !value.trim() ? 0.45 : 1,
+      }}
+    >
+      <Send size={13} />
+    </motion.button>
+  </div>
+);
+
+/* ─── bottom nav tab ─── */
+const NavTab = ({ id, label, icon: Icon, active, onClick }) => (
+  <button
+    onClick={() => onClick(id)}
+    className="flex flex-col items-center gap-0.5 flex-1 py-2 cursor-pointer transition-colors duration-200"
+    style={{ color: active ? C.accent : C.muted }}
+  >
+    <Icon size={17} />
+    <span className="text-[10px] font-medium">{label}</span>
+    {active && (
+      <motion.div
+        layoutId="tab-indicator"
+        className="w-4 h-0.5 rounded-full"
+        style={{ background: C.accent }}
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      />
+    )}
+  </button>
+);
+
+/* MAIN */
 const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showGreeting, setShowGreeting] = useState(false);
-  const [activeTab, setActiveTab] = useState("home");
-  const [isQuestionMode, setIsQuestionMode] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState(initialForm);
-  const [errors, setErrors] = useState({});
-  const [showInputBox, setShowInputBox] = useState(false);
-  const [showNotice, setShowNotice] = useState(false);
-  const [showPredefined, setShowPredefined] = useState(true);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [currentChatId, setCurrentChatId] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [deletingAll, setDeletingAll] = useState(false);
+  const [isOpen, setIsOpen]                   = useState(false);
+  const [showGreeting, setShowGreeting]       = useState(false);
+  const [activeTab, setActiveTab]             = useState("home");
+  const [isQuestionMode, setIsQuestionMode]   = useState(false);
+  const [messages, setMessages]               = useState([]);
+  const [input, setInput]                     = useState("");
+  const [loading, setLoading]                 = useState(false);
+  const [showForm, setShowForm]               = useState(false);
+  const [formData, setFormData]               = useState(initialForm);
+  const [errors, setErrors]                   = useState({});
+  const [showInputBox, setShowInputBox]       = useState(false);
+  const [showNotice, setShowNotice]           = useState(false);
+  const [showPredefined, setShowPredefined]   = useState(true);
+  const [chatHistory, setChatHistory]         = useState([]);
+  const [currentChatId, setCurrentChatId]     = useState(null);
+  const [dropdownOpen, setDropdownOpen]       = useState(false);
+  const [deletingAll, setDeletingAll]         = useState(false);
 
   const messagesEndRef = useRef(null);
-  const formRef = useRef(null);
+  const formRef        = useRef(null);
 
-  // GREETING POPUP on page load 
+  /* greeting */
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowGreeting(true);
-    }, 2000); // show after 2 sec
-
-    const hideTimer = setTimeout(() => {
-      setShowGreeting(false);
-    }, 8000); 
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(hideTimer);
-    };
+    const t1 = setTimeout(() => setShowGreeting(true),  2000);
+    const t2 = setTimeout(() => setShowGreeting(false), 8000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
+  useEffect(() => { if (isOpen) setShowGreeting(false); }, [isOpen]);
 
-  //  Close greeting if chat opens 
+  /* localStorage */
   useEffect(() => {
-    if (isOpen) setShowGreeting(false);
-  }, [isOpen]);
-
-  // Load chat history
-  useEffect(() => {
-    const savedHistory = localStorage.getItem("chatHistory");
-    if (savedHistory) setChatHistory(JSON.parse(savedHistory));
+    const h = localStorage.getItem("chatHistory");
+    if (h) setChatHistory(JSON.parse(h));
   }, []);
-
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
   }, [chatHistory]);
-
   useEffect(() => {
     if (currentChatId) {
-      const savedMessages = localStorage.getItem(`chatMessages_${currentChatId}`);
-      if (savedMessages) setMessages(JSON.parse(savedMessages));
+      const m = localStorage.getItem(`chatMessages_${currentChatId}`);
+      if (m) setMessages(JSON.parse(m));
     }
   }, [currentChatId]);
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     if (currentChatId)
       localStorage.setItem(`chatMessages_${currentChatId}`, JSON.stringify(messages));
   }, [messages, currentChatId]);
 
-  const TypingAnimation = () => (
-    <div className="flex space-x-1 items-center ml-2">
-      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-      <div
-        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-        style={{ animationDelay: "0.15s" }}
-      ></div>
-      <div
-        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-        style={{ animationDelay: "0.3s" }}
-      ></div>
-    </div>
-  );
+  const formatTime = () =>
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  /* fuzzy match */
+  const getFuzzyAnswer = (text) => {
+    let best = { score: 0, answer: "" };
+    keywordAnswers.forEach((item) => {
+      item.keywords.forEach((kw) => {
+        const s = stringSimilarity.compareTwoStrings(text.toLowerCase(), kw.toLowerCase());
+        if (s > best.score) best = { score: s, answer: item.answer };
+      });
+    });
+    return best.score >= 0.3 ? best.answer : null;
+  };
+
+  /* send message */
+  const sendMessage = async (customMsg) => {
+    const text = (customMsg || input).trim();
+    if (!text || loading) return;
+    if (!isQuestionMode) setIsQuestionMode(true);
+    if (activeTab !== "chat") setActiveTab("chat");
+
+    setInput("");
+    setLoading(true);
+    setShowPredefined(false);
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: text, time: formatTime() },
+      { role: "assistant", content: "__typing__", time: "" },
+    ]);
+
+    setTimeout(() => {
+      const respond = (answer) => {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.content !== "__typing__"),
+          { role: "assistant", content: answer, time: formatTime() },
+        ]);
+        setChatHistory((prev) => {
+          const snippet = answer.split("\n")[0].slice(0, 60) + (answer.length > 60 ? "…" : "");
+          if (currentChatId)
+            return prev.map((c) => c.id === currentChatId ? { ...c, lastMsg: snippet, time: formatTime() } : c);
+          const entry = { id: Date.now(), botName: "WebaurixBot", lastMsg: snippet, time: formatTime() };
+          setCurrentChatId(entry.id);
+          return [...prev, entry];
+        });
+        setShowNotice(true);
+        setShowInputBox(true);
+        setShowForm(false);
+        setLoading(false);
+      };
+
+      if (text.toLowerCase() === "something else") {
+        respond("You can ask any question here. How can I help?");
+        return;
+      }
+      const matchedKey = Object.keys(customAnswers).find((k) => k.toLowerCase() === text.toLowerCase());
+      if (matchedKey) { respond(customAnswers[matchedKey]); return; }
+      const fuzzy = getFuzzyAnswer(text);
+      if (fuzzy) { respond(fuzzy); return; }
+      respond("Our team is currently unavailable. Please fill in your details below and we'll get back to you:");
+      setShowForm(true);
+    }, 1500);
+  };
+
+  /* form */
+  const validateForm = () => {
+    const e = {};
+    if (!formData.firstName.trim()) e.firstName = "Required";
+    if (!formData.email.trim()) e.email = "Required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) e.email = "Invalid email";
+    if (!formData.phoneNumber.trim()) e.phoneNumber = "Required";
+    if (!formData.quries.trim()) e.quries = "Required";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleFormSubmit = async (ev) => {
+    ev.preventDefault();
+    if (!validateForm()) return;
+    setLoading(true);
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID_NEW,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID_NEW,
+        { name: formData.firstName, email: formData.email, phoneNumber: formData.phoneNumber, quries: formData.quries },
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY_NEW,
+      );
+      setShowForm(false);
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: `Got it **${formData.firstName}** - your message has been sent! Our team will be in touch soon. 👍`,
+        time: formatTime(),
+      }]);
+      setFormData(initialForm);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong. Please try again later.", time: formatTime() }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+    setErrors((p) => ({ ...p, [name]: "" }));
+  };
+
+  const startNewChat = () => {
+    const newId = Date.now();
+    setCurrentChatId(newId);
+    setMessages([{ role: "assistant", content: "__typing__", time: "" }]);
+    setChatHistory((prev) => [...prev, { id: newId, botName: "WebaurixBot", lastMsg: "Hi! What brings you here today?", time: formatTime() }]);
+    setIsQuestionMode(true);
+    setShowPredefined(false);
+    setShowInputBox(false);
+    setShowForm(false);
+    setTimeout(() => {
+      setMessages([{ role: "assistant", content: "Hi! What brings you here today?", time: formatTime() }]);
+      setShowPredefined(true);
+      setShowInputBox(true);
+      setShowNotice(true);
+    }, 1500);
+  };
+
+  const deleteAllChats = () => {
+    setDeletingAll(true);
+    setTimeout(() => {
+      setChatHistory([]); setCurrentChatId(null); setMessages([]);
+      localStorage.clear(); setDeletingAll(false); setDropdownOpen(false);
+    }, 1000);
+  };
 
   const predefinedQuestions = [
     "I have questions about pricing",
     "I have questions about my invoice",
     "I'm looking for support",
-    "I am a developer trying to learn more",
+    "I'm a developer learning more",
     "Something else",
   ];
 
@@ -128,478 +298,401 @@ const Chatbot = () => {
     "How do you handle client confidentiality?",
   ];
 
-  const formatTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  //  FUZZY MATCH FUNCTION 
-  const getFuzzyAnswer = (text) => {
-    const allAnswers = [...keywordAnswers];
-    let bestMatch = { score: 0, answer: "" };
-    allAnswers.forEach((item) => {
-      item.keywords.forEach((kw) => {
-        const similarity = stringSimilarity.compareTwoStrings(
-          text.toLowerCase(),
-          kw.toLowerCase()
-        );
-        if (similarity > bestMatch.score) {
-          bestMatch = { score: similarity, answer: item.answer };
-        }
-      });
-    });
-    return bestMatch.score >= 0.3 ? bestMatch.answer : null;
-  };
-
-  //  SEND MESSAGE FUNCTION 
-  const sendMessage = async (customMsg) => {
-    const text = (customMsg || input).trim();
-    if (!text || loading) return;
-    if (!isQuestionMode) setIsQuestionMode(true);
-    if (activeTab !== "chat") setActiveTab("chat");
-
-    const userMsg = { role: "user", content: text, time: formatTime() };
-    setInput("");
-    setLoading(true);
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      { role: "assistant", content: "__typing__", time: "" },
-    ]);
-    setShowPredefined(false);
-
-    setTimeout(() => {
-      const handleResponse = (answer) => {
-        const assistantMsg = {
-          role: "assistant",
-          content: answer,
-          time: formatTime(),
-        };
-        setMessages((prev) => [
-          ...prev.filter((m) => m.content !== "__typing__"),
-          assistantMsg,
-        ]);
-        setChatHistory((prev) => {
-          if (currentChatId) {
-            return prev.map((chat) =>
-              chat.id === currentChatId
-                ? {
-                    ...chat,
-                    lastMsg:
-                      answer.split("\n")[0].slice(0, 60) +
-                      (answer.length > 60 ? "..." : ""),
-                    time: formatTime(),
-                  }
-                : chat
-            );
-          } else {
-            const newEntry = {
-              id: Date.now(),
-              botName: "WebaurixBot",
-              lastMsg:
-                answer.split("\n")[0].slice(0, 60) +
-                (answer.length > 60 ? "..." : ""),
-              time: formatTime(),
-            };
-            setCurrentChatId(newEntry.id);
-            return [...prev, newEntry];
-          }
-        });
-        setShowNotice(true);
-        setShowInputBox(true);
-        setShowForm(false);
-        setLoading(false);
-      };
-
-      if (text.toLowerCase() === "something else") {
-        handleResponse("You can ask any question here. How can I help?");
-        return;
-      }
-
-      const matchedKey = Object.keys(customAnswers).find(
-        (key) => key.toLowerCase() === text.toLowerCase()
-      );
-      if (matchedKey) {
-        handleResponse(customAnswers[matchedKey]);
-        return;
-      }
-
-      const fuzzyAnswer = getFuzzyAnswer(text);
-      if (fuzzyAnswer) {
-        handleResponse(fuzzyAnswer);
-        return;
-      }
-
-      handleResponse(
-        "Our team is currently unavailable. Please provide your details below so we can contact you:"
-      );
-      setShowForm(true);
-    }, 1500);
-  };
-
-  // FORM HANDLING 
-  const validateForm = () => {
-    let newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = "This field is required";
-    if (!formData.email.trim()) newErrors.email = "This field is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      newErrors.email = "Invalid email format";
-    if (!formData.phoneNumber.trim())
-      newErrors.phoneNumber = "This field is required";
-    if (!formData.quries.trim()) newErrors.quries = "This field is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setLoading(true);
-    try {
-      const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID_NEW;
-      const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID_NEW;
-      const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY_NEW;
-      const templateParams = {
-        name: formData.firstName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        quries: formData.quries,
-      };
-      await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-      setShowForm(false);
-      const successMsg = {
-        role: "assistant",
-        content: `**${formData.firstName}**, your message **"${formData.quries}"** has been sent successfully. Our team will contact you soon.`,
-        time: formatTime(),
-      };
-      setMessages((prev) => [...prev, successMsg]);
-      setFormData(initialForm);
-    } catch (err) {
-      console.error("EmailJS Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again later.",
-          time: formatTime(),
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const startNewChat = () => {
-    const newId = Date.now();
-    const firstBotMsg = { role: "assistant", content: "__typing__", time: "" };
-    setCurrentChatId(newId);
-    setMessages([firstBotMsg]);
-    setChatHistory((prev) => [
-      ...prev,
-      {
-        id: newId,
-        botName: "WebaurixBot",
-        lastMsg: "Hi there! What brings you here today?",
-        time: formatTime(),
-      },
-    ]);
-    setIsQuestionMode(true);
-    setShowPredefined(false);
-    setShowInputBox(false);
-    setShowForm(false);
-    setTimeout(() => {
-      const botMsg = {
-        role: "assistant",
-        content: "Hi there! What brings you here today?",
-        time: formatTime(),
-      };
-      setMessages([botMsg]);
-      setShowPredefined(true);
-      setShowInputBox(true);
-      setShowNotice(true);
-    }, 1500);
-  };
-
-  const deleteAllChats = () => {
-    setDeletingAll(true);
-    setTimeout(() => {
-      setChatHistory([]);
-      setCurrentChatId(null);
-      setMessages([]);
-      localStorage.clear();
-      setDeletingAll(false);
-      setDropdownOpen(false);
-    }, 1500);
-  };
-
-  const knowledgeBase = [
-    { title: "Client Onboarding", link: "https://www.youtube.com/yourcompany1" },
-    { title: "Website Tutorials", link: "https://www.youtube.com/yourcompany2" },
-    { title: "Product Guides", link: "https://www.youtube.com/yourcompany3" },
-    { title: "FAQ Walkthrough", link: "https://www.youtube.com/yourcompany4" },
-  ];
-
   const resources = [
     { title: "Book a Consultation", link: "https://calendly.com/umerikhlaq1660/30min" },
-    { title: "View Portfolio", link: "https://webaurix.com/portfolio" },
-    { title: "Webaurix AI", link: "https://ai.webaurix.com/" },
-    { title: "Webaurix Blogs", link: "https://www.webaurix.com/blogs" },
+    { title: "View Portfolio",       link: "https://webaurix.com/portfolio" },
+    { title: "Webaurix AI",          link: "https://ai.webaurix.com/" },
+    { title: "Webaurix Blogs",       link: "https://www.webaurix.com/blogs" },
   ];
 
-  //  JSX 
+  /* ── input style helper ── */
+  const inputSx = {
+    background: C.inputBg,
+    border: `1px solid ${C.border}`,
+    color: C.primary,
+    borderRadius: "10px",
+    padding: "8px 12px",
+    fontSize: "13px",
+    outline: "none",
+    width: "100%",
+  };
+
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* ── FAB ── */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1 }}
-        transition={{ type: "spring", stiffness: 200 }}
-        className="fixed bottom-6 right-4 z-50 py-4 px-4 rounded-2xl shadow-lg cursor-pointer bg-[#036988] text-white"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.08, y: -2 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 300, damping: 22 }}
+        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer"
+        style={{ background: C.accent, color: "#0c1015", boxShadow: `0 4px 24px ${C.accentDim}`, willChange: "transform" }}
+        aria-label="Toggle chat"
       >
-        {isOpen ? <BotOff className="w-8 h-8" /> : <Bot className="w-8 h-8" />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span key={isOpen ? "x" : "bot"}
+            initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+            transition={{ duration: 0.18 }}
+            className="flex items-center justify-center"
+          >
+            {isOpen ? <X size={19} /> : <Bot size={19} />}
+          </motion.span>
+        </AnimatePresence>
       </motion.button>
 
-      {/* Greeting Popup */}
+      {/* ── Greeting bubble ── */}
       <AnimatePresence>
         {showGreeting && !isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ duration: 0.4 }}
-            className="fixed bottom-22 right-6 z-50 bg-white border border-[#036988]/30 shadow-lg rounded-xl px-4 py-3 text-sm text-gray-800 w-[220px]"
+            initial={{ opacity: 0, x: 12, scale: 0.92 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 12, scale: 0.92 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-5 right-[4.5rem] z-50 rounded-2xl px-4 py-3 w-[210px]"
+            style={{ background: "rgba(12,16,21,0.95)", border: `1px solid ${C.border}`, backdropFilter: "blur(14px)", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
           >
-            <span className="font-semibold text-[#036988]">Hi there!</span> Need help?  
-            <p className="text-xs text-gray-500 mt-1">Click the chat button to start talking.</p>
+            <p className="text-[13px] font-semibold mb-0.5" style={{ color: C.accent }}>👋 Hi there!</p>
+            <p className="text-[12px] leading-relaxed" style={{ color: C.muted }}>Need help? Click to chat with us.</p>
+            <div className="absolute right-[-5px] bottom-4 w-2.5 h-2.5 rotate-45"
+              style={{ background: "rgba(12,16,21,0.95)", borderRight: `1px solid ${C.border}`, borderTop: `1px solid ${C.border}` }} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main Chatbot Window */}
+      {/* ── Chat Window ── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            initial={{ opacity: 0, scale: 0.88, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-20 right-4 z-50 w-[90%] sm:w-[400px] md:w-[420px] h-[80vh] bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200 flex flex-col"
+            exit={{ opacity: 0, scale: 0.88, y: 24 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-20 right-5 z-50 w-[92vw] sm:w-[380px] flex flex-col rounded-2xl overflow-hidden"
+            style={{
+              height: "min(82vh, 600px)",
+              background: C.bg,
+              border: `1px solid ${C.border}`,
+              boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(104,181,204,0.08)`,
+            }}
           >
-            {/* HEADER */}
-            <div className="bg-[#036988] text-white flex items-center justify-between px-3 py-2">
-              <div className="flex items-center gap-2">
+            {/* ── HEADER ── */}
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ borderBottom: `1px solid ${C.border}`, background: "rgba(255,255,255,0.03)" }}>
+              <div className="flex items-center gap-2.5">
                 {isQuestionMode && (
-                  <button
+                  <motion.button
                     onClick={() => setIsQuestionMode(false)}
-                    className="p-1 hover:bg-[#02576b] rounded-full"
+                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
+                    style={{ background: C.surface, color: C.muted }}
                   >
-                    <ArrowLeft size={18} />
-                  </button>
+                    <ArrowLeft size={13} />
+                  </motion.button>
                 )}
-                <img
-                  src={icon}
-                  alt="Bot"
-                  className="w-8 h-8 rounded-full border border-white"
-                />
+                <div className="relative">
+                  <img src={icon} alt="Bot" className="w-8 h-8 rounded-xl object-contain" style={{ background: C.accentDim }} />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2"
+                    style={{ background: "#4ade80", borderColor: C.bg }} />
+                </div>
                 <div>
-                  <p className="font-semibold text-sm">Webaurix Assistant</p>
-                  <p className="text-xs text-gray-200">Here to assist you</p>
+                  <p className="text-[13px] font-semibold leading-tight" style={{ color: C.primary }}>Webaurix Assistant</p>
+                  <p className="text-[10px]" style={{ color: C.muted }}>Online - typically replies instantly</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 relative">
+
+              <div className="flex items-center gap-1 relative">
                 {activeTab === "chat" && (
-                  <div>
-                    <MoreVertical
-                      className="cursor-pointer"
-                      size={18}
+                  <>
+                    <motion.button
                       onClick={() => setDropdownOpen(!dropdownOpen)}
-                    />
-                    {dropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-50">
-                        <button
-                          onClick={deleteAllChats}
-                          className="flex items-center justify-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+                      whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
+                      style={{ background: dropdownOpen ? C.surface : "transparent", color: C.muted }}
+                    >
+                      <MoreVertical size={14} />
+                    </motion.button>
+                    <AnimatePresence>
+                      {dropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: -6 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: -6 }}
+                          transition={{ duration: 0.18 }}
+                          className="absolute right-0 top-9 rounded-xl overflow-hidden z-50 min-w-[170px]"
+                          style={{ background: "#111820", border: `1px solid ${C.border}`, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}
                         >
-                          {deletingAll ? (
-                            <Loader className="animate-spin w-4 h-4" />
-                          ) : null}
-                          Delete All Chat History
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                          <button
+                            onClick={deleteAllChats}
+                            className="flex items-center gap-2 w-full px-3 py-2.5 text-[13px] cursor-pointer transition-colors duration-150"
+                            style={{ color: "#f87171" }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(248,113,113,0.08)"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                          >
+                            {deletingAll
+                              ? <Loader size={13} className="animate-spin" />
+                              : <Trash2 size={13} />}
+                            Delete all history
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
                 )}
-                <X
+                <motion.button
                   onClick={() => setIsOpen(false)}
-                  size={18}
-                  className="cursor-pointer"
-                />
+                  whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center cursor-pointer"
+                  style={{ background: C.surface, color: C.muted }}
+                >
+                  <X size={13} />
+                </motion.button>
               </div>
             </div>
 
-            {/* Chat Body */}
-            {/* Chat Body */}
-            <div className="flex-1 p-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400/40 scrollbar-track-transparent scrollbar-thumb-rounded-full">
-              {!isQuestionMode ? (
-                <>
-                  {activeTab === "home" && (
-                    <div className="flex flex-col items-center text-center mt-6">
-                      <img src={icon} alt="Logo" className="w-20 h-20 rounded-full mb-3" />
-                      <h3 className="font-semibold text-gray-800 text-3xl">Welcome to Webaurix Assistant</h3>
-                      <p className="text-gray-600 text-sm mt-2">We’re here to assist you with your queries.</p>
+            {/* ── BODY ── */}
+            <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: `${C.border} transparent` }}>
 
-                      <div className="mt-6 w-full">
-                        <h4 className="font-semibold text-gray-700 text-sm mb-3 text-left px-2">Frequently Asked Questions</h4>
-                        <div className="flex flex-col gap-2">
-                          {faqQuestions.map((q, idx) => (
-                            <button
-                              key={idx}
+              {!isQuestionMode ? (
+                <AnimatePresence mode="wait">
+                  {/* HOME TAB */}
+                  {activeTab === "home" && (
+                    <motion.div key="home"
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex flex-col p-4 gap-4"
+                    >
+                      {/* welcome card */}
+                      <div className="rounded-xl p-4 flex items-center gap-3"
+                        style={{ background: C.accentDim, border: `1px solid rgba(104,181,204,0.15)` }}>
+                        <img src={icon} alt="Logo" className="w-10 h-10 rounded-xl flex-shrink-0 object-contain" />
+                        <div>
+                          <p className="text-[14px] font-bold" style={{ color: C.primary }}>Welcome to Webaurix!</p>
+                          <p className="text-[12px]" style={{ color: C.muted }}>Ask me anything about our services.</p>
+                        </div>
+                      </div>
+
+                      {/* FAQ questions */}
+                      <div>
+                        <p className="text-[10.5px] font-bold tracking-[0.15em] uppercase mb-2.5" style={{ color: C.muted }}>
+                          Quick questions
+                        </p>
+                        <div className="flex flex-col gap-1.5">
+                          {faqQuestions.map((q, i) => (
+                            <motion.button
+                              key={i}
                               onClick={() => sendMessage(q)}
-                              className="text-left px-3 py-2 bg-white text-[#036988] border border-[#036988]/40 rounded-sm shadow-sm hover:bg-[#036988]/10 text-sm w-full cursor-pointer"
+                              whileHover={{ x: 3 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="text-left px-3 py-2.5 rounded-xl text-[12.5px] cursor-pointer transition-colors duration-150 flex items-center justify-between gap-2 group"
+                              style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.primary }}
+                              onMouseEnter={(e) => e.currentTarget.style.borderColor = `${C.accent}40`}
+                              onMouseLeave={(e) => e.currentTarget.style.borderColor = C.border}
                             >
                               {q}
-                            </button>
+                              <span style={{ color: C.accent, flexShrink: 0 }}>→</span>
+                            </motion.button>
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
 
+                  {/* CHAT TAB */}
                   {activeTab === "chat" && (
-                    <div className="flex flex-col h-full">
-                      <div className="flex-1 overflow-y-auto space-y-3 mt-3 scrollbar-thin scrollbar-thumb-gray-400/40 scrollbar-track-transparent scrollbar-thumb-rounded-full">
-                        {chatHistory.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center mt-50 text-gray-500">
-                            <MessageCircle size={50} className="opacity-60 mb-3" />
-                            <p className="text-2xl text-gray-600 ">No Messages Yet</p>
-                            <p className="text-sm text-gray-500">Messages from the team will appear here</p>
+                    <motion.div key="chat"
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex flex-col h-full p-3 gap-2"
+                    >
+                      {chatHistory.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full py-12 gap-3">
+                          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: C.accentDim }}>
+                            <MessageCircle size={20} style={{ color: C.accent }} />
                           </div>
-                        ) : (
-                          chatHistory.map((chat) => (
-                            <div
-                              key={chat.id}
-                              className="flex items-center gap-3 bg-gray-50 p-3 overflow-clip rounded-xl shadow-sm border border-[#61acdd] hover:bg-gray-100 cursor-pointer"
+                          <p className="text-[14px] font-semibold" style={{ color: C.primary }}>No conversations yet</p>
+                          <p className="text-[12px] text-center max-w-[200px]" style={{ color: C.muted }}>Start a new chat to ask your questions</p>
+                          <motion.button onClick={startNewChat} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold cursor-pointer mt-2"
+                            style={{ background: C.accent, color: "#0c1015" }}>
+                            <Plus size={13} /> New chat
+                          </motion.button>
+                        </div>
+                      ) : (
+                        <>
+                          {chatHistory.map((chat) => (
+                            <motion.div key={chat.id}
+                              whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
                               onClick={() => {
                                 setCurrentChatId(chat.id);
-                                const chatMessages = localStorage.getItem(`chatMessages_${chat.id}`);
-                                if (chatMessages) setMessages(JSON.parse(chatMessages));
-                                setIsQuestionMode(true);
-                                setShowPredefined(true);
-                                setShowInputBox(true);
-                                setShowForm(false);
+                                const m = localStorage.getItem(`chatMessages_${chat.id}`);
+                                if (m) setMessages(JSON.parse(m));
+                                setIsQuestionMode(true); setShowPredefined(true); setShowInputBox(true); setShowForm(false);
                               }}
+                              className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors duration-150"
+                              style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                              onMouseEnter={(e) => e.currentTarget.style.borderColor = `${C.accent}35`}
+                              onMouseLeave={(e) => e.currentTarget.style.borderColor = C.border}
                             >
-                              <img src={logo} alt="Bot" className="w-10 h-10 rounded-full border border-gray-200" />
-                              <div className="flex flex-col flex-1">
-                                <p className="font-semibold text-sm text-gray-800">{chat.botName}</p>
-                                <p className="text-xs text-gray-600 truncate">{chat.lastMsg}</p>
-                                <span className="text-[10px] text-gray-400 mt-1">{chat.time}</span>
+                              <img src={icon} alt="Bot" className="w-8 h-8 rounded-xl flex-shrink-0 object-contain" style={{ background: C.accentDim }} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[13px] font-semibold" style={{ color: C.primary }}>{chat.botName}</p>
+                                <p className="text-[11px] truncate" style={{ color: C.muted }}>{chat.lastMsg}</p>
                               </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      <div className="p-4 bg-white border-t mt-auto flex justify-center">
-                        <button
-                          onClick={startNewChat}
-                          className="flex items-center gap-2 bg-[#036988] hover:bg-[#024d63] text-white px-4 py-2 rounded-xl text-sm font-medium shadow-md cursor-pointer"
-                        >
-                          <Plus size={16} /> Ask a Question
-                        </button>
-                      </div>
-                    </div>
+                              <span className="text-[10px] flex-shrink-0" style={{ color: C.muted }}>{chat.time}</span>
+                            </motion.div>
+                          ))}
+                          <motion.button onClick={startNewChat} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                            className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer mt-1"
+                            style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.accent }}>
+                            <Plus size={13} /> New chat
+                          </motion.button>
+                        </>
+                      )}
+                    </motion.div>
                   )}
 
+                  {/* HELP TAB */}
                   {activeTab === "help" && (
-                    <div className="flex flex-col gap-6 mt-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-800 text-lg mb-2">Knowledge Base & Tutorials</h3>
-                        <div className="flex flex-col gap-2">
-                          {knowledgeBase.map((item, idx) => (
-                            <div key={idx} className="p-3 border rounded-md hover:bg-gray-50">
-                              <p className="font-medium text-gray-800">{item.title}</p>
-                              <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-sm text-[#036988] hover:underline">
-                                Watch on YouTube
-                              </a>
-                            </div>
-                          ))}
-                        </div>
+                    <motion.div key="help"
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex flex-col p-4 gap-4"
+                    >
+                      <p className="text-[10.5px] font-bold tracking-[0.15em] uppercase" style={{ color: C.muted }}>Quick links</p>
+                      <div className="flex flex-col gap-2">
+                        {resources.map((res, i) => (
+                          <a key={i} href={res.link} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-[13px] font-medium transition-colors duration-150"
+                            style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.primary, textDecoration: "none" }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${C.accent}40`; e.currentTarget.style.color = C.accent; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.primary; }}
+                          >
+                            {res.title}
+                            <ExternalLink size={12} style={{ color: C.muted, flexShrink: 0 }} />
+                          </a>
+                        ))}
                       </div>
-
-                      <div>
-                        <h3 className="font-semibold text-gray-800 text-lg mb-2">Company Resources</h3>
-                        <div className="flex flex-col gap-2">
-                          {resources.map((res, idx) => (
-                            <a
-                              key={idx}
-                              href={res.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-3 border rounded-md hover:bg-gray-50 text-[#036988] font-medium"
-                            >
-                              {res.title}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    </motion.div>
                   )}
-                </>
+                </AnimatePresence>
+
               ) : (
-                <div className="flex flex-col space-y-3">
+                /* ── CHAT MESSAGES ── */
+                <div className="flex flex-col gap-3 p-4 pb-2">
                   {showNotice && showInputBox && (
-                    <div className="bg-[#f8fafc] text-[#036988] text-xs p-2 rounded-md flex items-center gap-2 border border-[#036988]/30">
-                      <AlertCircle size={14} className="text-[#036988]" />
-                      <span>This chat session is recorded and may be monitored or reviewed by Webaurix.</span>
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-xl text-[11px]"
+                      style={{ background: "rgba(104,181,204,0.06)", border: `1px solid ${C.accentDim}`, color: C.muted }}>
+                      <AlertCircle size={12} style={{ color: C.accent, marginTop: 1, flexShrink: 0 }} />
+                      This chat may be monitored or reviewed by Webaurix.
                     </div>
                   )}
 
                   {messages.map((msg, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
+                    <motion.div key={i}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className={`max-w-[80%] ${msg.role === "user" ? "self-end" : "self-start"}`}
+                      transition={{ duration: 0.25 }}
+                      className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                     >
-                      <div className={`p-2 rounded-2xl text-sm shadow-md ${
-                        msg.role === "user" ? "bg-[#036988] text-white rounded-br-none" : "bg-gray-100 text-gray-800 rounded-bl-none"
-                      }`}>
-                        {msg.content === "__typing__" ? <TypingAnimation /> : <ReactMarkdown>{msg.content}</ReactMarkdown>}
-                        <p className="text-[10px] text-gray-400 mt-1 text-right">{msg.time}</p>
+                      {msg.role === "assistant" && (
+                        <img src={icon} alt="bot" className="w-6 h-6 rounded-lg flex-shrink-0 self-end object-contain" style={{ background: C.accentDim }} />
+                      )}
+                      <div className="max-w-[78%]">
+                        <div className="px-3 py-2 rounded-2xl text-[13px] leading-relaxed"
+                          style={{
+                            background: msg.role === "user" ? C.userBubble : C.botBubble,
+                            color: msg.role === "user" ? "#0c1015" : C.primary,
+                            borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                          }}>
+                          {msg.content === "__typing__"
+                            ? <TypingDots />
+                            : <ReactMarkdown>{msg.content}</ReactMarkdown>}
+                        </div>
+                        {msg.time && (
+                          <p className="text-[9.5px] mt-0.5 px-1"
+                            style={{ color: C.muted, textAlign: msg.role === "user" ? "right" : "left" }}>
+                            {msg.time}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   ))}
 
+                  {/* inline contact form */}
                   {showForm && (
-                    <form ref={formRef} onSubmit={handleFormSubmit} className="bg-gray-50 p-3 rounded-xl shadow-sm space-y-3 mt-3 border border-gray-200">
-                      <input type="text" name="firstName" placeholder="Your Name" value={formData.firstName} onChange={handleChange} className="w-full p-2 text-sm border rounded-md outline-none" />
-                      {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName}</p>}
-                      <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="w-full p-2 text-sm border rounded-md outline-none" />
-                      {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
-                      <div className="border rounded-md">
-                        <PhoneInput country={"pk"} value={formData.phoneNumber} onChange={(value) => setFormData((prev) => ({ ...prev, phoneNumber: value }))} inputClass="!w-full !text-sm !p-2 !rounded-md !border-none" />
+                    <motion.form
+                      ref={formRef}
+                      onSubmit={handleFormSubmit}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col gap-2.5 p-3 rounded-2xl mt-1"
+                      style={{ background: C.surface, border: `1px solid ${C.border}` }}
+                    >
+                      <p className="text-[11px] font-bold tracking-[0.12em] uppercase mb-0.5" style={{ color: C.accent }}>Leave your details</p>
+
+                      <div>
+                        <input type="text" name="firstName" placeholder="Your name" value={formData.firstName}
+                          onChange={handleChange} style={inputSx}
+                          onFocus={(e) => e.target.style.borderColor = C.accent}
+                          onBlur={(e) => e.target.style.borderColor = C.border} />
+                        {errors.firstName && <p className="text-[10.5px] mt-1" style={{ color: "#f87171" }}>{errors.firstName}</p>}
                       </div>
-                      {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
-                      <textarea name="quries" placeholder="Write your query..." value={formData.quries} onChange={handleChange} rows="3" className="w-full p-2 text-sm border rounded-md outline-none resize-none" />
-                      {errors.quries && <p className="text-red-500 text-xs">{errors.quries}</p>}
-                      <button type="submit" disabled={loading} className="w-full bg-[#036988] hover:bg-[#02576b] text-white py-2 rounded-md text-sm font-medium">{loading ? "Sending..." : "Submit"}</button>
-                    </form>
+                      <div>
+                        <input type="email" name="email" placeholder="Email address" value={formData.email}
+                          onChange={handleChange} style={inputSx}
+                          onFocus={(e) => e.target.style.borderColor = C.accent}
+                          onBlur={(e) => e.target.style.borderColor = C.border} />
+                        {errors.email && <p className="text-[10.5px] mt-1" style={{ color: "#f87171" }}>{errors.email}</p>}
+                      </div>
+                      <div>
+                        <PhoneInput country="pk" value={formData.phoneNumber}
+                          onChange={(val) => setFormData((p) => ({ ...p, phoneNumber: val }))}
+                          inputStyle={{ ...inputSx, paddingLeft: "48px" }}
+                          buttonStyle={{ background: C.inputBg, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, borderLeft: `1px solid ${C.border}`, borderRight: "none", borderRadius: "10px 0 0 10px" }}
+                          dropdownStyle={{ background: "#111820", border: `1px solid ${C.border}`, borderRadius: "10px", color: C.primary }}
+                        />
+                        {errors.phoneNumber && <p className="text-[10.5px] mt-1" style={{ color: "#f87171" }}>{errors.phoneNumber}</p>}
+                      </div>
+                      <div>
+                        <textarea name="quries" placeholder="Your message…" value={formData.quries}
+                          onChange={handleChange} rows={3}
+                          style={{ ...inputSx, resize: "none" }}
+                          onFocus={(e) => e.target.style.borderColor = C.accent}
+                          onBlur={(e) => e.target.style.borderColor = C.border} />
+                        {errors.quries && <p className="text-[10.5px] mt-1" style={{ color: "#f87171" }}>{errors.quries}</p>}
+                      </div>
+                      <motion.button type="submit" disabled={loading}
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                        className="w-full py-2 rounded-xl text-[13px] font-semibold cursor-pointer flex items-center justify-center gap-2 transition-opacity duration-200"
+                        style={{ background: C.accent, color: "#0c1015", opacity: loading ? 0.7 : 1 }}>
+                        {loading ? <><Loader size={13} className="animate-spin" /> Sending…</> : "Send message"}
+                      </motion.button>
+                    </motion.form>
                   )}
 
+                  {/* predefined quick replies */}
                   {showPredefined && !showForm && (
-                    <motion.div className="flex flex-col items-end gap-2 mt-10" initial={{ opacity: 0, y: 80 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-                      {predefinedQuestions.map((q, idx) => (
-                        <motion.button key={idx} onClick={() => sendMessage(q)} whileHover={{ scale: 1.05 }} className="px-3 py-2 bg-white text-[#036988] border border-[#036988]/40 rounded-full shadow-sm hover:bg-[#036988]/10 text-sm w-fit cursor-pointer">{q}</motion.button>
+                    <motion.div
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 }}
+                      className="flex flex-wrap gap-1.5 justify-end mt-2"
+                    >
+                      {predefinedQuestions.map((q, i) => (
+                        <motion.button key={i} onClick={() => sendMessage(q)}
+                          whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                          className="px-3 py-1.5 rounded-full text-[11.5px] font-medium cursor-pointer transition-colors duration-150"
+                          style={{ background: C.surface, border: `1px solid ${C.border}`, color: C.muted }}
+                          onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${C.accent}50`; e.currentTarget.style.color = C.accent; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted; }}
+                        >
+                          {q}
+                        </motion.button>
                       ))}
                     </motion.div>
                   )}
@@ -608,26 +701,22 @@ const Chatbot = () => {
               )}
             </div>
 
+            {/* ── INPUT BAR ── */}
             {isQuestionMode && showInputBox && (
-              <div className="p-3 border-t bg-white flex items-center gap-2">
-                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type your message..." onKeyDown={(e) => e.key === "Enter" && sendMessage()} className="flex-1 border rounded-xl p-2 text-sm outline-none" />
-                <button onClick={() => sendMessage()} disabled={loading} className="bg-[#036988] text-white p-2 rounded-xl">
-                  <Send size={16} />
-                </button>
-              </div>
+              <ChatInput
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onSend={() => sendMessage()}
+                loading={loading}
+              />
             )}
 
+            {/* ── BOTTOM TABS ── */}
             {!isQuestionMode && (
-              <div className="border-t flex justify-around bg-white py-2">
-                <button onClick={() => setActiveTab("home")} className={`flex flex-col items-center text-sm cursor-pointer ${activeTab === "home" ? "text-[#036988]" : "text-gray-500"}`}>
-                  <Home size={20} /> Home
-                </button>
-                <button onClick={() => setActiveTab("chat")} className={`flex flex-col items-center text-sm cursor-pointer ${activeTab === "chat" ? "text-[#036988]" : "text-gray-500"}`}>
-                  <MessageCircle size={20} /> Chat
-                </button>
-                <button onClick={() => setActiveTab("help")} className={`flex flex-col items-center text-sm cursor-pointer ${activeTab === "help" ? "text-[#036988]" : "text-gray-500"}`}>
-                  <HelpCircle size={20} /> Help
-                </button>
+              <div className="flex flex-shrink-0" style={{ borderTop: `1px solid ${C.border}`, background: C.bg }}>
+                <NavTab id="home"  label="Home"      icon={Home}          active={activeTab === "home"}  onClick={setActiveTab} />
+                <NavTab id="chat"  label="Chats"     icon={MessageCircle} active={activeTab === "chat"}  onClick={setActiveTab} />
+                <NavTab id="help"  label="Resources" icon={HelpCircle}    active={activeTab === "help"}  onClick={setActiveTab} />
               </div>
             )}
           </motion.div>
