@@ -1,11 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /* ─── Per-route static meta ────────────────────────────────────────────────
    At build time, for every entry below this plugin copies dist/index.html
@@ -227,8 +222,10 @@ const injectRouteMeta = () => ({
   name: 'inject-route-meta',
   enforce: 'post',
   apply: 'build',
-  closeBundle() {
-    const distDir = path.join(__dirname, 'dist')
+  async closeBundle() {
+    const { default: fs } = await import('node:fs')
+    const { default: path } = await import('node:path')
+    const distDir = path.join(process.cwd(), 'dist')
     const baseHtml = fs.readFileSync(path.join(distDir, 'index.html'), 'utf-8')
 
     for (const route of ROUTES) {
