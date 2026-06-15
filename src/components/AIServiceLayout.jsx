@@ -41,16 +41,16 @@ const AIServiceLayout = ({ data }) => {
         <meta name="description" content={data.metaDesc} />
         {data.keywords && <meta name="keywords" content={data.keywords} />}
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <link rel="canonical" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="en" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="en-US" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="en-GB" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="en-PK" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="en-KR" href={`https://www.webaurix.com${data.path}`} />
-        <link rel="alternate" hrefLang="x-default" href={`https://www.webaurix.com${data.path}`} />
+        <link rel="canonical" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="en" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="en-US" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="en-GB" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="en-PK" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="en-KR" href={`https://webaurix.com${data.path}`} />
+        <link rel="alternate" hrefLang="x-default" href={`https://webaurix.com${data.path}`} />
         <meta property="og:title" content={data.metaTitle} />
         <meta property="og:description" content={data.metaDesc} />
-        <meta property="og:url" content={`https://www.webaurix.com${data.path}`} />
+        <meta property="og:url" content={`https://webaurix.com${data.path}`} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={data.metaTitle} />
@@ -63,8 +63,8 @@ const AIServiceLayout = ({ data }) => {
             serviceType: data.eyebrow,
             name: data.metaTitle,
             description: data.metaDesc,
-            url: `https://www.webaurix.com${data.path}`,
-            provider: { "@type": "Organization", name: "Webaurix", url: "https://www.webaurix.com/" },
+            url: `https://webaurix.com${data.path}`,
+            provider: { "@type": "Organization", name: "Webaurix", url: "https://webaurix.com/" },
             areaServed: [
               { "@type": "Country", name: "Pakistan" },
               { "@type": "Country", name: "South Korea" },
@@ -78,9 +78,9 @@ const AIServiceLayout = ({ data }) => {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://www.webaurix.com/" },
-              { "@type": "ListItem", position: 2, name: "Services", item: "https://www.webaurix.com/#services" },
-              { "@type": "ListItem", position: 3, name: data.eyebrow, item: `https://www.webaurix.com${data.path}` },
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://webaurix.com/" },
+              { "@type": "ListItem", position: 2, name: "Services", item: "https://webaurix.com/#services" },
+              { "@type": "ListItem", position: 3, name: data.eyebrow, item: `https://webaurix.com${data.path}` },
             ],
           })}
         </script>

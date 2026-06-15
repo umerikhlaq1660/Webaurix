@@ -191,7 +191,7 @@ const FaqPage = () => {
           name="keywords"
           content="Webaurix FAQs, web development questions, app development pricing, software agency process, digital agency help"
         />
-        <link rel="canonical" href="https://www.webaurix.com/resources/webaurix-faqs" />
+        <link rel="canonical" href="https://webaurix.com/resources/webaurix-faqs" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

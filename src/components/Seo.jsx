@@ -1,7 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
-const SITE = "https://www.webaurix.com";
+const SITE = "https://webaurix.com";
 const DEFAULT_IMG = `${SITE}/og-image.png`;
 
 /* Regions we explicitly target. Same English content serves all of them,

@@ -200,13 +200,13 @@ const ContactUs = () => {
           content="Get in touch with Webaurix for web, app, and AI projects. Based in Lahore, serving clients in Pakistan, the US, the UK, and worldwide. We reply within 24 hours."
         />
         <meta name="keywords" content="contact Webaurix, get a quote, hire web developers, digital agency Lahore, web development Pakistan, AI agency, project enquiry" />
-        <link rel="canonical" href="https://www.webaurix.com/contact" />
+        <link rel="canonical" href="https://webaurix.com/contact" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ContactPage",
             name: "Contact Webaurix",
-            url: "https://www.webaurix.com/contact",
+            url: "https://webaurix.com/contact",
             description:
               "Contact Webaurix for web development, AI, and digital projects. Based in Lahore, Pakistan, serving clients worldwide.",
           })}

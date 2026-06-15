@@ -302,7 +302,7 @@ const Chatbot = () => {
     { title: "Book a Consultation", link: "https://calendly.com/umerikhlaq1660/30min" },
     { title: "View Portfolio",       link: "https://webaurix.com/portfolio" },
     { title: "Webaurix AI",          link: "https://ai.webaurix.com/" },
-    { title: "Webaurix Blogs",       link: "https://www.webaurix.com/blogs" },
+    { title: "Webaurix Blogs",       link: "https://webaurix.com/blogs" },
   ];
 
   /* ── input style helper ── */

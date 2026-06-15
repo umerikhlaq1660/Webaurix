@@ -462,7 +462,7 @@ const CaseStudies = () => {
           content="Real results for real clients. See how Webaurix helps businesses grow through web development, mobile apps, and AI engineering in Pakistan, the US, and the UK."
         />
         <meta name="keywords" content="Webaurix case studies, client success stories, web development portfolio, mobile app projects, AI projects, digital agency results" />
-        <link rel="canonical" href="https://www.webaurix.com/case-studies" />
+        <link rel="canonical" href="https://webaurix.com/case-studies" />
       </Helmet>
 
       {/* ══════════════ HERO ══════════════ */}

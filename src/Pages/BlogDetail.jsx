@@ -145,13 +145,13 @@ const BlogDetail = () => {
         <title>{pageTitle}</title>
         <meta name="description" content={metaDesc} />
         {blog.tags && <meta name="keywords" content={Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags} />}
-        <link rel="canonical" href={`https://www.webaurix.com/blog/${slug}`} />
-        <link rel="alternate" hrefLang="en" href={`https://www.webaurix.com/blog/${slug}`} />
-        <link rel="alternate" hrefLang="x-default" href={`https://www.webaurix.com/blog/${slug}`} />
+        <link rel="canonical" href={`https://webaurix.com/blog/${slug}`} />
+        <link rel="alternate" hrefLang="en" href={`https://webaurix.com/blog/${slug}`} />
+        <link rel="alternate" hrefLang="x-default" href={`https://webaurix.com/blog/${slug}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDesc} />
-        <meta property="og:url" content={`https://www.webaurix.com/blog/${slug}`} />
+        <meta property="og:url" content={`https://webaurix.com/blog/${slug}`} />
         {blog.image && <meta property="og:image" content={blog.image} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
@@ -164,15 +164,15 @@ const BlogDetail = () => {
             "@type": "BlogPosting",
             headline: blog.title,
             description: blog.snippet || blog.title,
-            image: blog.image || "https://www.webaurix.com/og-image.png",
+            image: blog.image || "https://webaurix.com/og-image.png",
             author: { "@type": "Organization", name: blog.author || "Webaurix" },
             publisher: {
               "@type": "Organization",
               name: "Webaurix",
-              logo: { "@type": "ImageObject", url: "https://www.webaurix.com/logo-light.png" },
+              logo: { "@type": "ImageObject", url: "https://webaurix.com/logo-light.png" },
             },
             datePublished: blog.date || undefined,
-            mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.webaurix.com/blog/${slug}` },
+            mainEntityOfPage: { "@type": "WebPage", "@id": `https://webaurix.com/blog/${slug}` },
             keywords: Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags,
           })}
         </script>

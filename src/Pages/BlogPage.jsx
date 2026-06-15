@@ -62,7 +62,7 @@ const BlogPage = () => {
         <title>Blog | Web, App, AI & Digital Insights – Webaurix</title>
         <meta name="description" content="Discover the latest insights, trends, and guides from Webaurix on web development, AI, design, and digital innovation." />
         <meta name="keywords" content="Webaurix blog, web development blog, AI insights, UI UX design articles, digital marketing tips, technology trends" />
-        <link rel="canonical" href="https://www.webaurix.com/blogs" />
+        <link rel="canonical" href="https://webaurix.com/blogs" />
       </Helmet>
 
       {/* HERO */}

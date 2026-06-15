@@ -16,7 +16,7 @@ const BlogsSection    = lazy(() => import("../components/BlogSection"));
 const BusinessTalk    = lazy(() => import("./BusinessTalk"));
 const Footer          = lazy(() => import("../components/Footer"));
 
-const SITE = "https://www.webaurix.com";
+const SITE = "https://webaurix.com";
 
 /* FAQ schema is generated from the same data the page renders,
    so structured data always matches the visible content. */

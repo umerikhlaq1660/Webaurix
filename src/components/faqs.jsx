@@ -39,7 +39,7 @@ const FAQSection = () => {
         title="FAQs | Web Development, App & AI Questions Answered – Webaurix"
         description="Answers to common questions about Webaurix's web development, mobile app, and AI services, our process, pricing, timelines, and support."
         keywords="Webaurix FAQs, web development questions, app development pricing, AI services, digital agency process"
-        url="https://www.webaurix.com/resources/webaurix-faqs"
+        url="https://webaurix.com/resources/webaurix-faqs"
       />
 
       {/* Gradient Backgrounds */}

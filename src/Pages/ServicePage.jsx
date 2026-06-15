@@ -290,7 +290,7 @@ const handleChatbotSubmit = async (e) => {
       
         <link
           rel="canonical"
-          href={`https://www.webaurix.com/services/${serviceSlug}`}
+          href={`https://webaurix.com/services/${serviceSlug}`}
         />
       
         <meta property="og:title" content={data.seo?.title || data.bannerTitle} />
@@ -308,11 +308,11 @@ const handleChatbotSubmit = async (e) => {
             serviceType: data.bannerLabel,
             name: data.seo?.title || data.bannerTitle,
             description: data.seo?.description || data.bannerSubtitle,
-            url: `https://www.webaurix.com/services/${serviceSlug}`,
+            url: `https://webaurix.com/services/${serviceSlug}`,
             provider: {
               "@type": "Organization",
               name: "Webaurix",
-              url: "https://www.webaurix.com/",
+              url: "https://webaurix.com/",
             },
             areaServed: { "@type": "Place", name: "Worldwide" },
           })}
@@ -323,9 +323,9 @@ const handleChatbotSubmit = async (e) => {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://www.webaurix.com/" },
-              { "@type": "ListItem", position: 2, name: "Services", item: "https://www.webaurix.com/#services" },
-              { "@type": "ListItem", position: 3, name: data.bannerLabel, item: `https://www.webaurix.com/services/${serviceSlug}` },
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://webaurix.com/" },
+              { "@type": "ListItem", position: 2, name: "Services", item: "https://webaurix.com/#services" },
+              { "@type": "ListItem", position: 3, name: data.bannerLabel, item: `https://webaurix.com/services/${serviceSlug}` },
             ],
           })}
         </script>

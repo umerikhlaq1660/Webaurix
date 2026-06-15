@@ -326,7 +326,7 @@ const Careers = () => {
         <title>Careers at Webaurix | Jobs in Web, App &amp; AI Development</title>
         <meta name="description" content="Join the Webaurix team. We're hiring designers, developers, and marketers who love building great digital products. Explore open roles." />
         <meta name="keywords" content="Webaurix careers, tech jobs Pakistan, web developer jobs, designer jobs, remote tech jobs, hiring developers" />
-        <link rel="canonical" href="https://www.webaurix.com/careers" />
+        <link rel="canonical" href="https://webaurix.com/careers" />
       </Helmet>
 
       {/* HERO */}

@@ -185,7 +185,7 @@ const AboutUs = () => {
           "@context": "https://schema.org",
           "@type": "AboutPage",
           name: "About Webaurix",
-          url: "https://www.webaurix.com/about",
+          url: "https://webaurix.com/about",
           about: {
             "@type": "Organization",
             name: "Webaurix",
