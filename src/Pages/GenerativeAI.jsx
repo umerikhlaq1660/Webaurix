@@ -10,47 +10,47 @@ const data = {
   accentLight: "#0e7490",
   sceneVariant: "core",
   path: "/services/ai/gen-ai",
-  metaTitle: "Generative AI Solutions & Development Services | Webaurix",
+  metaTitle: "Custom Generative AI Development Services | Webaurix",
   metaDesc:
-    "Custom generative AI solutions - content generation, intelligent assistants, RAG pipelines, and automation built around your business data.",
+    "Build production-grade generative AI, RAG pipelines, AI assistants, content engines & agentic workflows. Powered by OpenAI, Claude & Gemini. Webaurix, Lahore, Pakistan.",
   keywords:
-    "generative AI solutions, custom AI development, RAG pipelines, AI assistants, content generation AI, AI automation, enterprise AI, Webaurix",
+    "generative AI development, custom AI solutions, RAG pipeline development, LLM integration, AI content generation, AI assistants, agentic workflows, OpenAI development, Webaurix",
 
-  eyebrow: "Generative AI",
-  title: "Generative AI that",
-  titleHighlight: "works for your business.",
+  eyebrow: "Generative AI Development",
+  title: "Generative AI, engineered",
+  titleHighlight: "for real business results.",
   description:
-    "We design and ship production-grade generative AI - from custom assistants and content engines to retrieval-augmented pipelines that turn your data into an unfair advantage.",
+    "Webaurix designs and ships production-grade generative AI, from RAG-powered assistants trained on your proprietary data to agentic workflows that automate complex operations. Built on OpenAI GPT-4o, Claude 3.5, and Google Gemini, deployed for clients across Pakistan, the US, the UK, and South Korea.",
 
   stats: [
+    { value: "50+", label: "AI solutions delivered" },
     { value: "10x", label: "Faster content output" },
-    { value: "24/7", label: "Always-on assistants" },
-    { value: "100%", label: "Tailored to your data" },
+    { value: "24/7", label: "Always-on AI assistants" },
   ],
 
-  capabilitiesHeading: "From prompt to product - generative AI engineered end to end.",
+  capabilitiesHeading: "Production-grade generative AI, from prototype to deployment.",
   capabilities: [
-    { icon: MessagesSquare, title: "Custom AI Assistants", desc: "Branded chat assistants trained on your docs, products, and tone - embedded right into your site or app." },
-    { icon: FileText,       title: "Content Generation",   desc: "Engines that draft blogs, product copy, emails, and social posts on-brand and at scale." },
-    { icon: Search,         title: "RAG Pipelines",        desc: "Retrieval-augmented generation that grounds answers in your real data - no hallucinations." },
-    { icon: ImageIcon,      title: "Image & Media AI",     desc: "Generate, edit, and upscale visuals - product shots, thumbnails, and creative assets on demand." },
-    { icon: Wand2,          title: "Workflow Automation",  desc: "Let AI summarize, classify, and route - automating the repetitive parts of your operations." },
-    { icon: Bot,            title: "Agentic Systems",      desc: "Multi-step AI agents that plan, call tools, and complete real tasks autonomously." },
+    { icon: MessagesSquare, title: "Custom AI Assistants", desc: "Branded chat assistants trained on your proprietary docs, products, and tone using RAG, embedded in your site or app with sub-second response times and full conversation memory." },
+    { icon: FileText,       title: "Content Generation",   desc: "AI content engines that draft SEO articles, product copy, emails, and social posts on-brand and at scale, reducing content production time by 10+ hours per week." },
+    { icon: Search,         title: "RAG Pipelines",        desc: "Retrieval-Augmented Generation with Pinecone or Weaviate vector search, answers grounded in your real knowledge base with zero hallucinations and full source attribution." },
+    { icon: ImageIcon,      title: "Image & Media AI",     desc: "Generate, edit, and upscale product shots, thumbnails, and creative assets using DALL-E 3, Stable Diffusion, and Midjourney APIs, on demand and on-brand." },
+    { icon: Wand2,          title: "Workflow Automation",  desc: "AI agents that classify, summarise, route, and trigger actions, automating repetitive operations and cutting processing time by 70%+ with LangChain and n8n." },
+    { icon: Bot,            title: "Agentic Systems",      desc: "Multi-step LLM agents built on LangChain and AutoGen that plan, call external APIs, and complete real multi-step tasks autonomously without human intervention." },
   ],
 
   process: [
-    { title: "Discovery", desc: "We map your data, goals, and the highest-ROI AI opportunities." },
-    { title: "Design",    desc: "We architect the model, prompts, and guardrails around your use case." },
-    { title: "Build",     desc: "We engineer the pipeline, integrate your data, and test for accuracy." },
-    { title: "Deploy",    desc: "We ship, monitor, and continuously fine-tune in production." },
+    { title: "Discovery (Week 1)", desc: "We map your data sources, business goals, and the highest-ROI AI opportunities, delivering a clear implementation brief and model selection rationale." },
+    { title: "Design (Week 1–2)",  desc: "We architect the model selection, prompt engineering strategy, retrieval pipeline, and safety guardrails tailored specifically to your use case and data." },
+    { title: "Build (Week 2–5)",   desc: "We engineer the full pipeline, data ingestion, vector indexing, model integration, and API layer, with accuracy and hallucination testing at every stage." },
+    { title: "Deploy & Improve",   desc: "We ship to production, monitor resolution rates and hallucination frequency, and continuously fine-tune based on real user interactions and feedback." },
   ],
 
-  useCasesHeading: "Where generative AI moves the needle.",
+  useCasesHeading: "Where generative AI creates measurable business advantage.",
   useCases: [
-    { title: "Customer support automation", desc: "Resolve common queries instantly while routing complex ones to humans." },
-    { title: "Knowledge base assistants",   desc: "Let teams query internal docs in plain language." },
-    { title: "Marketing content at scale",  desc: "Generate campaign copy, SEO articles, and variants in minutes." },
-    { title: "Document processing",         desc: "Summarize contracts, extract data, and classify files automatically." },
+    { title: "Customer support automation", desc: "Resolve 70%+ of support queries instantly while routing edge cases to humans, reducing support cost by up to 60% with no sacrifice in CSAT." },
+    { title: "Knowledge base assistants",   desc: "Let teams query thousands of internal documents in plain language, accurate answers from your real knowledge base in under 2 seconds." },
+    { title: "Marketing content at scale",  desc: "Generate 50+ on-brand blog posts, ads, and email variants per month, reviewed by your team, not written from scratch each time." },
+    { title: "Document processing",         desc: "Extract, classify, and summarise contracts, invoices, and reports automatically, cutting manual document review time by 80%." },
   ],
 
   tech: [
@@ -59,8 +59,8 @@ const data = {
   ],
 
   highlight: {
-    title: "Grounded in your data - not guesswork.",
-    desc: "Every solution we build is connected to your real content through retrieval pipelines, so answers stay accurate, on-brand, and trustworthy.",
+    title: "Your data. Your accuracy. No hallucinations.",
+    desc: "Every solution we build uses retrieval-augmented generation (RAG) to ground AI answers in your actual content, so users get accurate, on-brand responses backed by your real knowledge base, not generic model outputs.",
   },
 
   ctaTitle: "Let's turn your data into a",

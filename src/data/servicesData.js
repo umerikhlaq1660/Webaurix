@@ -41,12 +41,12 @@ import {
 const servicesData = {
   "ui-ux-design": {
     bannerLabel: "UI / UX",
-    bannerTitle: "Designing delightful and usable interfaces",
-    bannerSubtitle: "We craft user-centered interfaces and experiences that convert - from research to high-fidelity prototypes.",
+    bannerTitle: "User-centred UI/UX design that converts and retains",
+    bannerSubtitle: "Webaurix designs intuitive, on-brand interfaces in Figma, from user research and wireframing to high-fidelity prototypes and design systems, built for measurable usability and conversion.",
     seo: {
-      title: "UI UX Design Services | User Focused Digital Experiences – Webaurix",
+      title: "UI UX Design Services | Figma & User Research – Webaurix",
       description:
-        "Webaurix provides professional UI UX design services to create intuitive, engaging, and conversion focused digital products for modern businesses."
+        "User research, Figma wireframes, high-fidelity prototypes, and design systems that improve usability and conversion. Webaurix, Lahore, Pakistan, US, UK."
     },
     stagesHeading: "Our Design Process",
     offersHeading: "What We Offer",
@@ -67,42 +67,42 @@ const servicesData = {
     },
 
     stages: [
-      { title: "Research & Analysis", desc: "Understand user needs, competitors, and business goals to define design strategy." },
-      { title: "Planning & Strategy", desc: "Create wireframes, prototypes, and interaction flows before final design." },
-      { title: "Design & Prototyping", desc: "Develop UI/UX designs, visual components, and interactive prototypes." },
-      { title: "Testing & Feedback", desc: "Conduct usability tests, gather feedback, and refine designs." },
-      { title: "Handover & Implementation", desc: "Deliver final design assets and guidelines for development." },
-      { title: "Maintenance & Optimization", desc: "Monitor user interaction, update designs, and optimize experience continuously." },
+      { title: "Research & Analysis", desc: "We conduct user interviews, surveys, and heatmap analysis to understand real user behaviour and the design decisions that will move your KPIs." },
+      { title: "Planning & Strategy", desc: "We map information architecture, user flows, and a clear design brief before wireframing begins, aligning your team on direction before design starts." },
+      { title: "Design & Prototyping", desc: "We design pixel-perfect, fully responsive interfaces in Figma with consistent components, accessible colour contrast, and mobile-first layouts throughout." },
+      { title: "Testing & Feedback", desc: "We run moderated and unmoderated usability sessions with your target users, identify friction points with session recordings, and refine the design based on real behaviour." },
+      { title: "Handover & Implementation", desc: "We hand off design tokens, a living Figma component library, and annotated developer specs and stay available to answer implementation questions during build." },
+      { title: "Maintenance & Optimization", desc: "We monitor real user behaviour with heatmaps and session recordings after launch and iterate the design to continuously improve task completion and conversion rate." },
     ],
 
     offers: [
       {
         icon: TrendingUp,
         title: "User Research & Analysis",
-        descback: "We conduct surveys, interviews, and analytics to deeply understand user behavior, preferences, and pain points. Insights guide our design strategy and decision-making.",
+        descback: "We conduct in-depth user interviews, surveys, session recordings, and heatmap analysis to build a research-backed design brief grounded in real user behaviour, not assumptions.",
       },
       {
         icon: Layers,
         title: "Wireframing & Prototyping",
-        descback: "We create interactive wireframes and high-fidelity prototypes to visualize user flows, test concepts, and ensure seamless navigation before final development.",
+        descback: "We create low and high-fidelity Figma wireframes and interactive prototypes that test user journeys and validate navigation before any development investment is committed.",
 
       },
       {
         icon: Monitor,
         title: "Visual & Interaction Design",
-        descback: "Our team crafts visually appealing interfaces with intuitive interactions, consistent branding, and attention to detail that keeps users engaged..",
+        descback: "Our team designs pixel-perfect, brand-consistent interfaces in Figma with accessible colour contrast, responsive layouts, and motion specs included for every component.",
 
       },
       {
         icon: CheckCircle,
         title: "Usability Testing",
-        descback: "We perform rigorous usability tests with real users, identify friction points, and refine designs for optimal efficiency and satisfaction.",
+        descback: "We run moderated usability sessions with your target audience, identify friction with video evidence, and refine designs until users complete core tasks without confusion.",
 
       },
       {
         icon: Target,
         title: "UI/UX Strategy & Consulting",
-        descback: "We provide expert guidance on product experience, accessibility, and design improvements, aligning UI/UX with business goals for measurable growth.",
+        descback: "We map your product experience against business KPIs, identify the highest-impact improvements, and deliver a prioritised design roadmap with a clear ROI rationale for each change.",
 
       },
     ],
@@ -159,12 +159,12 @@ const servicesData = {
   },
   "web-development": {
     bannerLabel: "Web Development",
-    bannerTitle: "Fast, secure and maintainable websites",
-    bannerSubtitle: "From marketing sites to complex web apps - we build performant, accessible and scalable solutions.",
+    bannerTitle: "Fast, modern websites and web apps that rank and convert",
+    bannerSubtitle: "Webaurix builds performance-first websites and web apps on React and Next.js, Core Web Vitals optimised, SEO-ready, and built to scale for clients in Pakistan, the US, and the UK.",
     seo: {
-      title: "Custom Web Development Services | Scalable Websites – Webaurix",
+      title: "Custom Web Development Services | React & Next.js – Webaurix",
       description:
-        "Webaurix offers secure and scalable web development services using modern technologies to build high performance business websites."
+        "Custom websites and web apps built on React, Next.js, and Node.js. Core Web Vitals-first, SEO-optimised, scalable. Webaurix, Lahore, serving Pakistan, US, and the UK."
     },
     stagesHeading: "Development Lifecycle",
     offersHeading: "Our Capabilities",
@@ -185,62 +185,62 @@ const servicesData = {
     },
 
     stages: [
-      { title: "Discovery & Research", desc: "Understanding your goals, audience, and project vision." },
-      { title: "Planning & Strategy", desc: "Creating a clear roadmap and choosing the right tech." },
-      { title: "UI/UX Design", desc: "Designing intuitive and visually engaging interfaces." },
-      { title: "Prototyping", desc: "Building interactive drafts for early feedback." },
-      { title: "Development", desc: "Turning designs into functional, high-quality code." },
-      { title: "Testing & QA", desc: "Ensuring everything runs smoothly and bug-free." },
-      { title: "Deployment", desc: "Launching your product seamlessly to the live environment." },
-      { title: "Support", desc: "Providing updates, fixes, and continuous improvements." },
+      { title: "Discovery & Research", desc: "We study your users, competitors, and technical requirements to scope a lean, achievable delivery plan with no surprises." },
+      { title: "Planning & Strategy", desc: "We select the right technology stack, architecture pattern, and delivery milestones to minimise risk and maximise delivery speed." },
+      { title: "UI/UX Design", desc: "We design intuitive, on-brand interfaces in Figma with accessibility, mobile-first layout, and conversion rate built in from day one." },
+      { title: "Prototyping", desc: "We build clickable prototypes reviewed by your team and tested with real users before a single line of code is written." },
+      { title: "Development", desc: "We engineer fast, type-safe code using React, TypeScript, and Node.js with automated testing and code review at each sprint." },
+      { title: "Testing & QA", desc: "We run Lighthouse audits, cross-browser testing, and load tests to ensure sub-2s load times and zero functional regressions." },
+      { title: "Deployment", desc: "We deploy to your cloud with CI/CD automation, HTTPS, and monitoring configured from day one, with zero-downtime releases." },
+      { title: "Support", desc: "We provide bug fixes, feature iterations, and performance reviews on a schedule that fits your team and roadmap." },
     ],
 
     offers: [
       {
         icon: LayoutPanelLeft,
         title: "Front-End Development",
-        descback: "We develop fast, engaging interfaces using React, Next.js, and modern frameworks ensuring pixel-perfect design and smooth interactivity across all devices.",
+        descback: "Pixel-perfect, interactive interfaces built on React, Next.js, and TypeScript, loading in under 2 seconds and passing Core Web Vitals with scores of 90 or above.",
         link: "/services/ui-ux#interaction",
       },
       {
         icon: Database,
         title: "Back-End Development",
-        descback: "We develop secure, scalable, and efficient server-side systems with powerful APIs and database architectures that ensure stability and top-tier performance.",
+        descback: "Secure, scalable server-side systems with REST and GraphQL APIs, PostgreSQL or MongoDB, and Node.js, engineered for reliability at any traffic level.",
         link: "/services/web-development#cms",
       },
       {
         icon: Layers,
         title: "Full-Stack Development",
-        descback: "From concept to deployment, we handle both front and back ends delivering complete, integrated, and high-quality digital solutions built for growth.",
+        descback: "End-to-end development from database to UI, managed by a single team, eliminating handoff delays and delivering integrated, production-ready solutions on schedule.",
         link: "/services/web-development#cms",
       },
       {
         icon: ShoppingCart,
         title: "E-Commerce Development",
-        descback: "We build feature-rich online stores with seamless checkout, secure payments, and user-friendly dashboards to enhance conversions and customer satisfaction.",
+        descback: "High-converting online stores with Stripe or PayFast payment integration, real-time inventory management, and admin dashboards built for rapid growth.",
         link: "/services/web-development#cms",
       },
       {
         icon: Globe,
         title: "Web App Development",
-        descback: "We create powerful, scalable, and user-centric web applications designed to streamline workflows, boost engagement, and meet your unique business goals.",
+        descback: "Complex, data-rich web applications with real-time features, role-based access control, and performance matching a native desktop app, built on React and Node.js.",
         link: "/services/web-development#cms",
       },
       {
         icon: Plug,
         title: "API Integration & Development",
-        descback: "Our experts design and integrate APIs that enable smooth data exchange, system automation, and seamless connectivity between applications.",
+        descback: "RESTful and GraphQL API design and integration that connects your systems, third-party services, and data sources into a unified, reliable, and documented ecosystem.",
         link: "/services/web-development#cms",
       },
       {
         icon: FileStack,
         title: "CMS Development",
-        descback: "Empowering you with custom or WordPress-based CMS solutions that make content updates effortless, secure, and scalable for future expansion.",
+        descback: "Headless CMS implementations with Sanity or Contentful and custom WordPress builds, making content updates self-serve and reducing dependency on developers.",
       },
       {
         icon: TrendingUp,
         title: "SEO Optimization",
-        descback: "Enhance your website’s visibility and reach with optimized code, fast performance, and strategic SEO implementation for higher search rankings.",
+        descback: "Technical SEO from day one: semantic HTML, JSON-LD schema markup, XML sitemap, canonical URLs, and Lighthouse scores of 90 or above on every page we ship.",
       },
     ],
 
@@ -332,12 +332,12 @@ const servicesData = {
   },
   "app-development": {
     bannerLabel: "App Development",
-    bannerTitle: "Innovative, Fast, and Maintainable App Experiences",
-    bannerSubtitle: "Building high-performance mobile experiences that are fast, reliable, and unforgettable.",
+    bannerTitle: "High-performance iOS and Android apps, built for real users",
+    bannerSubtitle: "Webaurix engineers native and cross-platform mobile apps using React Native and Flutter, fast, reliable, and designed to retain users from the very first session.",
     seo: {
-      title: "Mobile App Development Company | iOS & Android Apps – Webaurix",
+      title: "Mobile App Development | iOS & Android Apps – Webaurix",
       description:
-        "We build high quality mobile applications for iOS and Android platforms that deliver performance, usability, and business growth."
+        "iOS and Android apps built with React Native and Flutter. Fast, secure, and designed for real user retention. Webaurix, Lahore, serving Pakistan, US, and the UK."
     },
     stagesHeading: "Development Lifecycle",
     offersHeading: "Our Capabilities",
@@ -358,56 +358,56 @@ const servicesData = {
     },
 
     stages: [
-      { title: "Planning", desc: "Define scope, goals, and architecture." },
-      { title: "Analysis", desc: "Study the market and user needs in detail." },
-      { title: "Design", desc: "Create the app’s UI/UX and overall architecture." },
-      { title: "Development", desc: "Write code and implement app features." },
-      { title: "Testing", desc: "Identify and fix bugs and issues." },
-      { title: "Deployment", desc: "Launch the app on stores or servers." },
-      { title: "Maintenance", desc: "Perform updates, bug fixes, and improvements." },
-      { title: "Evaluation", desc: "Assess app performance and collect user feedback." },
+      { title: "Planning", desc: "Define app scope, user flows, and technical architecture to avoid costly pivots and scope creep during development." },
+      { title: "Analysis", desc: "Study the app market, target users, and competition to validate features and prioritise the build list before writing code." },
+      { title: "Design", desc: "Create high-fidelity UI/UX in Figma, reviewed by your team and tested with representative users before development begins." },
+      { title: "Development", desc: "Engineer native or cross-platform code using React Native or Flutter with full test coverage at each two-week sprint." },
+      { title: "Testing", desc: "Run device-lab testing, performance profiling, and security audits across iOS and Android before App Store submission." },
+      { title: "Deployment", desc: "Submit to the App Store and Google Play with metadata, screenshots, and app store optimisation (ASO) configured for discoverability." },
+      { title: "Maintenance", desc: "Post-launch monitoring, OS compatibility updates, and feature iterations on a schedule aligned to your product roadmap." },
+      { title: "Evaluation", desc: "Monthly analytics reviews covering retention rate, crash frequency, and session depth to guide the next development cycle." },
     ],
 
     offers: [
       {
         icon: Smartphone,
         title: "Native App Development",
-        descback: "Apps built specifically for Android or iOS platforms. Best performance with full access to device features.",
+        descback: "iOS and Android apps built in Swift, Kotlin, or React Native with full device hardware access, camera, GPS, biometrics, and push notifications included.",
       },
       {
         icon: Blocks,
         title: "Hybrid App Development",
-        descback: "Single codebase apps that run on multiple platforms. Faster development while supporting both Android and iOS.",
+        descback: "Single React Native or Flutter codebase running natively on iOS and Android, delivering 70 percent code reuse with near-native performance and platform-appropriate UI.",
       },
       {
         icon: Globe,
         title: "Web App Development",
-        descback: "We create powerful, scalable, and user-centric web applications designed to streamline workflows, boost engagement, and meet your unique business goals.",
+        descback: "Progressive, app-like web applications that work offline, support push notifications, and install to the home screen without requiring an App Store listing or review.",
       },
       {
         icon: SquareChartGantt,
         title: "Progressive Web Apps (PWA)",
-        descback: "Web apps with app-like features. Can work offline, send notifications, and be installed on devices.",
+        descback: "Web apps with app-like features that work offline, send push notifications, and install directly to the device home screen, available without App Store approval.",
       },
       {
         icon: FileStack,
         title: "Enterprise App Development",
-        descback: "Apps designed for business operations and internal processes. Helps manage HR, inventory, and workflow efficiently.",
+        descback: "Secure enterprise apps with single sign-on, role-based permissions, offline capability, and deep integration with SAP, Salesforce, or your internal ERP systems.",
       },
       {
         icon: Gamepad2,
         title: "Game App Development",
-        descback: "Interactive mobile or desktop games. Built using Unity or Unreal for engaging user experiences.",
+        descback: "Mobile and desktop games built with Unity or Unreal Engine, from 2D casual games to complex 3D experiences published on iOS, Android, and PC platforms.",
       },
       {
         icon: Cross,
         title: "Cross-Platform Development",
-        descback: "One codebase for apps across multiple platforms. Reduces development time and cost while maintaining wide reach.",
+        descback: "One React Native or Flutter codebase, two app stores. Delivers 60fps performance and native look-and-feel on both platforms at roughly half the development cost.",
       },
       {
         icon: RectangleGoggles,
         title: "AR/VR App Development",
-        descback: "Augmented or Virtual Reality apps for immersive experiences. Ideal for training, shopping, and entertainment.",
+        descback: "Immersive augmented and virtual reality experiences using ARKit, ARCore, and Unity, for retail product try-on, employee training, and interactive entertainment.",
       },
       
     ],
@@ -488,12 +488,12 @@ const servicesData = {
   },
   "custom-software-development": {
     bannerLabel: "Custom Software Development",
-    bannerTitle: "Smart Digital Systems That Adapt To Your Needs",
-    bannerSubtitle: "Scalable secure software solutions designed to simplify processes boost productivity and grow your business efficiently.",
+    bannerTitle: "Custom software that automates, integrates, and scales",
+    bannerSubtitle: "Webaurix engineers bespoke software including SaaS platforms, enterprise systems, and API integrations, built to reduce manual work and scale alongside your business.",
     seo: {
-      title: "Custom Software Development Services – Webaurix",
+      title: "Custom Software Development Services | SaaS & ERP – Webaurix",
       description:
-        "Webaurix develops tailored software solutions to automate operations, improve efficiency, and support long term business growth."
+        "Bespoke SaaS, ERP, and enterprise software that automates workflows and scales with your business. Webaurix, Lahore, serving Pakistan, the US, and the UK."
     },
     stagesHeading: "Our Approch to Custom Software Development",
     offersHeading: "Complete Suite of Custom Software Solutions",
@@ -517,48 +517,48 @@ const servicesData = {
     },
 
     stages: [
-      { title: "Planning", desc: "Define goals, scope, and feasibility." },
-      { title: "Requirement Analysis", desc: "Gather and clarify user needs." },
-      { title: "System Design", desc: "Plan system architecture and interfaces." },
-      { title: "Prototyping", desc: "Create a basic version for feedbackl." },
-      { title: "Implementation", desc: "Write and integrate the code" },
-      { title: "Testing", desc: "Find and fix defects." },
-      { title: "Deployment", desc: "Launch software for users." },
-      { title: "Maintenance", desc: "Update and improve post-launch." },
-      { title: "Documentation", desc: "Prepare user and technical manuals" },
-      { title: "Evaluation", desc: "Review performance and collect feedback." },
+      { title: "Planning", desc: "Define business goals, user roles, and system boundaries to create a scoped delivery plan with no hidden complexity." },
+      { title: "Requirement Analysis", desc: "Document functional and non-functional requirements with stakeholders to eliminate assumption-driven rework before build begins." },
+      { title: "System Design", desc: "Architect the data model, API layer, and integration points to handle current requirements and support future scale without a rebuild." },
+      { title: "Prototyping", desc: "Build a working prototype of the core user journey for stakeholder sign-off before full development investment is committed." },
+      { title: "Implementation", desc: "Write and integrate code in fortnightly sprints with peer review, automated tests, and working builds your team can access weekly." },
+      { title: "Testing", desc: "Run unit, integration, and UAT testing covering edge cases, security vulnerabilities, and load scenarios before release." },
+      { title: "Deployment", desc: "Ship to production with zero-downtime deployment, uptime monitoring, and runbook documentation for your operations team." },
+      { title: "Maintenance", desc: "Post-launch bug fixes, dependency updates, and feature increments delivered on a defined support schedule with SLAs." },
+      { title: "Documentation", desc: "Technical API documentation, user manuals, and admin guides delivered alongside the code, not as a post-project afterthought." },
+      { title: "Evaluation", desc: "Post-launch reviews measuring the KPIs agreed on day one: processing time saved, error rates reduced, and operating costs cut." },
     ],
 
     offers: [
       {
         icon: Smartphone,
         title: "Custom Mobile Applications",
-        descback: "We create feature-rich mobile apps with seamless experiences across platforms, engaging users and boosting business.",
+        descback: "Feature-rich iOS and Android apps built with React Native, including custom business logic, third-party integrations, and offline capability as standard.",
       },
       {
         icon: Globe,
         title: "End-to-End Software Development",
-        descback: "We manage your project from concept to deployment, delivering efficient, scalable, and tailored software solutions.",
+        descback: "We own the full delivery lifecycle from scoping to handover, with a single team responsible for architecture quality, code standards, and on-time delivery.",
       },
       {
         icon: Settings,
         title: "Enterprise Systems",
-        descback: "We build secure, scalable enterprise platforms that streamline workflows, enhance collaboration, and support data-driven decisions.",
+        descback: "Secure, scalable enterprise platforms with SSO, role-based access control, full audit logging, and integration with your existing ERP, CRM, and HR systems.",
       },
       {
         icon:  MonitorCog,
         title: "SaaS Solutions",
-        descback: "We develop scalable, cost-effective SaaS solutions with multi-tenancy and advanced user management for high performance.",
+        descback: "Multi-tenant SaaS platforms with Stripe subscription billing, usage-based metering, and the admin and billing tooling that makes SaaS operationally sustainable.",
       },
       {
         icon: Globe,
         title: "Legacy System Modernization",
-        descback: "We modernize legacy systems, boosting performance, reducing technical debt, and adding advanced features with minimal disruption.",
+        descback: "We replace brittle legacy systems using strangler-fig migration, modernising piece by piece in parallel so business operations never stop during transition.",
       },
       {
         icon: Webhook ,
         title: "API integration",
-        descback: "We deliver secure and efficient third-party API integrations, enhancing functionality and creating a connected digital ecosystem.",
+        descback: "RESTful and GraphQL API design, third-party service integrations, and webhook systems that connect all your tools into a unified, reliable data ecosystem.",
       },
     ],
 
@@ -643,12 +643,12 @@ const servicesData = {
   },
   "digital-marketing": {
     bannerLabel: "Digital Marketing",
-    bannerTitle: "Drive Growth with Data-Driven Digital Marketing",
-    bannerSubtitle:"We boost brand growth with SEO, social media, PPC, email, and targeted campaigns.",
+    bannerTitle: "Data-driven digital marketing that grows revenue",
+    bannerSubtitle: "Webaurix runs SEO, Google Ads, social media, email, and content campaigns with analytics-first strategy to drive traffic, generate qualified leads, and grow your brand.",
     seo: {
       title: "Digital Marketing Services | SEO PPC Social Media – Webaurix",
       description:
-        "Grow your online presence with Webaurix digital marketing services including SEO, paid ads, and data driven growth strategies."
+        "SEO, Google Ads, social media, email, and content marketing with analytics-first strategy. Webaurix, Lahore, serving Pakistan, the US, and the UK."
     },
 
     stagesHeading: "Stages Of Work",
@@ -673,56 +673,56 @@ const servicesData = {
 
 
     stages: [
-      { title: "Research & Analysis", desc: "Understand target audience, competitors, and market trends to define strategy." },
-      { title: "Strategy Planning", desc: "Create campaign plan, select channels (SEO, PPC, social media, email), and set goals." },
-      { title: "Content & Creative Development", desc: "Design creatives, write copy, and prepare assets for campaigns." },
-      { title: "Campaign Execution", desc: "Launch marketing campaigns across chosen platforms and channels." },
-      { title: "Monitoring & Optimization", desc: "Track performance, analyze metrics, and optimize campaigns for better results." },
-      { title: "Reporting & Insights", desc: "Provide detailed reports, insights, and recommendations for ongoing growth." },
+      { title: "Research & Analysis", desc: "We audit your current traffic, competitors, and audience to identify the highest-ROI marketing channels and content opportunities specific to your business." },
+      { title: "Strategy Planning", desc: "We build a channel-specific campaign plan with target audiences, monthly budgets, KPIs, and a content calendar aligned to your revenue goals." },
+      { title: "Content & Creative Development", desc: "We produce on-brand ad creative, landing page copy, social content, blog posts, and email sequences ready to launch across all chosen channels simultaneously." },
+      { title: "Campaign Execution", desc: "We launch campaigns across SEO, Google Ads, Meta, email, and content with attribution tracking and conversion goals configured before go-live." },
+      { title: "Monitoring & Optimization", desc: "We monitor performance daily, run A/B tests on creatives and copy, and reallocate budget to the highest-performing channels and audiences every week." },
+      { title: "Reporting & Insights", desc: "We deliver monthly reports with traffic, leads, conversions, and ROI tracked against the baseline metrics we established at the project start." },
     ],
 
     offers: [
       {
         icon: TrendingUp,
         title: "SEO (Search Engine Optimization)",
-        descback: "Improve your website’s search engine ranking, drive organic traffic, and attract high-quality visitors. Optimize on-page, off-page, and technical SEO for long-term growth.",
+        descback: "Comprehensive SEO covering technical audits, on-page optimisation, keyword clustering, internal linking, schema markup, and monthly ranking progress reports delivered on schedule.",
       },
       {
         icon: DollarSign,
         title: "PPC Advertising",
-        descback: "Run targeted paid campaigns on Google, social media, and other platforms. Generate leads quickly, control budgets, and maximize ROI with precise audience targeting.",
+        descback: "Google Search, Display, and Shopping campaigns and Meta Ads managed with conversion tracking, audience segmentation, and weekly bid optimisation focused on cost per acquisition.",
       },
       {
         icon: Share2,
         title: "Social Media Marketing",
-        descback: "Engage your audience across platforms like Facebook, Instagram, and LinkedIn. Build brand awareness, grow followers, and drive meaningful interactions.",
+        descback: "Social media strategy, creative content production, community management, and paid amplification across Instagram, LinkedIn, Facebook, and TikTok with monthly analytics reporting.",
       },
       {
         icon: FileText,
         title: "Content Marketing",
-        descback: "Create compelling blogs, articles, videos, and graphics that educate, inform, and engage your audience. Enhance brand authority and support SEO efforts.",
+        descback: "Blog posts, pillar pages, case studies, and email newsletters produced with keyword research and editorial review to build topical authority and drive organic rankings.",
       },
       {
         icon: Mail,
         title: "Email Marketing",
-        descback: "Send personalized campaigns to nurture leads and retain customers. Automate workflows, segment audiences, and improve open and click-through rates.",
+        descback: "Segmented email campaigns and automated drip sequences built in Mailchimp, Klaviyo, or HubSpot with open rate, click rate, and conversion tracked and optimised monthly.",
       },
       {
         icon: Zap,
         title: "Conversion Rate Optimization (CRO)",
-        descback: "Optimize websites and landing pages to turn visitors into leads or customers. A/B testing, UX improvements, and analytics-driven tweaks enhance conversions.",
+        descback: "Landing page and checkout optimisation using Hotjar session recordings and A/B testing, targeting measurable and statistically significant uplift in your conversion rate.",
       },
       {
         icon: BarChart2,
         title: "Analytics & Reporting",
-        descback: "Track marketing performance, analyze key metrics, and gain actionable insights. Make informed decisions to improve campaigns and measure ROI accurately.",
+        descback: "GA4 and Google Tag Manager setup, conversion tracking, attribution modelling, and a monthly performance dashboard that gives leadership clear, actionable ROI visibility.",
       },
       {
         icon: Target,
         title: "Brand Strategy & Consulting",
-        descback: "Develop strategies for digital presence, positioning, and growth. Align marketing efforts with business goals to strengthen brand identity and reach.",
+        descback: "Brand positioning, audience persona development, competitive messaging analysis, and a digital marketing playbook aligned to your growth stage and revenue targets.",
       },
-    
+
     ],
     customTechStack: {
       Platform: [

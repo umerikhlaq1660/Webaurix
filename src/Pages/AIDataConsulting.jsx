@@ -10,47 +10,47 @@ const data = {
   accentLight: "#0e7490",
   sceneVariant: "orbit",
   path: "/services/ai-data-consulting",
-  metaTitle: "AI & Data Consulting Services | Webaurix",
+  metaTitle: "AI & Data Consulting for Business Growth | Webaurix",
   metaDesc:
-    "AI and data consulting - strategy, analytics, machine learning models, and data pipelines that turn raw data into confident decisions.",
+    "Machine learning models, data pipelines, BI dashboards & AI strategy that turn raw data into business decisions. Webaurix, Lahore, serving Pakistan, the US, and the UK.",
   keywords:
-    "AI consulting, data consulting, data analytics, machine learning consulting, business intelligence, data engineering, AI strategy, Webaurix",
+    "AI consulting, data consulting, machine learning consulting, data pipeline engineering, business intelligence, Power BI consulting, dbt Airflow, AI strategy, Webaurix",
 
   eyebrow: "AI & Data Consulting",
-  title: "Decisions powered by",
-  titleHighlight: "data, not guesswork.",
+  title: "Data-driven decisions,",
+  titleHighlight: "engineered to scale.",
   description:
-    "We help you make sense of your data - from strategy and analytics to custom machine learning models and pipelines that surface insight where you need it most.",
+    "Webaurix helps businesses unlock the value hiding in their data, from AI strategy and custom machine learning models to production data pipelines and BI dashboards that surface insight at the moment decisions are made. Python, BigQuery, Snowflake, dbt, and TensorFlow, delivered for clients across Pakistan, the US, and the UK.",
 
   stats: [
-    { value: "40%", label: "Better decisions" },
-    { value: "5x", label: "Faster insights" },
-    { value: "99%", label: "Data accuracy" },
+    { value: "40%", label: "Faster decision cycles" },
+    { value: "5x", label: "More insight, same data" },
+    { value: "99%", label: "Pipeline reliability" },
   ],
 
   capabilitiesHeading: "From raw data to real, measurable business outcomes.",
   capabilities: [
-    { icon: Target,    title: "AI Strategy",          desc: "We assess your data maturity and build a clear, ROI-focused AI roadmap." },
-    { icon: BarChart3, title: "Analytics & BI",        desc: "Dashboards and reports that turn scattered data into clear, live signals." },
-    { icon: Brain,     title: "Machine Learning",      desc: "Custom predictive and classification models trained on your data." },
-    { icon: Database,  title: "Data Engineering",      desc: "Robust pipelines that clean, transform, and unify your data sources." },
-    { icon: TrendingUp,title: "Forecasting",           desc: "Demand, churn, and revenue forecasting to plan with confidence." },
-    { icon: ShieldCheck,title: "Data Governance",      desc: "Security, compliance, and quality baked into every layer." },
+    { icon: Target,     title: "AI Strategy",     desc: "We assess your data maturity, identify the highest-ROI AI opportunities, and deliver a phased roadmap with a business case for each initiative, not a generic slide deck." },
+    { icon: BarChart3,  title: "Analytics & BI",  desc: "Power BI and Tableau dashboards connected to live data sources, replacing weekly spreadsheet reports with real-time signals that decision-makers can act on immediately." },
+    { icon: Brain,      title: "Machine Learning", desc: "Classification, regression, and clustering models trained on your proprietary data, validated against real business KPIs (churn rate, revenue impact) not just accuracy scores." },
+    { icon: Database,   title: "Data Engineering", desc: "dbt + Airflow data pipelines that clean, transform, and unify your sources into a reliable warehouse, with automated quality checks and alerting on data drift." },
+    { icon: TrendingUp, title: "Forecasting",      desc: "Demand forecasting, churn prediction, and revenue modelling built with scikit-learn and TensorFlow, helping you plan inventory, staff, and spend with 90%+ accuracy." },
+    { icon: ShieldCheck,title: "Data Governance",  desc: "Automated data validation, column-level access controls, and GDPR-compliant pipeline design, so your data is trustworthy, secure, and audit-ready by default." },
   ],
 
   process: [
-    { title: "Assess",    desc: "We audit your data sources, quality, and goals." },
-    { title: "Model",     desc: "We design the analytics or ML approach that fits." },
-    { title: "Build",     desc: "We engineer pipelines, models, and dashboards." },
-    { title: "Activate",  desc: "We deliver insight into the tools your team already uses." },
+    { title: "Data Audit (Week 1)",        desc: "We inventory your data sources, assess quality and completeness gaps, and identify the highest-value use cases for analytics or machine learning." },
+    { title: "Solution Design (Week 1–2)", desc: "We blueprint the warehouse architecture, pipeline topology, model approach, and the KPIs that will measure success, reviewed with your team before build begins." },
+    { title: "Build & Validate (Week 2–6)",desc: "We engineer pipelines, train and validate models, and build dashboards, with weekly progress check-ins so you see working deliverables, not a big-bang reveal." },
+    { title: "Activate & Maintain",        desc: "We deliver insight into your existing tools (Slack, email, BI platform) and monitor pipeline health, model drift, and dashboard accuracy continuously." },
   ],
 
   useCasesHeading: "Data work that pays for itself.",
   useCases: [
-    { title: "Customer churn prediction",  desc: "Spot at-risk customers before they leave." },
-    { title: "Demand forecasting",          desc: "Optimize inventory and staffing with accurate predictions." },
-    { title: "Revenue analytics",           desc: "Understand exactly what drives your growth." },
-    { title: "Operational dashboards",      desc: "Real-time visibility across your business." },
+    { title: "Customer churn prediction", desc: "Identify at-risk customers 30+ days before they churn and trigger targeted retention campaigns, reducing churn by 20–35%." },
+    { title: "Demand forecasting",         desc: "Predict demand by SKU, region, and season with 90%+ accuracy, cutting stockout events and overstock carrying costs significantly." },
+    { title: "Revenue analytics",          desc: "Understand exactly which channels, campaigns, and customer cohorts drive revenue, with attribution modelling down to individual customer journeys." },
+    { title: "Operational dashboards",     desc: "Live visibility into ops, fulfilment, and support metrics, replacing end-of-day batch reports with dashboards that update every 5 minutes." },
   ],
 
   tech: [
@@ -60,7 +60,7 @@ const data = {
 
   highlight: {
     title: "Insight that reaches the people who decide.",
-    desc: "We don't just build models - we deliver insight into dashboards, alerts, and tools your team already uses, so data actually changes decisions.",
+    desc: "We don't just build models, we deliver insight into the dashboards, Slack alerts, and workflows your team already uses. Data that actually changes decisions, not data that collects dust in a warehouse.",
   },
 
   ctaTitle: "Let's unlock the value hiding in",

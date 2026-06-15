@@ -353,7 +353,7 @@ const AboutUs = () => {
             className="grid grid-cols-2 gap-3 sm:gap-4"
           >
             {[
-              { label: "Founded", value: "2022" },
+              { label: "Founded", value: "2025" },
               { label: "Team Size", value: "12+" },
               { label: "Countries Served", value: "8+" },
               { label: "Industries", value: "10+" },

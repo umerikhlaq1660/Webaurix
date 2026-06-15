@@ -15,37 +15,37 @@ const serviceAliases = {
   "ecommerce-development": {
     parent: "web-development",
     bannerLabel: "E-Commerce Development",
-    bannerTitle: "High-converting e-commerce stores",
+    bannerTitle: "High-converting e-commerce stores, built to sell",
     bannerSubtitle:
-      "Shopify Plus, headless storefronts and custom carts - fast, secure online stores built to turn visitors into customers.",
+      "Webaurix builds fast, secure online stores on Shopify Plus and custom React stacks with Stripe payments, real-time inventory, and checkout flows optimised for conversion.",
     seo: {
-      title: "E-Commerce Development Services | Shopify & Custom Stores – Webaurix",
+      title: "E-Commerce Development Services | Shopify & React – Webaurix",
       description:
-        "Webaurix builds fast, secure, conversion-focused e-commerce stores on Shopify Plus and custom stacks that grow your online sales.",
+        "Fast, secure online stores on Shopify Plus and custom React stacks with Stripe payments and checkout optimised for conversion. Webaurix, Lahore, Pakistan.",
     },
   },
   "cms-development": {
     parent: "web-development",
     bannerLabel: "CMS Development",
-    bannerTitle: "Flexible, easy-to-manage CMS websites",
+    bannerTitle: "Flexible CMS websites your team can manage independently",
     bannerSubtitle:
-      "WordPress, headless CMS and custom content platforms that let your team publish and update content with zero friction.",
+      "Webaurix builds WordPress, Sanity, and Contentful CMS platforms that make publishing and editing content fully self-serve for your team, with no developer dependency.",
     seo: {
-      title: "CMS Development Services | WordPress & Headless CMS – Webaurix",
+      title: "CMS Development Services | WordPress & Headless – Webaurix",
       description:
-        "Custom CMS development by Webaurix - WordPress, headless and bespoke content platforms that are fast, secure and easy to manage.",
+        "WordPress, Sanity, and Contentful CMS builds that make content updates self-serve and fast. Webaurix, Lahore, serving Pakistan, the US, and the UK.",
     },
   },
   "progressive-web-apps": {
     parent: "web-development",
     bannerLabel: "Progressive Web Apps",
-    bannerTitle: "App-like speed on the open web",
+    bannerTitle: "PWAs that install, work offline, and load under 2 seconds",
     bannerSubtitle:
-      "Installable, offline-ready Progressive Web Apps that load instantly and feel native - without the app store.",
+      "Webaurix builds installable Progressive Web Apps that load in under 2 seconds, work offline, and deliver push notifications, all without requiring an App Store listing.",
     seo: {
-      title: "Progressive Web App (PWA) Development Services – Webaurix",
+      title: "Progressive Web App Development Services | Webaurix",
       description:
-        "Webaurix builds installable, offline-capable Progressive Web Apps that deliver native-app speed and reliability on any device.",
+        "Installable PWAs that work offline, load in under 2 seconds, and support push notifications. No App Store required. Webaurix, Lahore, Pakistan.",
     },
   },
 
@@ -53,37 +53,37 @@ const serviceAliases = {
   "cross-platform-app-development": {
     parent: "app-development",
     bannerLabel: "Cross-Platform Apps",
-    bannerTitle: "One codebase, every platform",
+    bannerTitle: "One codebase, iOS and Android, native performance",
     bannerSubtitle:
-      "Flutter and React Native apps that ship to iOS and Android together - faster delivery, lower cost, native performance.",
+      "Webaurix builds React Native and Flutter apps that ship simultaneously to iOS and Android, with 70 percent code reuse, native-grade performance, and roughly half the development cost.",
     seo: {
-      title: "Cross-Platform App Development | Flutter & React Native – Webaurix",
+      title: "Cross-Platform App Development | React Native – Webaurix",
       description:
-        "Webaurix builds cross-platform mobile apps with Flutter and React Native - one codebase for iOS and Android with native-grade performance.",
+        "React Native and Flutter cross-platform apps shipping to iOS and Android together. 70 percent code reuse, native performance. Webaurix, Lahore, Pakistan.",
     },
   },
   "enterprise-app-development": {
     parent: "app-development",
     bannerLabel: "Enterprise Apps",
-    bannerTitle: "Secure apps built to scale",
+    bannerTitle: "Secure enterprise apps built for complex organisations",
     bannerSubtitle:
-      "Robust, compliant enterprise mobile apps with the security, integrations and reliability large organisations demand.",
+      "Webaurix engineers enterprise mobile apps with SSO, role-based access control, offline capability, and deep integration with SAP, Salesforce, and your internal ERP systems.",
     seo: {
-      title: "Enterprise Mobile App Development Services – Webaurix",
+      title: "Enterprise Mobile App Development Services | Webaurix",
       description:
-        "Scalable, secure enterprise app development by Webaurix - built for performance, compliance and seamless system integration.",
+        "Secure enterprise apps with SSO, role-based access, offline mode, and ERP integration. Webaurix, Lahore, serving Pakistan, the US, and the UK.",
     },
   },
   "ar-vr-game-apps": {
     parent: "app-development",
     bannerLabel: "AR / VR & Game Apps",
-    bannerTitle: "Immersive AR, VR & game experiences",
+    bannerTitle: "AR, VR, and mobile game apps that captivate users",
     bannerSubtitle:
-      "Interactive AR, VR and mobile game apps that captivate users with rich, real-time 3D experiences.",
+      "Webaurix develops immersive AR, VR, and game apps using ARKit, ARCore, and Unity, from retail product try-on and 3D training simulations to casual mobile games.",
     seo: {
-      title: "AR/VR & Mobile Game App Development Services – Webaurix",
+      title: "AR, VR & Mobile Game App Development | Webaurix",
       description:
-        "Webaurix develops immersive AR, VR and mobile game apps with rich real-time 3D, built for engagement and performance.",
+        "Immersive AR, VR, and mobile game apps built with ARKit, ARCore, and Unity, for retail, training, and entertainment. Webaurix, Lahore, Pakistan.",
     },
   },
 
@@ -91,37 +91,37 @@ const serviceAliases = {
   "branding": {
     parent: "ui-ux-design",
     bannerLabel: "Branding & Visual Identity",
-    bannerTitle: "Brands people remember",
+    bannerTitle: "Brand identities that build recognition and lasting trust",
     bannerSubtitle:
-      "Logos, identity systems and brand guidelines that make your business look credible, consistent and unmistakably you.",
+      "Webaurix designs logos, colour systems, typography, and brand guidelines that make your business look credible, consistent, and unmistakably distinct across every touchpoint.",
     seo: {
-      title: "Branding & Visual Identity Design Services – Webaurix",
+      title: "Branding & Visual Identity Design Services | Webaurix",
       description:
-        "Webaurix crafts memorable brand identities - logos, colour systems and guidelines that build trust and recognition.",
+        "Logos, colour systems, typography, and brand guidelines designed to build recognition and trust. Webaurix, Lahore, serving Pakistan, the US, and the UK.",
     },
   },
   "wireframing-prototyping": {
     parent: "ui-ux-design",
     bannerLabel: "Wireframing & Prototyping",
-    bannerTitle: "Validate ideas before you build",
+    bannerTitle: "Clickable wireframes and prototypes to validate ideas fast",
     bannerSubtitle:
-      "Interactive wireframes and clickable prototypes that test flows and de-risk decisions before a line of code is written.",
+      "Webaurix designs high-fidelity Figma wireframes and clickable prototypes that test user flows with real users and eliminate costly assumptions before a line of code is written.",
     seo: {
       title: "Wireframing & Prototyping Services | UX Design – Webaurix",
       description:
-        "Webaurix designs interactive wireframes and prototypes to validate user flows and de-risk your product before development.",
+        "High-fidelity Figma wireframes and prototypes that test user flows and eliminate costly assumptions before development starts. Webaurix, Lahore, Pakistan.",
     },
   },
   "product-research": {
     parent: "ui-ux-design",
     bannerLabel: "Product Research & Strategy",
-    bannerTitle: "Decisions grounded in real users",
+    bannerTitle: "User research and product strategy grounded in real data",
     bannerSubtitle:
-      "User research, journey mapping and product strategy that align your roadmap with what customers actually need.",
+      "Webaurix delivers user interviews, usability testing, journey mapping, and product strategy that aligns your roadmap with what real customers need and value, not assumptions.",
     seo: {
-      title: "Product Research & UX Strategy Services – Webaurix",
+      title: "Product Research & UX Strategy Services | Webaurix",
       description:
-        "Webaurix delivers user research and product strategy - journey maps and insights that align your roadmap with real user needs.",
+        "User interviews, usability testing, journey mapping, and product strategy grounded in real user data. Webaurix, Lahore, serving Pakistan and the US.",
     },
   },
 
@@ -129,37 +129,37 @@ const serviceAliases = {
   "saas-solutions": {
     parent: "custom-software-development",
     bannerLabel: "SaaS Solutions",
-    bannerTitle: "SaaS products built to scale",
+    bannerTitle: "Multi-tenant SaaS platforms built to scale from launch",
     bannerSubtitle:
-      "Multi-tenant SaaS platforms with billing, dashboards and APIs - engineered for growth from day one.",
+      "Webaurix engineers SaaS platforms with Stripe subscription billing, multi-tenancy, usage metering, and the admin tooling that makes a SaaS product operationally sustainable.",
     seo: {
       title: "SaaS Development Services | Build Scalable SaaS – Webaurix",
       description:
-        "Webaurix builds scalable, multi-tenant SaaS platforms with secure billing, analytics and APIs - engineered for growth.",
+        "Multi-tenant SaaS platforms with Stripe billing, usage metering, and admin tooling built for scale. Webaurix, Lahore, serving Pakistan, the US, and the UK.",
     },
   },
   "api-integration": {
     parent: "custom-software-development",
     bannerLabel: "API Integration",
-    bannerTitle: "Connect every system seamlessly",
+    bannerTitle: "API development and integration that connects everything",
     bannerSubtitle:
-      "Custom APIs and third-party integrations that make your tools, data and platforms work together as one.",
+      "Webaurix designs RESTful and GraphQL APIs and third-party integrations that connect your tools, data sources, and platforms into a unified, reliable, and documented ecosystem.",
     seo: {
-      title: "API Development & Integration Services – Webaurix",
+      title: "API Development & Integration Services | Webaurix",
       description:
-        "Webaurix designs and integrates secure, reliable APIs that connect your platforms, data and third-party tools seamlessly.",
+        "RESTful and GraphQL APIs, third-party integrations, and webhook systems that connect your platforms into one reliable ecosystem. Webaurix, Lahore, Pakistan.",
     },
   },
   "legacy-system-modernization": {
     parent: "custom-software-development",
     bannerLabel: "Legacy Modernization",
-    bannerTitle: "Modernise without the rebuild risk",
+    bannerTitle: "Legacy modernisation without the rebuild risk",
     bannerSubtitle:
-      "Migrate, refactor and re-platform ageing systems into secure, maintainable, future-ready software.",
+      "Webaurix replaces brittle legacy systems using strangler-fig migration, modernising piece by piece in parallel so business operations never stop during the transition.",
     seo: {
-      title: "Legacy System Modernization Services – Webaurix",
+      title: "Legacy System Modernisation Services | Webaurix",
       description:
-        "Webaurix modernises legacy systems - migration, refactoring and re-platforming into secure, scalable, maintainable software.",
+        "Strangler-fig legacy modernisation: migrate, refactor, and replatform ageing systems with zero business downtime. Webaurix, Lahore, Pakistan.",
     },
   },
 
@@ -167,49 +167,49 @@ const serviceAliases = {
   "seo-optimization": {
     parent: "digital-marketing",
     bannerLabel: "SEO Optimization",
-    bannerTitle: "Rank higher, grow organically",
+    bannerTitle: "SEO that earns rankings, organic traffic, and qualified leads",
     bannerSubtitle:
-      "Technical, on-page and content SEO that lifts your rankings and drives qualified organic traffic that converts.",
+      "Webaurix delivers technical SEO audits, keyword strategy, on-page optimisation, and JSON-LD schema markup that build sustained organic visibility and qualified inbound traffic.",
     seo: {
       title: "SEO Optimization Services | Grow Organic Traffic – Webaurix",
       description:
-        "Webaurix delivers technical, on-page and content SEO that boosts rankings and drives qualified organic traffic to your site.",
+        "Technical SEO, on-page optimisation, keyword strategy, and schema markup that build organic visibility and drive qualified traffic. Webaurix, Lahore, Pakistan.",
     },
   },
   "ppc-advertising": {
     parent: "digital-marketing",
     bannerLabel: "PPC Advertising",
-    bannerTitle: "Paid ads that pay for themselves",
+    bannerTitle: "Google Ads and Meta PPC campaigns that maximise ROI",
     bannerSubtitle:
-      "Google and social PPC campaigns optimised for ROI - the right audience, the right message, measurable returns.",
+      "Webaurix manages Google Search, Shopping, and Meta PPC campaigns with precise audience targeting, conversion tracking, and continuous bid optimisation that turns ad spend into measurable revenue.",
     seo: {
-      title: "PPC Advertising & Google Ads Management Services – Webaurix",
+      title: "PPC Advertising & Google Ads Management | Webaurix",
       description:
-        "Webaurix runs high-ROI PPC campaigns on Google and social - precise targeting and optimisation that turn ad spend into revenue.",
+        "Google Ads and Meta PPC campaigns with precise targeting, conversion tracking, and ROI-focused optimisation. Webaurix, Lahore, serving Pakistan and the US.",
     },
   },
   "social-media-marketing": {
     parent: "digital-marketing",
     bannerLabel: "Social Media Marketing",
-    bannerTitle: "Build a brand people follow",
+    bannerTitle: "Social media marketing that builds real, engaged audiences",
     bannerSubtitle:
-      "Strategy, content and community management that grow your audience and turn followers into loyal customers.",
+      "Webaurix delivers social media strategy, content creation, and community management that grows your audience on Instagram, LinkedIn, and TikTok and converts followers into customers.",
     seo: {
-      title: "Social Media Marketing Services – Webaurix",
+      title: "Social Media Marketing & Management Services | Webaurix",
       description:
-        "Webaurix grows your social presence with strategy, content and community management that turns followers into customers.",
+        "Social media strategy, content, and community management that grows audiences on Instagram, LinkedIn, and TikTok. Webaurix, Lahore, serving Pakistan and the US.",
     },
   },
   "email-content-marketing": {
     parent: "digital-marketing",
     bannerLabel: "Email & Content Marketing",
-    bannerTitle: "Content that nurtures and converts",
+    bannerTitle: "Email funnels and content strategy that nurtures and converts",
     bannerSubtitle:
-      "Email funnels and content strategy that build trust, keep you top-of-mind and drive repeat conversions.",
+      "Webaurix builds segmented email sequences and automated drip funnels using Mailchimp, HubSpot, and Klaviyo that keep you top-of-mind and drive repeat conversions month after month.",
     seo: {
-      title: "Email & Content Marketing Services – Webaurix",
+      title: "Email & Content Marketing Services | Webaurix",
       description:
-        "Webaurix builds email funnels and content strategies that nurture leads, build trust and drive repeat conversions.",
+        "Segmented email sequences and automated funnels built in Mailchimp, HubSpot, and Klaviyo that nurture leads and drive repeat conversions. Webaurix, Lahore, Pakistan.",
     },
   },
 };

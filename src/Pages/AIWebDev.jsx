@@ -10,47 +10,47 @@ const data = {
   accentLight: "#0e7490",
   sceneVariant: "knot",
   path: "/services/ai/web",
-  metaTitle: "AI-Powered Web & App Development Services | Webaurix",
+  metaTitle: "AI-Powered Web & App Development | Webaurix",
   metaDesc:
-    "AI-powered web and app development - intelligent search, personalization, AI assistants, and smart automation baked into modern products.",
+    "AI-powered web and mobile apps with intelligent search, real-time personalization & in-app copilots. Built on React, Next.js & OpenAI API by Webaurix, Lahore.",
   keywords:
-    "AI web development, AI app development, intelligent search, AI personalization, in-app AI assistant, smart automation, AI integration, Webaurix",
+    "AI web development, AI app development, intelligent search, AI personalization, in-app AI assistant, OpenAI integration, React AI development, smart automation, Webaurix",
 
-  eyebrow: "AI-Powered Development",
-  title: "Web & apps with",
-  titleHighlight: "intelligence built in.",
+  eyebrow: "AI-Powered Web & App Development",
+  title: "Modern products with",
+  titleHighlight: "AI built into the core.",
   description:
-    "We build modern web and mobile products with AI woven into the core - smart search, real-time personalization, in-app assistants, and automation that makes your product feel alive.",
+    "Webaurix builds web and mobile products where AI is infrastructure, not a feature. Semantic search that understands intent, personalization engines that adapt in real time, in-app copilots that guide every user action. Built on React, Next.js, and OpenAI API for clients in Pakistan, South Korea, the US, and the UK.",
 
   stats: [
-    { value: "3x", label: "Higher engagement" },
-    { value: "<1s", label: "AI response times" },
-    { value: "∞", label: "Scalable by design" },
+    { value: "50+", label: "Products shipped" },
+    { value: "<1s", label: "AI response time" },
+    { value: "3x", label: "Higher user engagement" },
   ],
 
   capabilitiesHeading: "AI features that make products smarter, faster, and stickier.",
   capabilities: [
-    { icon: Search,        title: "Intelligent Search", desc: "Semantic, typo-tolerant search that understands intent - not just keywords." },
-    { icon: Sparkles,      title: "Personalization",    desc: "Real-time recommendations and adaptive UIs tuned to each user's behavior." },
-    { icon: MessageSquare, title: "In-App Assistants",  desc: "Embedded copilots that help users navigate, act, and get answers instantly." },
-    { icon: Repeat,        title: "Smart Automation",   desc: "Automate onboarding, moderation, tagging, and routine flows with AI." },
-    { icon: Gauge,         title: "Predictive UX",      desc: "Anticipate user needs with models that surface the right action at the right time." },
-    { icon: ShieldCheck,   title: "Safe & Reliable",    desc: "Guardrails, rate limits, and fallbacks so AI features stay robust in production." },
+    { icon: Search,        title: "Intelligent Search", desc: "Semantic vector search with typo tolerance and intent understanding, users find exactly what they need in under 1 second, even with imperfect or incomplete queries." },
+    { icon: Sparkles,      title: "Personalization",    desc: "Real-time recommendation engines that update on each interaction, boosting conversion rates by 20–40% in e-commerce and SaaS products without manual tuning." },
+    { icon: MessageSquare, title: "In-App Assistants",  desc: "Embedded LLM-powered assistants (GPT-4o or Claude 3.5) that help users navigate, complete tasks, and get answers without leaving your app, response time under 1 second." },
+    { icon: Repeat,        title: "Smart Automation",   desc: "Automate onboarding flows, content moderation, data tagging, and form enrichment, freeing your engineering team for higher-value product work." },
+    { icon: Gauge,         title: "Predictive UX",      desc: "ML models that surface the next best action, predict churn risk, or pre-fill forms, making the product feel like it anticipates users' needs before they ask." },
+    { icon: ShieldCheck,   title: "Safe & Reliable",    desc: "Rate limits, guardrails, cost controls, and fallback logic so AI features stay reliable, affordable, and production-safe at any traffic level." },
   ],
 
   process: [
-    { title: "Audit",       desc: "We find where AI adds real value in your product journey." },
-    { title: "Architect",   desc: "We design the data flow, models, and integration points." },
-    { title: "Develop",     desc: "We build the features into a fast, modern, scalable codebase." },
-    { title: "Optimize",    desc: "We measure, tune, and iterate on accuracy and performance." },
+    { title: "AI Opportunity Audit",   desc: "We analyse your product journey and data flows to identify where AI adds real, measurable value, not novelty features that don't move KPIs." },
+    { title: "Architecture Design",    desc: "We define data flows, model choices, vector store configuration, and API integration points before a single line of code is written." },
+    { title: "Full-Stack Development", desc: "We build AI features into a fast, type-safe codebase using React, TypeScript, Node.js, and your preferred cloud, with unit and integration tests for every AI component." },
+    { title: "Measure & Optimise",     desc: "We instrument every AI feature with analytics, running A/B tests, measuring accuracy, and iterating until engagement and conversion metrics move." },
   ],
 
   useCasesHeading: "AI that upgrades the products people use daily.",
   useCases: [
-    { title: "E-commerce recommendations", desc: "Boost AOV with AI-driven product discovery." },
-    { title: "SaaS copilots",              desc: "Help users do more, faster, inside your platform." },
-    { title: "Smart dashboards",           desc: "Natural-language queries over your live data." },
-    { title: "Content moderation",         desc: "Auto-flag and filter unsafe content in real time." },
+    { title: "E-commerce recommendations", desc: "AI-powered semantic search and recommendations that lift average order value by 25–40%, proven on e-commerce products we've shipped." },
+    { title: "SaaS copilots",              desc: "Help users accomplish core tasks 3x faster with contextual LLM-powered guidance embedded directly inside your SaaS platform." },
+    { title: "Smart dashboards",           desc: "Ask questions in plain English and get live, charted answers from your database, natural language SQL on your business data." },
+    { title: "Content moderation",         desc: "Detect and flag unsafe content across text, images, and user-generated video in real time, before it reaches other users." },
   ],
 
   tech: [
@@ -59,8 +59,8 @@ const data = {
   ],
 
   highlight: {
-    title: "AI as a feature, not a bolt-on.",
-    desc: "We integrate intelligence directly into your architecture - so it's fast, secure, and feels like a natural part of the product, not a gimmick.",
+    title: "AI as infrastructure, not an afterthought.",
+    desc: "We wire intelligence directly into your data layer, API, and frontend, so features are fast, consistent, and secure. Users experience AI that feels native to the product, not a chatbot widget bolted to the corner of the page.",
   },
 
   ctaTitle: "Let's build a product that's",
