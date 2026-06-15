@@ -717,10 +717,12 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
     markdown:  isEdit ? (existing.markdown || "") : "",
   });
 
-  const [saving,    setSaving]    = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [saved,     setSaved]     = useState(false);
-  const [err,       setErr]       = useState("");
+  const [saving,          setSaving]          = useState(false);
+  const [uploading,       setUploading]       = useState(false);
+  const [saved,           setSaved]           = useState(false);
+  const [err,             setErr]             = useState("");
+  const [customCat,       setCustomCat]       = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const autoSlug = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
   const setTitle = (v) => setForm(p => ({ ...p, title:v, slug: isEdit ? p.slug : autoSlug(v) }));
@@ -932,9 +934,9 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
             </div>
 
             {/* category chip row */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 items-center">
               {CATEGORIES.map(cat => (
-                <button key={cat} onClick={()=>setForm(p=>({...p,label:cat}))}
+                <button key={cat} onClick={()=>{ setForm(p=>({...p,label:cat})); setShowCustomInput(false); setCustomCat(""); }}
                   className="px-3 py-1.5 rounded-full text-[12px] font-semibold"
                   style={{ background: form.label===cat ? C.A : "rgba(255,255,255,0.05)",
                     color: form.label===cat ? "#060d10" : C.M,
@@ -943,6 +945,61 @@ const BlogEditor = ({ existing, onSave, onClose }) => {
                   {cat}
                 </button>
               ))}
+
+              {/* active custom category chip (when label isn't in the default list) */}
+              {form.label && !CATEGORIES.includes(form.label) && (
+                <button
+                  onClick={()=>{ setShowCustomInput(true); setCustomCat(form.label); }}
+                  className="px-3 py-1.5 rounded-full text-[12px] font-semibold"
+                  style={{ background: C.A, color:"#060d10", border:`1px solid ${C.A}` }}>
+                  {form.label}
+                </button>
+              )}
+
+              {/* + Custom button */}
+              {!showCustomInput ? (
+                <button onClick={()=>setShowCustomInput(true)}
+                  className="px-3 py-1.5 rounded-full text-[12px] font-semibold flex items-center gap-1"
+                  style={{ background:"rgba(255,255,255,0.04)", color:C.M,
+                    border:`2px dashed ${C.border}`, transition:"all 0.12s" }}
+                  onMouseEnter={e=>{ e.currentTarget.style.borderColor=`${C.A}60`; e.currentTarget.style.color=C.A; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.border; e.currentTarget.style.color=C.M; }}>
+                  <Plus size={11}/> Custom
+                </button>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    autoFocus
+                    value={customCat}
+                    onChange={e=>setCustomCat(e.target.value)}
+                    onKeyDown={e=>{
+                      if (e.key==="Enter" && customCat.trim()) {
+                        setForm(p=>({...p,label:customCat.trim()}));
+                        setShowCustomInput(false); setCustomCat("");
+                      }
+                      if (e.key==="Escape") { setShowCustomInput(false); setCustomCat(""); }
+                    }}
+                    placeholder="Category name…"
+                    className="px-3 py-1.5 rounded-full text-[12px] outline-none"
+                    style={{ background:"rgba(255,255,255,0.07)", border:`1px solid ${C.A}`,
+                      color:C.P, width:"160px" }}
+                  />
+                  <button
+                    onClick={()=>{
+                      if (customCat.trim()) setForm(p=>({...p,label:customCat.trim()}));
+                      setShowCustomInput(false); setCustomCat("");
+                    }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background:C.A, color:"#060d10" }}>
+                    <CheckCircle2 size={13}/>
+                  </button>
+                  <button onClick={()=>{ setShowCustomInput(false); setCustomCat(""); }}
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background:"rgba(255,255,255,0.06)", color:C.M }}>
+                    <X size={12}/>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* title - big editorial input */}
