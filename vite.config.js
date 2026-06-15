@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 /* Make the app stylesheet non-render-blocking. The inline splash (in index.html)
    paints immediately; the full CSS loads asynchronously and is ready before
    React mounts, so there is no flash of unstyled content. Big FCP win on slow
@@ -21,11 +23,7 @@ const asyncCss = () => ({
 });
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    asyncCss(),
-  ],
+  plugins: [react(), tailwindcss(), asyncCss(), cloudflare()],
   build: {
     sourcemap: false,
     minify: 'terser',
