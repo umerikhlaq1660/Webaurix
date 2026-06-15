@@ -63,8 +63,8 @@ const Home = () => {
   return (
     <>
       <Seo
-        title="Webaurix | Web Development, AI Chatbots & Digital Marketing Agency"
-        description="Webaurix is a web development and AI agency building fast websites, mobile apps, AI chatbots, UI/UX design, and digital marketing for brands in Pakistan, South Korea, the US, and the UK."
+        title="Webaurix | Web Development, AI & Digital Agency"
+        description="Webaurix builds fast websites, mobile apps, AI chatbots, and digital marketing solutions. Trusted by brands in Pakistan, South Korea, the US, and the UK."
         keywords="web development agency, AI chatbot development, mobile app development, UI UX design agency, digital marketing agency, generative AI solutions, custom software development, web design Pakistan, software company Lahore"
         url={`${SITE}/`}
         schema={[serviceSchema, faqSchema]}

@@ -112,6 +112,18 @@ const BlogDetail = () => {
     if (el) { setActiveId(id); el.scrollIntoView({ behavior: "smooth", block: "start" }); }
   };
 
+  /* keep title ≤60 chars and description ≤160 chars for Google */
+  const pageTitle = blog
+    ? (blog.title.length > 42
+        ? `${blog.title.slice(0, 42).trimEnd()}… | Webaurix Blog`
+        : `${blog.title} | Webaurix Blog`)
+    : "Webaurix Blog";
+  const metaDesc = blog
+    ? ((blog.snippet || blog.title).length > 160
+        ? `${(blog.snippet || blog.title).slice(0, 157).trimEnd()}…`
+        : (blog.snippet || blog.title))
+    : "";
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: isDark ? "#0b0b0e" : "#fff" }}>
       <motion.div animate={{ rotate:360 }} transition={{ duration:1, repeat:Infinity, ease:"linear" }}>
@@ -130,20 +142,20 @@ const BlogDetail = () => {
   return (
     <div className="w-full min-h-screen" style={{ background: bg }}>
       <Helmet>
-        <title>{blog.title} | Webaurix Blog</title>
-        <meta name="description" content={blog.snippet || blog.title} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDesc} />
         {blog.tags && <meta name="keywords" content={Array.isArray(blog.tags) ? blog.tags.join(", ") : blog.tags} />}
         <link rel="canonical" href={`https://www.webaurix.com/blog/${slug}`} />
         <link rel="alternate" hrefLang="en" href={`https://www.webaurix.com/blog/${slug}`} />
         <link rel="alternate" hrefLang="x-default" href={`https://www.webaurix.com/blog/${slug}`} />
         <meta property="og:type" content="article" />
-        <meta property="og:title" content={`${blog.title} | Webaurix Blog`} />
-        <meta property="og:description" content={blog.snippet || blog.title} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={metaDesc} />
         <meta property="og:url" content={`https://www.webaurix.com/blog/${slug}`} />
         {blog.image && <meta property="og:image" content={blog.image} />}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={blog.title} />
-        <meta name="twitter:description" content={blog.snippet || blog.title} />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={metaDesc} />
         {blog.image && <meta name="twitter:image" content={blog.image} />}
 
         <script type="application/ld+json">

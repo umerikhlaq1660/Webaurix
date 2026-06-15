@@ -177,8 +177,8 @@ const AboutUs = () => {
   return (
     <div className="w-full min-h-screen" style={{ background: t.bg }}>
       <Seo
-        title="About Webaurix | Web Development & AI Agency in Lahore, Pakistan"
-        description="Meet Webaurix, a web development and AI agency from Lahore, Pakistan, building websites, mobile apps, and AI solutions for clients across Pakistan, South Korea, the US, and the UK."
+        title="About Webaurix | Digital Agency in Lahore, Pakistan"
+        description="Meet Webaurix — a digital agency from Lahore building websites, mobile apps, and AI solutions for clients in Pakistan, South Korea, the US, and the UK."
         keywords="about Webaurix, web development agency Pakistan, AI agency Lahore, software company Pakistan, digital agency, web development team"
         path="/about"
         schema={{
