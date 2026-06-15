@@ -234,51 +234,26 @@ export default function BlogsSection() {
       <div className="max-w-[1400px] mx-auto px-5 sm:px-10 lg:px-16">
 
         {/* ── HEADER ── */}
-        <div className="mb-10 sm:mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
-          <div>
-            <motion.p
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[11px] font-bold tracking-[0.22em] uppercase mb-4"
-              style={{ color: accent }}
-            >
-              Insights
-            </motion.p>
-            <motion.h2
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.07, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[30px] sm:text-[40px] lg:text-[50px] font-bold leading-[1.1] tracking-[-0.02em]"
-              style={{ color: primary }}
-            >
-              Latest articles &{" "}
-              <span style={{ color: accent }}>ideas.</span>
-            </motion.h2>
-          </div>
-
-          <motion.div
+        <div className="mb-10 sm:mb-12">
+          <motion.p
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-3 shrink-0"
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[11px] font-bold tracking-[0.22em] uppercase mb-4"
+            style={{ color: accent }}
           >
-            <p className="text-[14px] leading-relaxed hidden sm:block max-w-[220px] sm:text-right" style={{ color: muted }}>
-              Trends and ideas shaping the digital world.
-            </p>
-            <Link to="/blogs">
-              <motion.span
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer shrink-0"
-                style={{ border: `1px solid ${border}`, color: muted }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${accent}40`; e.currentTarget.style.color = primary; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = border; e.currentTarget.style.color = muted; }}
-              >
-                All articles <ArrowUpRight size={13} />
-              </motion.span>
-            </Link>
-          </motion.div>
+            Insights
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.07, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[30px] sm:text-[40px] lg:text-[50px] font-bold leading-[1.1] tracking-[-0.02em]"
+            style={{ color: primary }}
+          >
+            Latest articles &{" "}
+            <span style={{ color: accent }}>ideas.</span>
+          </motion.h2>
         </div>
 
         {/* ── BENTO GRID ── */}
@@ -299,6 +274,27 @@ export default function BlogsSection() {
             ))}
           </div>
         </div>
+
+        {/* ── ALL ARTICLES BUTTON ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="flex justify-center mt-8 sm:mt-10"
+        >
+          <Link to="/blogs">
+            <motion.span
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-7 py-3 rounded-xl text-[13.5px] font-semibold cursor-pointer"
+              style={{ border: `1px solid ${border}`, color: muted }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${accent}40`; e.currentTarget.style.color = primary; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = border; e.currentTarget.style.color = muted; }}
+            >
+              All articles <ArrowUpRight size={14} />
+            </motion.span>
+          </Link>
+        </motion.div>
       </div>
 
       {/* bottom accent line */}
