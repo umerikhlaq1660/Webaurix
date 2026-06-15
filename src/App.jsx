@@ -8,6 +8,7 @@ import Home from "./Pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import Seo from "./components/Seo";
+import PageLoader from "./components/PageLoader";
 
 const ChatBot = lazy(() => import("./components/ChatBot"));
 
@@ -53,7 +54,7 @@ const App = () => {
 
       <Seo path={location?.pathname || "/"} />
       <main>
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageLoader />}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location?.pathname || "root"}>
             <Route path="/" element={<Home />} />
