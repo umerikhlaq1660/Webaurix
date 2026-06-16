@@ -127,17 +127,13 @@ function clamp(str, max) {
   return typeof str === "string" ? str.slice(0, max) : "";
 }
 
-async function handleDraftReply(request, env) {
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-      status: 400,
-      headers: { "content-type": "application/json" },
-    });
-  }
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
+}
 
+/* Shared by /draft-reply and /auto-reply — validates input and drafts via
+   Workers AI. Returns either { error, status } or { name, email, draft }. */
+async function draftReply(body, env) {
   const name    = clamp(body?.name, 200).trim();
   const email   = clamp(body?.email, 200).trim();
   const message = clamp(body?.message, 2000).trim();
@@ -145,10 +141,7 @@ async function handleDraftReply(request, env) {
   const budget  = clamp(body?.budget, 100).trim();
 
   if (!name || !email || !message) {
-    return new Response(JSON.stringify({ error: "Missing required fields" }), {
-      status: 400,
-      headers: { "content-type": "application/json" },
-    });
+    return { error: "Missing required fields", status: 400 };
   }
 
   const userContent = [
@@ -159,33 +152,138 @@ async function handleDraftReply(request, env) {
     `Their message: ${message}`,
   ].filter(Boolean).join("\n");
 
-  let aiResponse;
+  let draft;
   try {
-    aiResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+    const aiResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
       messages: [
         { role: "system", content: DRAFT_REPLY_SYSTEM_PROMPT },
         { role: "user", content: userContent },
       ],
     });
+    draft = (aiResponse?.response ?? "").trim();
   } catch {
-    return new Response(JSON.stringify({ error: "AI request failed" }), {
-      status: 502,
-      headers: { "content-type": "application/json" },
-    });
+    return { error: "AI request failed", status: 502 };
   }
 
-  const draft = (aiResponse?.response ?? "").trim();
-  if (!draft) {
-    return new Response(JSON.stringify({ error: "Empty draft" }), {
-      status: 502,
-      headers: { "content-type": "application/json" },
-    });
+  if (!draft) return { error: "Empty draft", status: 502 };
+  return { name, email, draft };
+}
+
+async function handleDraftReply(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
-  return new Response(JSON.stringify({ draft }), {
-    status: 200,
-    headers: { "content-type": "application/json" },
+  const result = await draftReply(body, env);
+  if (result.error) return jsonResponse({ error: result.error }, result.status);
+
+  return jsonResponse({ draft: result.draft });
+}
+
+/* ── Gmail send (server-side, OAuth2 refresh-token flow) ──────────────────
+   Requires 4 Cloudflare Worker secrets: GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET,
+   GMAIL_REFRESH_TOKEN, GMAIL_SENDER_EMAIL. Access tokens expire in ~1hr, so
+   every send re-exchanges the long-lived refresh token — simplest correct
+   option at this volume, no caching needed. */
+async function getGmailAccessToken(env) {
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: env.GMAIL_CLIENT_ID,
+      client_secret: env.GMAIL_CLIENT_SECRET,
+      refresh_token: env.GMAIL_REFRESH_TOKEN,
+      grant_type: "refresh_token",
+    }),
   });
+  if (!res.ok) throw new Error("Gmail token refresh failed");
+  const data = await res.json();
+  return data.access_token;
+}
+
+function base64url(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  bytes.forEach((b) => { binary += String.fromCharCode(b); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function sendGmail(env, { to, toName, subject, body }) {
+  const accessToken = await getGmailAccessToken(env);
+  const from = env.GMAIL_SENDER_EMAIL;
+  const toHeader = toName ? `"${toName.replace(/"/g, "")}" <${to}>` : to;
+  const mime = [
+    `From: Webaurix <${from}>`,
+    `To: ${toHeader}`,
+    `Subject: ${subject}`,
+    `Content-Type: text/plain; charset="UTF-8"`,
+    "",
+    body,
+  ].join("\r\n");
+
+  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ raw: base64url(mime) }),
+  });
+  if (!res.ok) throw new Error("Gmail send failed");
+  return true;
+}
+
+/* ── public auto-reply route ───────────────────────────────────────────
+   Drafts AND sends in one call — no admin approval. Called directly from
+   the public inquiry/consultation forms right after they save to Firestore. */
+async function handleAutoReply(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, 400);
+  }
+
+  const result = await draftReply(body, env);
+  if (result.error) return jsonResponse({ error: result.error }, result.status);
+
+  let sent = false;
+  try {
+    await sendGmail(env, { to: result.email, toName: result.name, subject: "Re: Your inquiry with Webaurix", body: result.draft });
+    sent = true;
+  } catch {
+    sent = false;
+  }
+
+  return jsonResponse({ draft: result.draft, sent });
+}
+
+/* ── admin-only manual resend ──────────────────────────────────────────
+   Used by the admin panel's "Send Now" fallback when auto-send failed
+   (e.g. Gmail secrets not configured yet) or the founder edited the text. */
+async function handleSendReply(request, env) {
+  const admin = await verifyAdmin(request);
+  if (!admin) return jsonResponse({ error: "Unauthorized" }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, 400);
+  }
+
+  const to     = clamp(body?.to, 200).trim();
+  const toName = clamp(body?.toName, 200).trim();
+  const text   = clamp(body?.body, 4000).trim();
+  if (!to || !text) return jsonResponse({ error: "Missing required fields" }, 400);
+
+  try {
+    await sendGmail(env, { to, toName, subject: "Re: Your inquiry with Webaurix", body: text });
+  } catch {
+    return jsonResponse({ error: "Gmail send failed" }, 502);
+  }
+
+  return jsonResponse({ sent: true });
 }
 
 export default {
@@ -197,6 +295,12 @@ export default {
     }
     if (url.pathname === "/api/ai-manager/draft-reply" && request.method === "POST") {
       return handleDraftReply(request, env);
+    }
+    if (url.pathname === "/api/ai-manager/auto-reply" && request.method === "POST") {
+      return handleAutoReply(request, env);
+    }
+    if (url.pathname === "/api/ai-manager/send-reply" && request.method === "POST") {
+      return handleSendReply(request, env);
     }
 
     return env.ASSETS.fetch(request);

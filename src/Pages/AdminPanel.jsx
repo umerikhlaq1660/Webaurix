@@ -5,7 +5,6 @@ import '@uiw/react-markdown-preview/markdown.css';
 import { Helmet } from "react-helmet-async";
 import { db, auth } from "../firebase";
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, where } from "firebase/firestore";
-import emailjs from "@emailjs/browser";
 
 /* ── Cloudinary config (set in .env) ── */
 const CLD_CLOUD  = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -1921,11 +1920,11 @@ const ROLE_COLOR     = (id) => ({ designer: C.purple, developer: C.blue, copywri
 
 /* ════════════════════════════════════
    AI DRAFT REPLY PANEL (Inquiries/Consultations detail)
+   Sending now happens server-side via Gmail (worker/index.js) — the AI
+   drafts AND sends automatically on submission, no approval required.
+   This panel is for audit (what was sent) and manual recovery (if the
+   auto-send failed, e.g. Gmail secrets not configured yet).
 ════════════════════════════════════ */
-const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_AI = import.meta.env.VITE_EMAILJS_TEMPLATE_ID_AI_REPLY;
-const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
 const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactPhone, onUpdated }) => {
   const [draftText, setDraftText] = useState(row.aiDraft || "");
   const [status,    setStatus]    = useState(row.aiDraftStatus || null);
@@ -1955,10 +1954,10 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
       });
       if (!res.ok) throw new Error("failed");
       const { draft } = await res.json();
-      await updateDoc(doc(db, collectionName, row.id), { aiDraft: draft, aiDraftStatus: "pending", aiDraftCreatedAt: serverTimestamp() });
+      await updateDoc(doc(db, collectionName, row.id), { aiDraft: draft, aiDraftStatus: "failed", aiDraftCreatedAt: serverTimestamp() });
       setDraftText(draft);
-      setStatus("pending");
-      onUpdated({ aiDraft: draft, aiDraftStatus: "pending" });
+      setStatus("failed"); // drafted but not sent yet — admin sends below
+      onUpdated({ aiDraft: draft, aiDraftStatus: "failed" });
     } catch {
       setErr("Couldn't generate a draft. Try again.");
     } finally {
@@ -1966,20 +1965,24 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
     }
   };
 
-  const approveAndSendEmail = async () => {
+  const sendNow = async () => {
     if (!contactEmail || !draftText.trim()) return;
     setSending(true);
     setErr(null);
     try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_AI, {
-        to_email: contactEmail, to_name: contactName || "there", reply_body: draftText,
-      }, EMAILJS_PUBLIC_KEY);
+      const idToken = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/ai-manager/send-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ to: contactEmail, toName: contactName, body: draftText }),
+      });
+      if (!res.ok) throw new Error("failed");
       await updateDoc(doc(db, collectionName, row.id), { aiDraft: draftText, aiDraftStatus: "sent", aiDraftSentAt: serverTimestamp() });
       setStatus("sent");
       setSentAt(new Date());
       onUpdated({ aiDraft: draftText, aiDraftStatus: "sent" });
     } catch {
-      setErr("Email failed to send. Check the EmailJS template setup.");
+      setErr("Email failed to send — check the Gmail secrets are configured in Cloudflare.");
     } finally {
       setSending(false);
     }
@@ -1998,9 +2001,12 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
 
   if (status === "sent") {
     return (
-      <div className="mt-2 p-3 rounded-2xl flex items-center gap-2" style={{ background: `${C.teal}10`, border: `1px solid ${C.teal}30` }}>
-        <CheckCircle2 size={14} style={{ color: C.teal }} />
-        <span className="text-[12px] font-semibold" style={{ color: C.teal }}>AI reply sent{sentAt ? ` on ${fmt(sentAt)}` : ""}</span>
+      <div className="mt-2 p-3.5 rounded-2xl" style={{ background: `${C.teal}10`, border: `1px solid ${C.teal}30` }}>
+        <div className="flex items-center gap-2 mb-2">
+          <CheckCircle2 size={14} style={{ color: C.teal }} />
+          <span className="text-[12px] font-semibold" style={{ color: C.teal }}>AI reply sent automatically{sentAt ? ` on ${fmt(sentAt)}` : ""}</span>
+        </div>
+        <p className="text-[12px] leading-[1.6] whitespace-pre-wrap" style={{ color: C.M }}>{draftText}</p>
       </div>
     );
   }
@@ -2015,6 +2021,12 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
           </button>
         )}
       </div>
+
+      {status === "failed" && draftText && (
+        <p className="text-[11.5px] mb-2 flex items-center gap-1.5" style={{ color: C.amber }}>
+          <AlertTriangle size={11} /> Auto-send failed — review and send manually below.
+        </p>
+      )}
 
       {!draftText ? (
         <motion.button whileTap={{ scale: 0.97 }} onClick={generate} disabled={generating}
@@ -2031,10 +2043,10 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
             onFocus={e => { e.target.style.borderColor = C.A; }}
             onBlur={e => { e.target.style.borderColor = C.border; }} />
           <div className="flex items-center gap-2 flex-wrap">
-            <motion.button whileTap={{ scale: 0.96 }} onClick={approveAndSendEmail} disabled={sending || !contactEmail}
+            <motion.button whileTap={{ scale: 0.96 }} onClick={sendNow} disabled={sending || !contactEmail}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11.5px] font-bold"
               style={{ background: C.A, color: "#060d10", opacity: sending || !contactEmail ? 0.5 : 1 }}>
-              <Mail size={12} /> {sending ? "Sending…" : "Approve & Send Email"}
+              <Mail size={12} /> {sending ? "Sending…" : "Send Now"}
             </motion.button>
             {whatsappHref && (
               <a href={whatsappHref} target="_blank" rel="noreferrer"

@@ -167,11 +167,12 @@ export default function BusinessTalk({ standalone = false }) {
       setFormData(initialForm);
       setTimeout(() => setSuccess(false), 5000);
 
-      /* Fire-and-forget AI draft reply — never affects the visitor's
-         success state if it fails (e.g. daily AI quota exhausted). */
+      /* Fire-and-forget AI auto-reply (drafts AND sends via Gmail, no
+         approval) — never affects the visitor's success state if it fails
+         (e.g. daily AI quota exhausted or Gmail secrets not configured). */
       (async () => {
         try {
-          const res = await fetch("/api/ai-manager/draft-reply", {
+          const res = await fetch("/api/ai-manager/auto-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -185,12 +186,16 @@ export default function BusinessTalk({ standalone = false }) {
             }),
           });
           if (!res.ok) return;
-          const { draft } = await res.json();
+          const { draft, sent } = await res.json();
           if (draft) {
-            await updateDoc(ref, { aiDraft: draft, aiDraftStatus: "pending", aiDraftCreatedAt: serverTimestamp() });
+            await updateDoc(ref, {
+              aiDraft: draft,
+              aiDraftStatus: sent ? "sent" : "failed",
+              aiDraftSentAt: sent ? serverTimestamp() : null,
+            });
           }
         } catch {
-          /* silent — admin can still click "Generate AI Draft" manually */
+          /* silent — admin can still click "Generate AI Draft" / "Send Now" manually */
         }
       })();
     } catch (_) {
