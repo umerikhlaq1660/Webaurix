@@ -5,6 +5,7 @@ import '@uiw/react-markdown-preview/markdown.css';
 import { Helmet } from "react-helmet-async";
 import { db, auth } from "../firebase";
 import { collection, getDocs, query, orderBy, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, where } from "firebase/firestore";
+import emailjs from "@emailjs/browser";
 
 /* ── Cloudinary config (set in .env) ── */
 const CLD_CLOUD  = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -312,7 +313,7 @@ const LoginScreen = () => {
 /* ════════════════════════════════════
    DETAIL MODAL
 ════════════════════════════════════ */
-const DetailModal = ({ item, fields, title, onClose }) => (
+const DetailModal = ({ item, fields, title, extra, onClose }) => (
   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
     transition={{ duration: 0.18 }}
     className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -338,6 +339,7 @@ const DetailModal = ({ item, fields, title, onClose }) => (
             <span className="text-[13px] leading-[1.7]" style={{ color: accent ? C.A : C.P }}>{value}</span>
           </div>
         ) : null)}
+        {extra}
       </div>
     </motion.div>
   </motion.div>
@@ -1917,6 +1919,142 @@ const STATUS_LABEL   = { pending: "Pending", in_progress: "In Progress", done: "
 const PRIORITY_COLOR = (p) => p === "high" ? C.red : p === "low" ? C.M : C.amber;
 const ROLE_COLOR     = (id) => ({ designer: C.purple, developer: C.blue, copywriter: C.amber, sales: C.teal, account_manager: C.A }[id] || C.M);
 
+/* ════════════════════════════════════
+   AI DRAFT REPLY PANEL (Inquiries/Consultations detail)
+════════════════════════════════════ */
+const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_AI = import.meta.env.VITE_EMAILJS_TEMPLATE_ID_AI_REPLY;
+const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactPhone, onUpdated }) => {
+  const [draftText, setDraftText] = useState(row.aiDraft || "");
+  const [status,    setStatus]    = useState(row.aiDraftStatus || null);
+  const [sentAt,    setSentAt]    = useState(row.aiDraftSentAt || null);
+  const [generating, setGenerating] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => { setDraftText(row.aiDraft || ""); setStatus(row.aiDraftStatus || null); }, [row.id]);
+
+  const generate = async () => {
+    setGenerating(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/ai-manager/draft-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          collection: collectionName,
+          docId: row.id,
+          name: contactName,
+          email: contactEmail,
+          message: row.projectDetails || row.message || "",
+          service: Array.isArray(row.categories) ? row.categories.join(", ") : (row.categories || row.service || ""),
+          budget: row.budget,
+        }),
+      });
+      if (!res.ok) throw new Error("failed");
+      const { draft } = await res.json();
+      await updateDoc(doc(db, collectionName, row.id), { aiDraft: draft, aiDraftStatus: "pending", aiDraftCreatedAt: serverTimestamp() });
+      setDraftText(draft);
+      setStatus("pending");
+      onUpdated({ aiDraft: draft, aiDraftStatus: "pending" });
+    } catch {
+      setErr("Couldn't generate a draft. Try again.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const approveAndSendEmail = async () => {
+    if (!contactEmail || !draftText.trim()) return;
+    setSending(true);
+    setErr(null);
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_AI, {
+        to_email: contactEmail, to_name: contactName || "there", reply_body: draftText,
+      }, EMAILJS_PUBLIC_KEY);
+      await updateDoc(doc(db, collectionName, row.id), { aiDraft: draftText, aiDraftStatus: "sent", aiDraftSentAt: serverTimestamp() });
+      setStatus("sent");
+      setSentAt(new Date());
+      onUpdated({ aiDraft: draftText, aiDraftStatus: "sent" });
+    } catch {
+      setErr("Email failed to send. Check the EmailJS template setup.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const discard = async () => {
+    await updateDoc(doc(db, collectionName, row.id), { aiDraft: "", aiDraftStatus: null });
+    setDraftText("");
+    setStatus(null);
+    onUpdated({ aiDraft: "", aiDraftStatus: null });
+  };
+
+  const whatsappHref = contactPhone
+    ? `https://wa.me/${contactPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(draftText)}`
+    : null;
+
+  if (status === "sent") {
+    return (
+      <div className="mt-2 p-3 rounded-2xl flex items-center gap-2" style={{ background: `${C.teal}10`, border: `1px solid ${C.teal}30` }}>
+        <CheckCircle2 size={14} style={{ color: C.teal }} />
+        <span className="text-[12px] font-semibold" style={{ color: C.teal }}>AI reply sent{sentAt ? ` on ${fmt(sentAt)}` : ""}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2 p-3.5 rounded-2xl" style={{ background: C.card2, border: `1px solid ${C.border}` }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-bold tracking-[0.18em] uppercase" style={{ color: C.M }}>AI Draft Reply</span>
+        {draftText && (
+          <button onClick={generate} disabled={generating} className="text-[10.5px] font-semibold flex items-center gap-1" style={{ color: C.A, opacity: generating ? 0.5 : 1 }}>
+            <RefreshCw size={11} className={generating ? "animate-spin" : ""} /> Regenerate
+          </button>
+        )}
+      </div>
+
+      {!draftText ? (
+        <motion.button whileTap={{ scale: 0.97 }} onClick={generate} disabled={generating}
+          className="w-full py-2.5 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2"
+          style={{ background: C.A, color: "#060d10", opacity: generating ? 0.6 : 1 }}>
+          {generating ? <RefreshCw size={13} className="animate-spin" /> : <Bot size={13} />}
+          {generating ? "Generating…" : "Generate AI Draft"}
+        </motion.button>
+      ) : (
+        <>
+          <textarea value={draftText} onChange={e => setDraftText(e.target.value)} rows={5}
+            className="w-full px-3 py-2.5 rounded-xl text-[12.5px] outline-none resize-none mb-2.5"
+            style={{ background: C.card, border: `1px solid ${C.border}`, color: C.P }}
+            onFocus={e => { e.target.style.borderColor = C.A; }}
+            onBlur={e => { e.target.style.borderColor = C.border; }} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <motion.button whileTap={{ scale: 0.96 }} onClick={approveAndSendEmail} disabled={sending || !contactEmail}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11.5px] font-bold"
+              style={{ background: C.A, color: "#060d10", opacity: sending || !contactEmail ? 0.5 : 1 }}>
+              <Mail size={12} /> {sending ? "Sending…" : "Approve & Send Email"}
+            </motion.button>
+            {whatsappHref && (
+              <a href={whatsappHref} target="_blank" rel="noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11.5px] font-bold"
+                style={{ background: `${C.teal}15`, color: C.teal }}>
+                <MessageSquare size={12} /> Send via WhatsApp
+              </a>
+            )}
+            <button onClick={discard} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11.5px] font-bold" style={{ background: `${C.red}12`, color: C.red }}>
+              <Trash2 size={12} /> Discard
+            </button>
+          </div>
+        </>
+      )}
+
+      {err && <p className="text-[11.5px] mt-2 flex items-center gap-1.5" style={{ color: C.red }}><AlertTriangle size={11} /> {err}</p>}
+    </div>
+  );
+};
+
 const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }) => {
   const [draft, setDraft] = useState("");
   const scrollRef = useRef(null);
@@ -2422,7 +2560,12 @@ export default function AdminPanel() {
             {label:"Services",      value:Array.isArray(r.categories)?r.categories.join(", "):r.categories},
             {label:"Project Details",value:r.projectDetails},
             {label:"Submitted At",  value:fmt(r.timestamp)},
-          ]})}
+          ], extra: (
+            <AIDraftPanel row={r} collectionName="businessInquiries"
+              contactName={`${r.firstName||""} ${r.lastName||""}`.trim()}
+              contactEmail={r.email} contactPhone={r.phoneNumber}
+              onUpdated={patch => setInquiries(prev => prev.map(x => x.id===r.id ? {...x,...patch} : x))} />
+          )})}
         />
       </div>
     );
@@ -2447,7 +2590,11 @@ export default function AdminPanel() {
             {label:"Phone",   value:r.phone},{label:"Company",value:r.company},
             {label:"Service", value:r.service},{label:"Budget",value:r.budget},
             {label:"Message", value:r.message},{label:"Requested At",value:fmt(r.createdAt)},
-          ]})}
+          ], extra: (
+            <AIDraftPanel row={r} collectionName="consultations"
+              contactName={r.name} contactEmail={r.email} contactPhone={r.phone}
+              onUpdated={patch => setConsultations(prev => prev.map(x => x.id===r.id ? {...x,...patch} : x))} />
+          )})}
         />
       </div>
     );

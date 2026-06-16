@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useTheme } from "../context/ThemeContext";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -205,11 +205,38 @@ const BookConsultation = () => {
     setErrors({});
     setLoading(true);
     try {
-      await addDoc(collection(db, "consultations"), {
+      const ref = await addDoc(collection(db, "consultations"), {
         ...form,
         createdAt: serverTimestamp(),
       });
       setSubmitted(true);
+
+      /* Fire-and-forget AI draft reply — never affects the visitor's
+         success state if it fails (e.g. daily AI quota exhausted). */
+      (async () => {
+        try {
+          const res = await fetch("/api/ai-manager/draft-reply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              collection: "consultations",
+              docId: ref.id,
+              name: form.name,
+              email: form.email,
+              service: form.service,
+              budget: form.budget,
+              message: form.message,
+            }),
+          });
+          if (!res.ok) return;
+          const { draft } = await res.json();
+          if (draft) {
+            await updateDoc(ref, { aiDraft: draft, aiDraftStatus: "pending", aiDraftCreatedAt: serverTimestamp() });
+          }
+        } catch {
+          /* silent — admin can still click "Generate AI Draft" manually */
+        }
+      })();
     } catch (_) {
       setSubmitError("Something went wrong. Please try again.");
       setTimeout(() => setSubmitError(""), 5000);

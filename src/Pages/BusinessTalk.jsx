@@ -4,7 +4,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { Mail, Phone, CheckCircle2, Clock, Users, ArrowUpRight } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
@@ -159,13 +159,40 @@ export default function BusinessTalk({ standalone = false }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      await addDoc(collection(db, "businessInquiries"), {
+      const ref = await addDoc(collection(db, "businessInquiries"), {
         ...formData,
         timestamp: serverTimestamp(),
       });
       setSuccess(true);
       setFormData(initialForm);
       setTimeout(() => setSuccess(false), 5000);
+
+      /* Fire-and-forget AI draft reply — never affects the visitor's
+         success state if it fails (e.g. daily AI quota exhausted). */
+      (async () => {
+        try {
+          const res = await fetch("/api/ai-manager/draft-reply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              collection: "businessInquiries",
+              docId: ref.id,
+              name: `${formData.firstName} ${formData.lastName}`.trim(),
+              email: formData.email,
+              service: Array.isArray(formData.categories) ? formData.categories.join(", ") : formData.categories,
+              budget: formData.budget,
+              message: formData.projectDetails,
+            }),
+          });
+          if (!res.ok) return;
+          const { draft } = await res.json();
+          if (draft) {
+            await updateDoc(ref, { aiDraft: draft, aiDraftStatus: "pending", aiDraftCreatedAt: serverTimestamp() });
+          }
+        } catch {
+          /* silent — admin can still click "Generate AI Draft" manually */
+        }
+      })();
     } catch (_) {
       setSubmitError("Something went wrong. Please try again.");
       setTimeout(() => setSubmitError(""), 4000);
