@@ -32,7 +32,7 @@ import {
   Plus, Trash2, Edit3, Globe, EyeOff as EyeOffIcon, Image, MoveUp,
   MoveDown, AlignLeft, List, Heading, ToggleLeft, ToggleRight,
   Save, Upload, CheckCircle2, AlertTriangle, Sun, Moon, Layers,
-  Palette, Tag, Calendar, Zap, ClipboardList,
+  Palette, Tag, Calendar, Zap, ClipboardList, Bot, Send,
 } from "lucide-react";
 
 /* ── ONLY this email can access ── */
@@ -1903,6 +1903,134 @@ const JobEditor = ({ existing, onSave, onClose }) => {
 };
 
 /* ════════════════════════════════════
+   AI MANAGER TAB
+════════════════════════════════════ */
+const AI_ROLES = [
+  { id: "designer",        label: "Designer" },
+  { id: "developer",       label: "Developer" },
+  { id: "copywriter",      label: "Copywriter" },
+  { id: "sales",           label: "Sales" },
+  { id: "account_manager", label: "Account Manager" },
+];
+const STATUS_FLOW    = ["pending", "in_progress", "done"];
+const STATUS_LABEL   = { pending: "Pending", in_progress: "In Progress", done: "Done" };
+const PRIORITY_COLOR = (p) => p === "high" ? C.red : p === "low" ? C.M : C.amber;
+const ROLE_COLOR     = (id) => ({ designer: C.purple, developer: C.blue, copywriter: C.amber, sales: C.teal, account_manager: C.A }[id] || C.M);
+
+const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }) => {
+  const [draft, setDraft] = useState("");
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, sending]);
+
+  const send = () => {
+    const text = draft.trim();
+    if (!text || sending) return;
+    setDraft("");
+    onSend(text);
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="text-[22px] font-bold mb-1" style={{ color: C.P }}>AI Manager</h2>
+        <p className="text-[13px]" style={{ color: C.M }}>
+          Paste client requirements below — the AI breaks them into tasks and files them under the right role.
+        </p>
+      </div>
+
+      <div className="grid gap-5" style={{ gridTemplateColumns: "minmax(0,1fr) minmax(0,1.3fr)" }}>
+        {/* chat pane */}
+        <div className="rounded-2xl flex flex-col" style={{ border: `1px solid ${C.border}`, background: C.card, height: 560 }}>
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+            {messages.length === 0 ? (
+              <p className="text-[13px] text-center mt-10" style={{ color: C.M }}>
+                No messages yet — describe a client's needs to get started.
+              </p>
+            ) : messages.map((m) => (
+              <div key={m.id} className="flex" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+                <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[12.5px] whitespace-pre-wrap"
+                  style={{
+                    background: m.role === "user" ? C.A : C.card2,
+                    color: m.role === "user" ? "#060d10" : C.P,
+                    border: m.role === "user" ? "none" : `1px solid ${C.border}`,
+                  }}>
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            {sending && (
+              <div className="flex items-center gap-2 text-[12px]" style={{ color: C.M }}>
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-3.5 h-3.5 border-2 rounded-full border-t-transparent"
+                  style={{ borderColor: `${C.A}35`, borderTopColor: C.A }} />
+                Thinking…
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="px-4 py-2 text-[12px] flex items-center gap-2" style={{ color: C.red, borderTop: `1px solid ${C.border}` }}>
+              <AlertTriangle size={13} /> {error}
+            </div>
+          )}
+
+          <div className="p-3 flex items-end gap-2" style={{ borderTop: `1px solid ${C.border}` }}>
+            <textarea value={draft} onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              rows={2} placeholder="Describe the client's requirements…"
+              className="flex-1 px-3.5 py-2.5 rounded-xl text-[12.5px] outline-none resize-none"
+              style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.P }}
+              onFocus={(e) => { e.target.style.borderColor = C.A; }}
+              onBlur={(e) => { e.target.style.borderColor = C.border; }} />
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }} onClick={send} disabled={sending || !draft.trim()}
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: C.A, color: "#060d10", opacity: sending || !draft.trim() ? 0.5 : 1 }}>
+              <Send size={15} />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* task board */}
+        <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", alignItems: "start" }}>
+          {AI_ROLES.map((role) => {
+            const roleTasks = tasks.filter((t) => t.role === role.id);
+            return (
+              <div key={role.id} className="rounded-2xl p-3" style={{ border: `1px solid ${C.border}`, background: C.card }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: ROLE_COLOR(role.id) }}>{role.label}</p>
+                  <span className="text-[11px] font-semibold" style={{ color: C.M }}>{roleTasks.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {roleTasks.length === 0 ? (
+                    <p className="text-[11.5px]" style={{ color: C.M }}>No tasks yet.</p>
+                  ) : roleTasks.map((t) => (
+                    <div key={t.id} className="p-2.5 rounded-xl" style={{ background: C.card2, border: `1px solid ${C.border}` }}>
+                      <p className="text-[12px] font-semibold mb-1" style={{ color: C.P }}>{t.title}</p>
+                      {t.description && <p className="text-[11px] mb-2 line-clamp-3" style={{ color: C.M }}>{t.description}</p>}
+                      <div className="flex items-center justify-between gap-2">
+                        <Badge label={t.priority || "medium"} color={PRIORITY_COLOR(t.priority)} />
+                        <button onClick={() => onCycleStatus(t)}
+                          className="text-[10.5px] font-bold px-2 py-1 rounded-lg"
+                          style={{ background: `${C.A}12`, color: C.A }}>
+                          {STATUS_LABEL[t.status] || "Pending"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════
    MAIN ADMIN PANEL
 ════════════════════════════════════ */
 export default function AdminPanel() {
@@ -1932,6 +2060,10 @@ export default function AdminPanel() {
   const [jobPosts,      setJobPosts]      = useState([]);
   const [jobEditor,     setJobEditor]     = useState(null); // null | "new" | jobObject
   const [contacts,      setContacts]      = useState([]);
+  const [aiMessages,    setAiMessages]    = useState([]);
+  const [aiTasks,       setAiTasks]       = useState([]);
+  const [aiSending,     setAiSending]     = useState(false);
+  const [aiError,       setAiError]       = useState(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => { setUser(u); if (u) fetchAll(); });
@@ -1952,7 +2084,7 @@ export default function AdminPanel() {
       }
     };
     try {
-      const [inq, cons, apps, wait, blogs, cases, jobs, ctcts] = await Promise.all([
+      const [inq, cons, apps, wait, blogs, cases, jobs, ctcts, aiTasksData] = await Promise.all([
         safe("businessInquiries"),
         safe("consultations", "createdAt"),
         safe("job_applications", "createdAt"),
@@ -1961,10 +2093,18 @@ export default function AdminPanel() {
         safe("case_studies", "createdAt"),
         safe("job_postings", "createdAt"),
         safe("contacts", "createdAt"),
+        safe("ai_tasks", "createdAt"),
       ]);
       setInquiries(inq); setConsultations(cons); setApplications(apps);
       setWaitlist(wait); setBlogPosts(blogs); setCaseStudies(cases);
-      setJobPosts(jobs); setContacts(ctcts);
+      setJobPosts(jobs); setContacts(ctcts); setAiTasks(aiTasksData);
+
+      try {
+        const msnap = await getDocs(query(collection(db, "ai_messages"), orderBy("createdAt", "asc")));
+        setAiMessages(msnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch {
+        setAiMessages([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -2008,6 +2148,7 @@ export default function AdminPanel() {
     { id: "case_studies",  label: "Case Studies",        icon: <Layers size={15} />,         count: caseStudies.length },
     { id: "jobs",          label: "Job Postings",         icon: <ClipboardList size={15} />,  count: jobPosts.length },
     { id: "contacts",      label: "Contact Messages",      icon: <MessageSquare size={15} />,  count: contacts.length, dot: todayOf(contacts) > 0 },
+    { id: "ai_manager",    label: "AI Manager",            icon: <Bot size={15} />,            count: aiTasks.filter(t => t.status !== "done").length },
   ];
 
   if (!user) return <LoginScreen />;
@@ -2399,6 +2540,63 @@ export default function AdminPanel() {
         onToggleActive={async (job) => {
           await updateDoc(doc(db, "job_postings", job.id), { active: !job.active, updatedAt: serverTimestamp() });
           setJobPosts(prev => prev.map(j => j.id === job.id ? { ...j, active: !j.active } : j));
+        }}
+      />
+    );
+
+    if (activeTab === "ai_manager") return (
+      <AIManagerTab
+        messages={aiMessages}
+        tasks={aiTasks}
+        sending={aiSending}
+        error={aiError}
+        onSend={async (text) => {
+          setAiError(null);
+          setAiSending(true);
+          try {
+            const userPayload = { role: "user", content: text, createdAt: serverTimestamp() };
+            const userRef = await addDoc(collection(db, "ai_messages"), userPayload);
+            setAiMessages(prev => [...prev, { id: userRef.id, ...userPayload, createdAt: new Date() }]);
+
+            const idToken = await auth.currentUser.getIdToken();
+            const history = [...aiMessages, { role: "user", content: text }]
+              .slice(-12).map(m => ({ role: m.role, content: m.content }));
+
+            const res = await fetch("/api/ai-manager/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+              body: JSON.stringify({ message: text, history }),
+            });
+            if (!res.ok) throw new Error("AI Manager request failed");
+            const { reply, tasks: newTasks } = await res.json();
+
+            const assistantPayload = { role: "assistant", content: reply, createdAt: serverTimestamp() };
+            const assistantRef = await addDoc(collection(db, "ai_messages"), assistantPayload);
+            setAiMessages(prev => [...prev, { id: assistantRef.id, ...assistantPayload, createdAt: new Date() }]);
+
+            if (Array.isArray(newTasks) && newTasks.length) {
+              const created = [];
+              for (const t of newTasks) {
+                const payload = {
+                  title: t.title, description: t.description || "", role: t.role,
+                  priority: t.priority || "medium", status: "pending",
+                  createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+                };
+                const ref = await addDoc(collection(db, "ai_tasks"), payload);
+                created.push({ id: ref.id, ...payload, createdAt: new Date(), updatedAt: new Date() });
+              }
+              setAiTasks(prev => [...created, ...prev]);
+            }
+          } catch {
+            setAiError("Couldn't reach the AI Manager. Try again.");
+          } finally {
+            setAiSending(false);
+          }
+        }}
+        onCycleStatus={async (task) => {
+          const next = STATUS_FLOW[(STATUS_FLOW.indexOf(task.status) + 1) % STATUS_FLOW.length];
+          await updateDoc(doc(db, "ai_tasks", task.id), { status: next, updatedAt: serverTimestamp() });
+          setAiTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: next } : t));
         }}
       />
     );

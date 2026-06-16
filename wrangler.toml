@@ -1,10 +1,18 @@
 name = "webaurix"
 compatibility_date = "2024-09-23"
+main = "worker/index.js"
 
-# Static-assets-only Worker (no server script). Serves the Vite `dist/`
-# output. Per-route index.html files (from the injectRouteMeta plugin) are
-# served directly at their clean URLs; any unmatched path falls back to the
-# root index.html so React Router client-side routes still resolve.
+# Worker script handles /api/* (AI Manager chat); everything else falls
+# through to the static `dist/` output via env.ASSETS.fetch(). Per-route
+# index.html files (from the injectRouteMeta plugin) are served directly at
+# their clean URLs; any unmatched path falls back to the root index.html so
+# React Router client-side routes still resolve.
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
+
+# Free LLM binding (Cloudflare Workers AI) used by the AI Manager chat —
+# no API key, no secret, no credit card required.
+[ai]
+binding = "AI"
