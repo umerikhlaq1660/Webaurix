@@ -29,36 +29,26 @@ async function verifyAdmin(request) {
 
 const SYSTEM_PROMPT = `You are ARIA, the AI Chief of Staff for Webaurix — a full-service digital agency in Lahore, Pakistan that builds websites, web apps, mobile apps, AI chatbots, and provides digital marketing and IT consulting for clients in Pakistan, the US, the UK, and South Korea.
 
-You work directly with the founder (Umer) and have access to live client data. You are proactive, direct, and decisive — like a senior colleague, not a formal assistant.
+You work with the founder (Umer). Be brief, direct, decisive — like a senior colleague.
 
-YOUR CAPABILITIES:
-
-1. PROJECT MANAGEMENT — Break client requirements into actionable tasks for: "designer", "developer", "copywriter", "sales", or "account_manager". Set realistic priorities.
-
-2. CLIENT INTELLIGENCE — Use the live client data provided to answer specific questions. Know who inquired, what they want, their budget, and AI reply status. Never invent details not in the data.
-
-3. DECISION MAKING — When asked what to do, give a clear recommendation with brief reasoning. Don't hedge — pick a direction.
-
-4. TEAM BUILDING — Suggest team structure, role allocation, and who should lead based on the project type and workload.
-
-5. MEETING SCHEDULING — When the founder wants to set up a meeting with a client, output the meeting email in EXACTLY this format at the end of your response (use the client's real email from the data):
-
+Roles for tasks: "designer","developer","copywriter","sales","account_manager".
+For client questions: use live data only, never invent details.
+For decisions: give one clear recommendation with brief reasoning.
+For meetings: append this block at the END of your reply (use real email from data):
 [MEETING_EMAIL]
 To: <email>
 Subject: Meeting Request — Webaurix
 Body:
-<email body with 2-3 time slot options>
+<short professional email with 2-3 time slots>
 [/MEETING_EMAIL]
 
-6. BUSINESS INSIGHTS — Identify high-value leads, surface urgent items, and proactively flag anything important from the data.
+Language: English by default. Match Urdu if founder writes in Urdu. Keep tech terms in English.
 
-LANGUAGE: Respond in English by default. If the founder writes or speaks in Urdu (Roman or native), reply in the same language. Keep technical terms (React, Figma, MERN, etc.) in English always.
-
-TASK OUTPUT RULE: Append a JSON block ONLY when you've identified new actionable tasks:
+TASK JSON (only when new tasks found — omit for Q&A, decisions, meetings):
 \`\`\`json
-[{"title": "...", "description": "...", "role": "developer", "priority": "medium"}]
+[{"title":"...","description":"...","role":"developer","priority":"medium"}]
 \`\`\`
-priority: "low" | "medium" | "high". Omit entirely for questions, client lookups, decisions, insights, or meeting scheduling.`;
+priority: "low"|"medium"|"high"`;
 
 function extractTasks(replyText) {
   const match = replyText.match(/```json\s*([\s\S]*?)```/);
@@ -118,14 +108,23 @@ async function handleChat(request, env) {
   let aiResponse;
   try {
     aiResponse = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", { messages });
-  } catch {
-    return new Response(JSON.stringify({ error: "AI request failed" }), {
+  } catch (err) {
+    const msg = String(err?.message || "");
+    const isQuota = /quota|rate.?limit|429|too many|exceeded/i.test(msg);
+    return new Response(JSON.stringify({ error: isQuota ? "AI daily quota reached — try again tomorrow" : "AI unavailable" }), {
       status: 502,
       headers: { "content-type": "application/json" },
     });
   }
 
-  const { reply, tasks } = extractTasks(aiResponse?.response ?? "");
+  if (!aiResponse?.response) {
+    return new Response(JSON.stringify({ error: "AI returned empty response" }), {
+      status: 502,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  const { reply, tasks } = extractTasks(aiResponse.response);
 
   return new Response(JSON.stringify({ reply, tasks }), {
     status: 200,

@@ -2957,7 +2957,10 @@ export default function AdminPanel() {
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
               body: JSON.stringify({ message: text, history, context }),
             });
-            if (!res.ok) throw new Error("AI Manager request failed");
+            if (!res.ok) {
+              const d = await res.json().catch(() => ({}));
+              throw new Error(d.error || `Error ${res.status}`);
+            }
             const { reply, tasks: newTasks } = await res.json();
 
             const assistantPayload = { role: "assistant", content: reply, createdAt: serverTimestamp() };
@@ -2977,8 +2980,8 @@ export default function AdminPanel() {
               }
               setAiTasks(prev => [...created, ...prev]);
             }
-          } catch {
-            setAiError("Couldn't reach the AI Manager. Try again.");
+          } catch (e) {
+            setAiError(e?.message || "Couldn't reach the AI Manager. Try again.");
           } finally {
             setAiSending(false);
           }
