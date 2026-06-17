@@ -2068,61 +2068,148 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
   );
 };
 
+/* ── Meeting email helpers ─────────────────────────────────────────────── */
+const parseMeetingEmail = (content) => {
+  const match = content.match(/\[MEETING_EMAIL\]([\s\S]*?)\[\/MEETING_EMAIL\]/i);
+  if (!match) return null;
+  const block = match[1];
+  const to      = block.match(/^To:\s*(.+)/m)?.[1]?.trim();
+  const subject = block.match(/^Subject:\s*(.+)/m)?.[1]?.trim();
+  const bodyIdx = block.search(/^Body:\s*$/m);
+  const body    = bodyIdx >= 0 ? block.slice(block.indexOf("\n", bodyIdx) + 1).trim() : null;
+  return to && subject && body ? { to, subject, body } : null;
+};
+const stripMeetingEmail = (content) =>
+  content.replace(/\[MEETING_EMAIL\][\s\S]*?\[\/MEETING_EMAIL\]/i, "").trim();
+
+const MeetingEmailCard = ({ email }) => {
+  const [sent, setSent]       = useState(false);
+  const [sending, setSending] = useState(false);
+  const handleSend = async () => {
+    setSending(true);
+    try {
+      const idToken = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/ai-manager/send-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ to: email.to, toName: "", subject: email.subject, body: email.body }),
+      });
+      if (res.ok) setSent(true);
+    } catch { } finally { setSending(false); }
+  };
+  return (
+    <div className="mt-2 rounded-2xl overflow-hidden" style={{ border: `1px solid ${C.A}40`, background: C.Adim, maxWidth: "85%" }}>
+      <div className="px-3.5 py-2.5 flex items-start justify-between gap-3" style={{ borderBottom: `1px solid ${C.A}25` }}>
+        <div className="space-y-0.5 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.A }}>Meeting Email</p>
+          <p className="text-[11.5px] truncate" style={{ color: C.M }}>To: {email.to}</p>
+          <p className="text-[11.5px] truncate" style={{ color: C.M }}>Sub: {email.subject}</p>
+        </div>
+        {sent ? (
+          <div className="flex items-center gap-1 text-[11px] flex-shrink-0 mt-1" style={{ color: C.teal }}>
+            <CheckCircle2 size={12} /> Sent
+          </div>
+        ) : (
+          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }}
+            onClick={handleSend} disabled={sending} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-[11.5px] font-semibold mt-0.5"
+            style={{ background: C.A, color: "#060d10", opacity: sending ? 0.7 : 1 }}>
+            {sending ? "Sending…" : "Send Email"}
+          </motion.button>
+        )}
+      </div>
+      <p className="px-3.5 py-2.5 text-[11.5px] whitespace-pre-wrap line-clamp-5" style={{ color: C.P }}>{email.body}</p>
+    </div>
+  );
+};
+
+/* ── AI Manager tab ────────────────────────────────────────────────────── */
+const QUICK_PROMPTS = [
+  "Is week kitni inquiries aayi? Koi urgent hai?",
+  "Sab pending consultations bata do",
+  "New e-commerce project ke liye team structure suggest karo",
+  "Umer ke liye aaj ka priority kya honi chahiye?",
+];
+
 const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }) => {
-  const [draft, setDraft]           = useState("");
-  const [ttsEnabled, setTtsEnabled] = useState(false);
-  const [listening, setListening]   = useState(false);
-  const [speaking, setSpeaking]     = useState(false);
+  const [draft, setDraft]               = useState("");
+  const [ttsEnabled, setTtsEnabled]     = useState(false);
+  const [listening, setListening]       = useState(false);
+  const [speaking, setSpeaking]         = useState(false);
+  const [voiceLang, setVoiceLang]       = useState("en-US");
+  const [pendingVoice, setPendingVoice] = useState(null);
   const scrollRef      = useRef(null);
   const recognitionRef = useRef(null);
   const ttsEnabledRef  = useRef(false);
+  const voiceLangRef   = useRef("en-US");
   const prevMsgCount   = useRef(null);
 
   useEffect(() => { ttsEnabledRef.current = ttsEnabled; }, [ttsEnabled]);
+  useEffect(() => { voiceLangRef.current = voiceLang; }, [voiceLang]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, sending]);
+  }, [messages, sending, pendingVoice]);
 
-  /* Speak new AI replies when TTS is enabled */
+  /* Speak new AI replies — prefer female voice */
   useEffect(() => {
     if (prevMsgCount.current === null) { prevMsgCount.current = messages.length; return; }
     if (!ttsEnabledRef.current || !window.speechSynthesis || messages.length <= prevMsgCount.current) {
-      prevMsgCount.current = messages.length;
-      return;
+      prevMsgCount.current = messages.length; return;
     }
     const newMsgs = messages.slice(prevMsgCount.current);
     prevMsgCount.current = messages.length;
     const aiMsg = [...newMsgs].reverse().find(m => m.role === "assistant");
     if (!aiMsg) return;
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(aiMsg.content);
-    utt.lang = "en-US"; utt.rate = 1.05;
-    utt.onstart = () => setSpeaking(true);
-    utt.onend   = () => setSpeaking(false);
-    utt.onerror = () => setSpeaking(false);
-    window.speechSynthesis.speak(utt);
+
+    const FEMALE = ['female','woman','samantha','zira','hazel','aria','victoria','moira','karen','allison','heera','google us english','google uk english female'];
+    const doSpeak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(stripMeetingEmail(aiMsg.content));
+      utt.lang = "en-US"; utt.rate = 1.0;
+      const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
+      if (fem) utt.voice = fem;
+      utt.onstart = () => setSpeaking(true);
+      utt.onend   = () => setSpeaking(false);
+      utt.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(utt);
+    };
+    if (window.speechSynthesis.getVoices().length > 0) doSpeak();
+    else { window.speechSynthesis.onvoiceschanged = () => { doSpeak(); window.speechSynthesis.onvoiceschanged = null; }; }
   }, [messages]);
 
   useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
 
-  const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const hasSR      = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const isLocalDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-  const toggleMic = () => {
-    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
+  const startListening = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return;
     const r = new SR();
     recognitionRef.current = r;
-    r.lang = "en-US"; r.interimResults = false; r.maxAlternatives = 1;
+    r.lang = voiceLangRef.current; r.interimResults = false; r.maxAlternatives = 1;
     r.onresult = (e) => {
-      const t = e.results[0][0].transcript;
-      setDraft(prev => (prev.trim() ? prev.trim() + " " : "") + t);
+      const text = e.results[0][0].transcript.trim();
+      if (!text) { setListening(false); return; }
+      const timer = setTimeout(() => { setPendingVoice(null); onSend(text); }, 1500);
+      setPendingVoice({ text, timer });
     };
     r.onerror = () => setListening(false);
     r.onend   = () => setListening(false);
     r.start();
     setListening(true);
+  };
+
+  const toggleMic = () => {
+    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
+    startListening();
+  };
+
+  const cancelPending = () => {
+    if (pendingVoice?.timer) clearTimeout(pendingVoice.timer);
+    setDraft(pendingVoice?.text || "");
+    setPendingVoice(null);
   };
 
   const send = () => {
@@ -2136,9 +2223,20 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
     <div>
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[22px] font-bold mb-1" style={{ color: C.P }}>AI Manager</h2>
+          <div className="flex items-center gap-2.5 mb-1">
+            <h2 className="text-[22px] font-bold" style={{ color: C.P }}>AI Manager</h2>
+            {speaking && (
+              <div className="flex items-end gap-[3px] pb-0.5">
+                {[0,1,2].map(i => (
+                  <motion.div key={i} className="w-[3px] rounded-full" style={{ background: C.A }}
+                    animate={{ height: ["6px","14px","6px"] }}
+                    transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }} />
+                ))}
+              </div>
+            )}
+          </div>
           <p className="text-[13px]" style={{ color: C.M }}>
-            Describe client requirements or ask about any inquiry — AI has access to all client data.
+            Ask about clients, get decisions, assign tasks, or schedule meetings — in English or Urdu.
           </p>
         </div>
         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
@@ -2155,51 +2253,93 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
         <div className="rounded-2xl flex flex-col" style={{ border: `1px solid ${C.border}`, background: C.card, height: 560 }}>
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
             {messages.length === 0 ? (
-              <p className="text-[13px] text-center mt-10" style={{ color: C.M }}>
-                No messages yet — describe client needs or ask about recent inquiries.
-              </p>
-            ) : messages.map((m) => (
-              <div key={m.id} className="flex" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-                <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[12.5px] whitespace-pre-wrap"
-                  style={{
-                    background: m.role === "user" ? C.A : C.card2,
-                    color: m.role === "user" ? "#060d10" : C.P,
-                    border: m.role === "user" ? "none" : `1px solid ${C.border}`,
-                  }}>
-                  {m.content}
-                </div>
+              <div className="mt-4 space-y-2">
+                <p className="text-[12px] font-semibold mb-3" style={{ color: C.M }}>Try asking ARIA:</p>
+                {QUICK_PROMPTS.map((q, i) => (
+                  <button key={i} onClick={() => setDraft(q)}
+                    className="block w-full text-left text-[12px] px-3 py-2 rounded-xl transition-colors"
+                    style={{ background: C.card2, color: C.M, border: `1px solid ${C.border}` }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = C.A}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
+                    {q}
+                  </button>
+                ))}
               </div>
-            ))}
+            ) : messages.map((m) => {
+              const meetingEmail   = m.role === "assistant" ? parseMeetingEmail(m.content) : null;
+              const displayContent = meetingEmail ? stripMeetingEmail(m.content) : m.content;
+              return (
+                <div key={m.id}>
+                  {displayContent && (
+                    <div className="flex" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
+                      <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[12.5px] whitespace-pre-wrap"
+                        style={{
+                          background: m.role === "user" ? C.A : C.card2,
+                          color: m.role === "user" ? "#060d10" : C.P,
+                          border: m.role === "user" ? "none" : `1px solid ${C.border}`,
+                        }}>
+                        {displayContent}
+                      </div>
+                    </div>
+                  )}
+                  {meetingEmail && <MeetingEmailCard email={meetingEmail} />}
+                </div>
+              );
+            })}
             {sending && (
               <div className="flex items-center gap-2 text-[12px]" style={{ color: C.M }}>
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-3.5 h-3.5 border-2 rounded-full border-t-transparent"
                   style={{ borderColor: `${C.A}35`, borderTopColor: C.A }} />
-                Thinking…
+                ARIA is thinking…
               </div>
             )}
           </div>
 
+          {/* voice auto-send countdown */}
+          <AnimatePresence>
+            {pendingVoice && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                className="px-4 py-2 flex items-center justify-between gap-3"
+                style={{ borderTop: `1px solid ${C.border}`, background: C.Adim }}>
+                <p className="text-[12px] truncate" style={{ color: C.A }}>
+                  "{pendingVoice.text.slice(0, 60)}{pendingVoice.text.length > 60 ? "…" : ""}"
+                </p>
+                <button onClick={cancelPending} className="text-[11px] font-bold flex-shrink-0" style={{ color: C.M }}>
+                  Cancel
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {error && (
             <div className="px-4 py-2 text-[12px] flex items-center gap-2" style={{ color: C.red, borderTop: `1px solid ${C.border}` }}>
-              <AlertTriangle size={13} /> {error}
+              <AlertTriangle size={13} />
+              <span>{isLocalDev ? "AI Manager only works on the live site — open webaurix.com/admin to test" : error}</span>
             </div>
           )}
 
           <div className="p-3 flex items-end gap-2" style={{ borderTop: `1px solid ${C.border}` }}>
             {hasSR && (
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleMic}
-                title={listening ? "Stop listening" : "Speak your message"}
-                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: listening ? `${C.red}22` : C.card2, border: `1px solid ${listening ? C.red : C.border}`, color: listening ? C.red : C.M }}>
-                {listening
-                  ? <motion.div animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.7, repeat: Infinity }}><MicOff size={15} /></motion.div>
-                  : <Mic size={15} />}
-              </motion.button>
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleMic}
+                  title={listening ? "Stop listening" : "Speak to ARIA"}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: listening ? `${C.red}22` : C.card2, border: `1px solid ${listening ? C.red : C.border}`, color: listening ? C.red : C.M }}>
+                  {listening
+                    ? <motion.div animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.65, repeat: Infinity }}><MicOff size={15} /></motion.div>
+                    : <Mic size={15} />}
+                </motion.button>
+                <button onClick={() => setVoiceLang(v => v === "en-US" ? "ur-PK" : "en-US")}
+                  className="text-[9px] font-bold w-10 py-0.5 rounded-lg text-center"
+                  style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.M }}>
+                  {voiceLang === "en-US" ? "EN" : "اردو"}
+                </button>
+              </div>
             )}
             <textarea value={draft} onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              rows={2} placeholder={listening ? "Listening… speak now" : "Describe requirements or ask about a client…"}
+              rows={2} placeholder={listening ? `Listening (${voiceLang === "ur-PK" ? "Urdu" : "English"})… speak now` : "Ask ARIA anything about your clients, team, or business…"}
               className="flex-1 px-3.5 py-2.5 rounded-xl text-[12.5px] outline-none resize-none"
               style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.P }}
               onFocus={(e) => { e.target.style.borderColor = C.A; }}
