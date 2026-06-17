@@ -2137,18 +2137,15 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
   const [ttsEnabled, setTtsEnabled]     = useState(true);
   const [listening, setListening]       = useState(false);
   const [speaking, setSpeaking]         = useState(false);
-  const [voiceLang, setVoiceLang]       = useState("en-US");
   const [pendingVoice, setPendingVoice] = useState(null);
   const [codeInput, setCodeInput]       = useState("");
   const [codeError, setCodeError]       = useState(false);
   const scrollRef      = useRef(null);
   const recognitionRef = useRef(null);
   const ttsEnabledRef  = useRef(true);
-  const voiceLangRef   = useRef("en-US");
   const prevMsgCount   = useRef(null);
 
   useEffect(() => { ttsEnabledRef.current = ttsEnabled; }, [ttsEnabled]);
-  useEffect(() => { voiceLangRef.current = voiceLang; }, [voiceLang]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -2169,16 +2166,10 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
     const doSpeak = () => {
       const voices = window.speechSynthesis.getVoices();
       window.speechSynthesis.cancel();
-      const lang = voiceLangRef.current;
       const utt = new SpeechSynthesisUtterance(stripMeetingEmail(aiMsg.content));
-      utt.lang = lang; utt.rate = 1.0;
-      if (lang.startsWith("ur")) {
-        const urdu = voices.find(v => v.lang.startsWith("ur"));
-        if (urdu) utt.voice = urdu;
-      } else {
-        const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
-        if (fem) utt.voice = fem;
-      }
+      utt.lang = "en-US"; utt.rate = 1.0;
+      const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
+      if (fem) utt.voice = fem;
       utt.onstart = () => setSpeaking(true);
       utt.onend   = () => setSpeaking(false);
       utt.onerror = () => setSpeaking(false);
@@ -2191,21 +2182,16 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
   useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
 
   /* Speak a string directly (used for lock-screen prompts & code feedback) */
-  const speakDirect = (text, lang = "en-US") => {
+  const speakDirect = (text) => {
     if (!window.speechSynthesis) return;
     const FEMALE = ['female','woman','samantha','zira','hazel','aria','victoria','moira','karen','allison','heera','google us english','google uk english female'];
     const go = () => {
       window.speechSynthesis.cancel();
       const voices = window.speechSynthesis.getVoices();
       const utt = new SpeechSynthesisUtterance(text);
-      utt.lang = lang; utt.rate = 1.0;
-      if (lang.startsWith("ur")) {
-        const urdu = voices.find(v => v.lang.startsWith("ur"));
-        if (urdu) utt.voice = urdu;
-      } else {
-        const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
-        if (fem) utt.voice = fem;
-      }
+      utt.lang = "en-US"; utt.rate = 1.0;
+      const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
+      if (fem) utt.voice = fem;
       utt.onstart = () => setSpeaking(true);
       utt.onend   = () => setSpeaking(false);
       utt.onerror = () => setSpeaking(false);
@@ -2219,7 +2205,7 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
   useEffect(() => {
     if (!unlocked) {
       const timer = setTimeout(() => {
-        speakDirect("Assalam o Alaikum. Main ARIA hoon, Webaurix ki AI Chief of Staff. Apna secret access code enter karein.");
+        speakDirect("Hello, Sir. I am ARIA, Chief of Staff at Webaurix. Please enter your access code to continue.");
       }, 800);
       return () => clearTimeout(timer);
     }
@@ -2229,10 +2215,10 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
     if (codeInput.trim().toUpperCase() === ARIA_SECRET) {
       setCodeError(false);
       onUnlock();
-      speakDirect("Access grant ho gaya. Welcome back, Umer. Main tayaar hoon.");
+      speakDirect("Access granted. Welcome back, Sir. Ready when you are.");
     } else {
       setCodeError(true);
-      speakDirect("Code galat hai. Dobara try karein.");
+      speakDirect("Incorrect code, Sir. Please try again.");
       setCodeInput("");
     }
   };
@@ -2245,7 +2231,7 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
     if (!SR) return;
     const r = new SR();
     recognitionRef.current = r;
-    r.lang = voiceLangRef.current; r.interimResults = false; r.maxAlternatives = 1;
+    r.lang = "en-US"; r.interimResults = false; r.maxAlternatives = 1;
     r.onresult = (e) => {
       const text = e.results[0][0].transcript.trim();
       if (!text) { setListening(false); return; }
@@ -2329,7 +2315,7 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
             />
             {codeError && (
               <p className="text-[11px] text-center" style={{ color: C.red }}>
-                Galat code — dobara try karein
+                Incorrect code — please try again
               </p>
             )}
             <div className="flex gap-2">
@@ -2468,16 +2454,11 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
                     ? <motion.div animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.65, repeat: Infinity }}><MicOff size={15} /></motion.div>
                     : <Mic size={15} />}
                 </motion.button>
-                <button onClick={() => setVoiceLang(v => v === "en-US" ? "ur-PK" : "en-US")}
-                  className="text-[9px] font-bold w-10 py-0.5 rounded-lg text-center"
-                  style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.M }}>
-                  {voiceLang === "en-US" ? "EN" : "اردو"}
-                </button>
               </div>
             )}
             <textarea value={draft} onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              rows={2} placeholder={listening ? `Listening (${voiceLang === "ur-PK" ? "Urdu" : "English"})… speak now` : "Ask ARIA anything about your clients, team, or business…"}
+              rows={2} placeholder={listening ? "Listening… speak now" : "Ask ARIA anything about your clients, team, or business…"}
               className="flex-1 px-3.5 py-2.5 rounded-xl text-[12.5px] outline-none resize-none"
               style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.P }}
               onFocus={(e) => { e.target.style.borderColor = C.A; }}
