@@ -2130,16 +2130,20 @@ const QUICK_PROMPTS = [
   "Umer ke liye aaj ka priority kya honi chahiye?",
 ];
 
-const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }) => {
+const ARIA_SECRET = "WEBAURIX";
+
+const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, unlocked, onUnlock }) => {
   const [draft, setDraft]               = useState("");
-  const [ttsEnabled, setTtsEnabled]     = useState(false);
+  const [ttsEnabled, setTtsEnabled]     = useState(true);
   const [listening, setListening]       = useState(false);
   const [speaking, setSpeaking]         = useState(false);
   const [voiceLang, setVoiceLang]       = useState("en-US");
   const [pendingVoice, setPendingVoice] = useState(null);
+  const [codeInput, setCodeInput]       = useState("");
+  const [codeError, setCodeError]       = useState(false);
   const scrollRef      = useRef(null);
   const recognitionRef = useRef(null);
-  const ttsEnabledRef  = useRef(false);
+  const ttsEnabledRef  = useRef(true);
   const voiceLangRef   = useRef("en-US");
   const prevMsgCount   = useRef(null);
 
@@ -2165,10 +2169,16 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
     const doSpeak = () => {
       const voices = window.speechSynthesis.getVoices();
       window.speechSynthesis.cancel();
+      const lang = voiceLangRef.current;
       const utt = new SpeechSynthesisUtterance(stripMeetingEmail(aiMsg.content));
-      utt.lang = "en-US"; utt.rate = 1.0;
-      const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
-      if (fem) utt.voice = fem;
+      utt.lang = lang; utt.rate = 1.0;
+      if (lang.startsWith("ur")) {
+        const urdu = voices.find(v => v.lang.startsWith("ur"));
+        if (urdu) utt.voice = urdu;
+      } else {
+        const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
+        if (fem) utt.voice = fem;
+      }
       utt.onstart = () => setSpeaking(true);
       utt.onend   = () => setSpeaking(false);
       utt.onerror = () => setSpeaking(false);
@@ -2180,10 +2190,57 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
 
   useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
 
+  /* Speak a string directly (used for lock-screen prompts & code feedback) */
+  const speakDirect = (text, lang = "en-US") => {
+    if (!window.speechSynthesis) return;
+    const FEMALE = ['female','woman','samantha','zira','hazel','aria','victoria','moira','karen','allison','heera','google us english','google uk english female'];
+    const go = () => {
+      window.speechSynthesis.cancel();
+      const voices = window.speechSynthesis.getVoices();
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = lang; utt.rate = 1.0;
+      if (lang.startsWith("ur")) {
+        const urdu = voices.find(v => v.lang.startsWith("ur"));
+        if (urdu) utt.voice = urdu;
+      } else {
+        const fem = voices.find(v => v.lang.startsWith("en") && FEMALE.some(k => v.name.toLowerCase().includes(k)));
+        if (fem) utt.voice = fem;
+      }
+      utt.onstart = () => setSpeaking(true);
+      utt.onend   = () => setSpeaking(false);
+      utt.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(utt);
+    };
+    if (window.speechSynthesis.getVoices().length > 0) go();
+    else { window.speechSynthesis.onvoiceschanged = () => { go(); window.speechSynthesis.onvoiceschanged = null; }; }
+  };
+
+  /* Speak welcome greeting when lock screen mounts */
+  useEffect(() => {
+    if (!unlocked) {
+      const timer = setTimeout(() => {
+        speakDirect("Assalam o Alaikum. Main ARIA hoon, Webaurix ki AI Chief of Staff. Apna secret access code enter karein.");
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const submitCode = () => {
+    if (codeInput.trim().toUpperCase() === ARIA_SECRET) {
+      setCodeError(false);
+      onUnlock();
+      speakDirect("Access grant ho gaya. Welcome back, Umer. Main tayaar hoon.");
+    } else {
+      setCodeError(true);
+      speakDirect("Code galat hai. Dobara try karein.");
+      setCodeInput("");
+    }
+  };
+
   const hasSR      = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   const isLocalDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-  const startListening = () => {
+  const startListening = (forCode = false) => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return;
     const r = new SR();
@@ -2192,6 +2249,11 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
     r.onresult = (e) => {
       const text = e.results[0][0].transcript.trim();
       if (!text) { setListening(false); return; }
+      if (forCode) {
+        setListening(false);
+        setCodeInput(text);
+        return;
+      }
       const timer = setTimeout(() => { setPendingVoice(null); onSend(text); }, 1500);
       setPendingVoice({ text, timer });
     };
@@ -2203,7 +2265,7 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
 
   const toggleMic = () => {
     if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
-    startListening();
+    startListening(false);
   };
 
   const cancelPending = () => {
@@ -2218,6 +2280,82 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
     setDraft("");
     onSend(text);
   };
+
+  /* ── Lock screen ─────────────────────────────────────────────────────── */
+  if (!unlocked) {
+    return (
+      <div className="flex flex-col items-center justify-center" style={{ minHeight: 520 }}>
+        <div className="w-full max-w-sm rounded-2xl p-8 flex flex-col items-center gap-5"
+          style={{ background: C.card, border: `1px solid ${C.border}` }}>
+          {/* animated ARIA orb */}
+          <div className="relative flex items-center justify-center">
+            <motion.div className="w-16 h-16 rounded-full flex items-center justify-center text-[28px]"
+              style={{ background: C.Adim, border: `2px solid ${C.A}` }}
+              animate={{ boxShadow: speaking ? [`0 0 0 0 ${C.Aglow}`,`0 0 18px 8px ${C.Aglow}`,`0 0 0 0 ${C.Aglow}`] : `0 0 0 0 transparent` }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}>
+              🤖
+            </motion.div>
+            {speaking && (
+              <div className="absolute -bottom-3 flex items-end gap-[3px]">
+                {[0,1,2].map(i => (
+                  <motion.div key={i} className="w-[3px] rounded-full" style={{ background: C.A }}
+                    animate={{ height: ["5px","12px","5px"] }}
+                    transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="text-center mt-2">
+            <h2 className="text-[18px] font-bold mb-1" style={{ color: C.P }}>ARIA — AI Chief of Staff</h2>
+            <p className="text-[12px]" style={{ color: C.M }}>
+              Enter your secret access code to continue
+            </p>
+          </div>
+
+          <div className="w-full flex flex-col gap-3">
+            <input
+              type="password"
+              value={codeInput}
+              onChange={e => { setCodeInput(e.target.value); setCodeError(false); }}
+              onKeyDown={e => e.key === "Enter" && submitCode()}
+              placeholder="Access code…"
+              autoFocus
+              className="w-full rounded-xl px-4 py-3 text-[14px] font-mono outline-none transition-all"
+              style={{
+                background: C.card2, color: C.P,
+                border: `1px solid ${codeError ? C.red : C.border}`,
+              }}
+            />
+            {codeError && (
+              <p className="text-[11px] text-center" style={{ color: C.red }}>
+                Galat code — dobara try karein
+              </p>
+            )}
+            <div className="flex gap-2">
+              <motion.button whileTap={{ scale: 0.96 }} onClick={submitCode}
+                className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold"
+                style={{ background: C.A, color: "#fff" }}>
+                Verify
+              </motion.button>
+              {hasSR && (
+                <motion.button whileTap={{ scale: 0.96 }}
+                  onClick={() => startListening(true)}
+                  className="px-3 py-2.5 rounded-xl flex items-center justify-center"
+                  style={{ background: listening ? C.Adim : C.card2, border: `1px solid ${listening ? C.A : C.border}`, color: listening ? C.A : C.M }}>
+                  {listening ? <Mic size={15} /> : <MicOff size={15} />}
+                </motion.button>
+              )}
+            </div>
+          </div>
+
+          <p className="text-[11px] text-center mt-1" style={{ color: C.M }}>
+            Webaurix internal system — unauthorized access is logged
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -2423,6 +2561,7 @@ export default function AdminPanel() {
   const [aiTasks,       setAiTasks]       = useState([]);
   const [aiSending,     setAiSending]     = useState(false);
   const [aiError,       setAiError]       = useState(null);
+  const [aiUnlocked,    setAiUnlocked]    = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, u => { setUser(u); if (u) fetchAll(); });
@@ -2918,6 +3057,8 @@ export default function AdminPanel() {
         tasks={aiTasks}
         sending={aiSending}
         error={aiError}
+        unlocked={aiUnlocked}
+        onUnlock={() => setAiUnlocked(true)}
         onSend={async (text) => {
           setAiError(null);
           setAiSending(true);
@@ -2930,27 +3071,30 @@ export default function AdminPanel() {
             const history = [...aiMessages, { role: "user", content: text }]
               .slice(-12).map(m => ({ role: m.role, content: m.content }));
 
-            const ctxParts = [];
-            if (inquiries.length) {
-              ctxParts.push(`== Business Inquiries (${inquiries.length} total) ==`);
-              inquiries.slice(0, 25).forEach((r, i) => {
-                const name = `${r.firstName||""} ${r.lastName||""}`.trim() || "Unknown";
-                const date = r.timestamp?.toDate ? r.timestamp.toDate().toLocaleDateString("en-GB") : "?";
-                const svc  = Array.isArray(r.categories) ? r.categories.join(", ") : (r.categories || "N/A");
-                ctxParts.push(`${i+1}. ${name} <${r.email}> | Service: ${svc} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
-                const msg = (r.projectDetails || "").trim();
-                if (msg) ctxParts.push(`   "${msg.slice(0, 150)}"`);
-              });
+            let context = "";
+            if (aiUnlocked) {
+              const ctxParts = [];
+              if (inquiries.length) {
+                ctxParts.push(`== Business Inquiries (${inquiries.length} total) ==`);
+                inquiries.slice(0, 25).forEach((r, i) => {
+                  const name = `${r.firstName||""} ${r.lastName||""}`.trim() || "Unknown";
+                  const date = r.timestamp?.toDate ? r.timestamp.toDate().toLocaleDateString("en-GB") : "?";
+                  const svc  = Array.isArray(r.categories) ? r.categories.join(", ") : (r.categories || "N/A");
+                  ctxParts.push(`${i+1}. ${name} <${r.email}> | Service: ${svc} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
+                  const msg = (r.projectDetails || "").trim();
+                  if (msg) ctxParts.push(`   "${msg.slice(0, 150)}"`);
+                });
+              }
+              if (consultations.length) {
+                ctxParts.push(`== Consultation Requests (${consultations.length} total) ==`);
+                consultations.slice(0, 25).forEach((r, i) => {
+                  const date = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString("en-GB") : "?";
+                  ctxParts.push(`${i+1}. ${r.name||"?"} <${r.email}> | Service: ${r.service||"N/A"} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
+                  if (r.message) ctxParts.push(`   "${r.message.slice(0, 150)}"`);
+                });
+              }
+              context = ctxParts.join("\n");
             }
-            if (consultations.length) {
-              ctxParts.push(`== Consultation Requests (${consultations.length} total) ==`);
-              consultations.slice(0, 25).forEach((r, i) => {
-                const date = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString("en-GB") : "?";
-                ctxParts.push(`${i+1}. ${r.name||"?"} <${r.email}> | Service: ${r.service||"N/A"} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
-                if (r.message) ctxParts.push(`   "${r.message.slice(0, 150)}"`);
-              });
-            }
-            const context = ctxParts.join("\n");
 
             const res = await fetch("/api/ai-manager/chat", {
               method: "POST",
