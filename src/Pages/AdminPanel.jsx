@@ -2231,19 +2231,40 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus, 
     if (!SR) return;
     const r = new SR();
     recognitionRef.current = r;
-    r.lang = "en-US"; r.interimResults = false; r.maxAlternatives = 1;
+    r.lang = "en-US";
+    r.continuous = true;      // keep listening — don't stop at first pause
+    r.interimResults = true;  // fire onresult as user speaks, not just at end
+    r.maxAlternatives = 1;
+
+    let silenceTimer = null;
+    let finalText = "";
+
     r.onresult = (e) => {
-      const text = e.results[0][0].transcript.trim();
-      if (!text) { setListening(false); return; }
-      if (forCode) {
-        setListening(false);
-        setCodeInput(text);
-        return;
+      /* accumulate final segments; grab latest interim for display */
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) finalText += e.results[i][0].transcript + " ";
+        else interim = e.results[i][0].transcript;
       }
-      const timer = setTimeout(() => { setPendingVoice(null); onSend(text); }, 1500);
-      setPendingVoice({ text, timer });
+      const combined = (finalText + interim).trim();
+
+      /* reset the 2.5-second silence countdown on every new word */
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        const text = (finalText.trim() || combined).trim();
+        r.stop();
+        if (!text) { setListening(false); return; }
+        if (forCode) {
+          setCodeInput(text);
+          setListening(false);
+          return;
+        }
+        /* no extra delay — send immediately after silence detected */
+        setPendingVoice({ text, timer: setTimeout(() => { setPendingVoice(null); onSend(text); }, 0) });
+      }, 2500); // wait 2.5 s of silence before sending
     };
-    r.onerror = () => setListening(false);
+
+    r.onerror = () => { if (silenceTimer) clearTimeout(silenceTimer); setListening(false); };
     r.onend   = () => setListening(false);
     r.start();
     setListening(true);
