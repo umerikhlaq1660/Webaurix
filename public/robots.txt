@@ -9,4 +9,4 @@ Disallow: /not-found
 Disallow: /chat
 
 # Sitemap
-Sitemap: https://www.webaurix.com/sitemap.xml
+Sitemap: https://webaurix.com/sitemap.xml
