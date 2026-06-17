@@ -33,6 +33,7 @@ import {
   MoveDown, AlignLeft, List, Heading, ToggleLeft, ToggleRight,
   Save, Upload, CheckCircle2, AlertTriangle, Sun, Moon, Layers,
   Palette, Tag, Calendar, Zap, ClipboardList, Bot, Send,
+  Mic, MicOff, Volume2, VolumeX,
 } from "lucide-react";
 
 /* ── ONLY this email can access ── */
@@ -2068,12 +2069,61 @@ const AIDraftPanel = ({ row, collectionName, contactName, contactEmail, contactP
 };
 
 const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }) => {
-  const [draft, setDraft] = useState("");
-  const scrollRef = useRef(null);
+  const [draft, setDraft]           = useState("");
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [listening, setListening]   = useState(false);
+  const [speaking, setSpeaking]     = useState(false);
+  const scrollRef      = useRef(null);
+  const recognitionRef = useRef(null);
+  const ttsEnabledRef  = useRef(false);
+  const prevMsgCount   = useRef(null);
+
+  useEffect(() => { ttsEnabledRef.current = ttsEnabled; }, [ttsEnabled]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending]);
+
+  /* Speak new AI replies when TTS is enabled */
+  useEffect(() => {
+    if (prevMsgCount.current === null) { prevMsgCount.current = messages.length; return; }
+    if (!ttsEnabledRef.current || !window.speechSynthesis || messages.length <= prevMsgCount.current) {
+      prevMsgCount.current = messages.length;
+      return;
+    }
+    const newMsgs = messages.slice(prevMsgCount.current);
+    prevMsgCount.current = messages.length;
+    const aiMsg = [...newMsgs].reverse().find(m => m.role === "assistant");
+    if (!aiMsg) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(aiMsg.content);
+    utt.lang = "en-US"; utt.rate = 1.05;
+    utt.onstart = () => setSpeaking(true);
+    utt.onend   = () => setSpeaking(false);
+    utt.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(utt);
+  }, [messages]);
+
+  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+
+  const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  const toggleMic = () => {
+    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    const r = new SR();
+    recognitionRef.current = r;
+    r.lang = "en-US"; r.interimResults = false; r.maxAlternatives = 1;
+    r.onresult = (e) => {
+      const t = e.results[0][0].transcript;
+      setDraft(prev => (prev.trim() ? prev.trim() + " " : "") + t);
+    };
+    r.onerror = () => setListening(false);
+    r.onend   = () => setListening(false);
+    r.start();
+    setListening(true);
+  };
 
   const send = () => {
     const text = draft.trim();
@@ -2084,11 +2134,20 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
 
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-[22px] font-bold mb-1" style={{ color: C.P }}>AI Manager</h2>
-        <p className="text-[13px]" style={{ color: C.M }}>
-          Paste client requirements below — the AI breaks them into tasks and files them under the right role.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-[22px] font-bold mb-1" style={{ color: C.P }}>AI Manager</h2>
+          <p className="text-[13px]" style={{ color: C.M }}>
+            Describe client requirements or ask about any inquiry — AI has access to all client data.
+          </p>
+        </div>
+        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+          onClick={() => { if (ttsEnabled) { window.speechSynthesis?.cancel(); setSpeaking(false); } setTtsEnabled(v => !v); }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold flex-shrink-0 mt-1"
+          style={{ background: ttsEnabled ? C.Adim : C.card2, border: `1px solid ${ttsEnabled ? C.A : C.border}`, color: ttsEnabled ? C.A : C.M }}>
+          {ttsEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+          <span>{speaking ? "Speaking…" : ttsEnabled ? "Voice On" : "Voice Off"}</span>
+        </motion.button>
       </div>
 
       <div className="grid gap-5" style={{ gridTemplateColumns: "minmax(0,1fr) minmax(0,1.3fr)" }}>
@@ -2097,7 +2156,7 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
             {messages.length === 0 ? (
               <p className="text-[13px] text-center mt-10" style={{ color: C.M }}>
-                No messages yet — describe a client's needs to get started.
+                No messages yet — describe client needs or ask about recent inquiries.
               </p>
             ) : messages.map((m) => (
               <div key={m.id} className="flex" style={{ justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
@@ -2128,9 +2187,19 @@ const AIManagerTab = ({ messages, tasks, sending, error, onSend, onCycleStatus }
           )}
 
           <div className="p-3 flex items-end gap-2" style={{ borderTop: `1px solid ${C.border}` }}>
+            {hasSR && (
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleMic}
+                title={listening ? "Stop listening" : "Speak your message"}
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: listening ? `${C.red}22` : C.card2, border: `1px solid ${listening ? C.red : C.border}`, color: listening ? C.red : C.M }}>
+                {listening
+                  ? <motion.div animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 0.7, repeat: Infinity }}><MicOff size={15} /></motion.div>
+                  : <Mic size={15} />}
+              </motion.button>
+            )}
             <textarea value={draft} onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              rows={2} placeholder="Describe the client's requirements…"
+              rows={2} placeholder={listening ? "Listening… speak now" : "Describe requirements or ask about a client…"}
               className="flex-1 px-3.5 py-2.5 rounded-xl text-[12.5px] outline-none resize-none"
               style={{ background: C.card2, border: `1px solid ${C.border}`, color: C.P }}
               onFocus={(e) => { e.target.style.borderColor = C.A; }}
@@ -2721,10 +2790,32 @@ export default function AdminPanel() {
             const history = [...aiMessages, { role: "user", content: text }]
               .slice(-12).map(m => ({ role: m.role, content: m.content }));
 
+            const ctxParts = [];
+            if (inquiries.length) {
+              ctxParts.push(`== Business Inquiries (${inquiries.length} total) ==`);
+              inquiries.slice(0, 25).forEach((r, i) => {
+                const name = `${r.firstName||""} ${r.lastName||""}`.trim() || "Unknown";
+                const date = r.timestamp?.toDate ? r.timestamp.toDate().toLocaleDateString("en-GB") : "?";
+                const svc  = Array.isArray(r.categories) ? r.categories.join(", ") : (r.categories || "N/A");
+                ctxParts.push(`${i+1}. ${name} <${r.email}> | Service: ${svc} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
+                const msg = (r.projectDetails || "").trim();
+                if (msg) ctxParts.push(`   "${msg.slice(0, 150)}"`);
+              });
+            }
+            if (consultations.length) {
+              ctxParts.push(`== Consultation Requests (${consultations.length} total) ==`);
+              consultations.slice(0, 25).forEach((r, i) => {
+                const date = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString("en-GB") : "?";
+                ctxParts.push(`${i+1}. ${r.name||"?"} <${r.email}> | Service: ${r.service||"N/A"} | Budget: ${r.budget||"N/A"} | Email sent: ${r.aiDraftStatus||"none"} | Date: ${date}`);
+                if (r.message) ctxParts.push(`   "${r.message.slice(0, 150)}"`);
+              });
+            }
+            const context = ctxParts.join("\n");
+
             const res = await fetch("/api/ai-manager/chat", {
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
-              body: JSON.stringify({ message: text, history }),
+              body: JSON.stringify({ message: text, history, context }),
             });
             if (!res.ok) throw new Error("AI Manager request failed");
             const { reply, tasks: newTasks } = await res.json();

@@ -27,17 +27,18 @@ async function verifyAdmin(request) {
   }
 }
 
-const SYSTEM_PROMPT = `You are the AI Project Manager for Webaurix, a digital agency. The founder will describe a client's needs or paste raw requirements. Your job:
+const SYSTEM_PROMPT = `You are the AI Project Manager for Webaurix, a digital agency. The founder will describe client needs, paste raw requirements, or ask questions about recent client inquiries and activity. Your job:
 
 1. Reply conversationally and briefly, acknowledging the request.
-2. Break the request into concrete, actionable tasks. Each task must be assigned to exactly one role: "designer", "developer", "copywriter", "sales", or "account_manager".
-3. If — and only if — you identified new actionable tasks in this message, append a fenced code block at the very end of your reply, formatted exactly like this:
+2. If the founder describes client requirements, break them into concrete, actionable tasks. Each task must be assigned to exactly one role: "designer", "developer", "copywriter", "sales", or "account_manager".
+3. If the founder asks about specific clients or recent inquiries, use the live client data provided in this context to give accurate, specific answers. Never invent client details not present in the data.
+4. If — and only if — you identified new actionable tasks in this message, append a fenced code block at the very end of your reply, formatted exactly like this:
 
 \`\`\`json
 [{"title": "...", "description": "...", "role": "developer", "priority": "medium"}]
 \`\`\`
 
-priority must be one of "low", "medium", "high". If there are no new tasks (e.g. the founder is just asking a question), omit the json block entirely. Keep the conversational part separate — do not mention the json block in your prose reply.`;
+priority must be one of "low", "medium", "high". If there are no new tasks (e.g. the founder is asking a question or asking about clients), omit the json block entirely. Keep the conversational part separate — do not mention the json block in your prose reply.`;
 
 function extractTasks(replyText) {
   const match = replyText.match(/```json\s*([\s\S]*?)```/);
@@ -74,7 +75,7 @@ async function handleChat(request, env) {
     });
   }
 
-  const { message, history } = body || {};
+  const { message, history, context } = body || {};
   if (!message || typeof message !== "string") {
     return new Response(JSON.stringify({ error: "Missing message" }), {
       status: 400,
@@ -82,8 +83,12 @@ async function handleChat(request, env) {
     });
   }
 
+  const systemContent = typeof context === "string" && context.length > 0
+    ? `${SYSTEM_PROMPT}\n\n=== LIVE CLIENT DATA (answer client questions using this) ===\n${context.slice(0, 8000)}`
+    : SYSTEM_PROMPT;
+
   const messages = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: systemContent },
     ...(Array.isArray(history)
       ? history.slice(-12).map((m) => ({ role: m.role, content: m.content }))
       : []),
